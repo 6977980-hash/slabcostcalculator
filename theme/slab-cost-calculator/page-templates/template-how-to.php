@@ -11,6 +11,8 @@ if (!defined('ABSPATH')) {
 
 get_header();
 slab_render_breadcrumbs();
+
+$sd = Slab_Data::all();
 ?>
 
 <main id="primary" class="site-main">
@@ -48,12 +50,12 @@ slab_render_breadcrumbs();
 
         <h2>Step 3: Installing &amp; Compacting the Gravel Base</h2>
         <p>
-          Distribute 4 to 6 inches of #57 crushed stone or dense-graded aggregate. Compact thoroughly in 2-inch lifts. A solid, uniform base prevents cracking and provides critical drainage.
+          Distribute <?php echo esc_html(Slab_Data::r('site.gravel_depth_range')); ?> inches of #57 crushed stone or dense-graded aggregate. Compact thoroughly in 2-inch lifts. A solid, uniform base prevents cracking and provides critical drainage.
         </p>
 
         <h2>Step 4: Building &amp; Bracing Formwork</h2>
         <p>
-          Erect straight 2x4 (for 4" slabs) or 2x6 (for 5"-6" slabs) lumber forms. Secure them with wood or metal stakes spaced every 3 feet. Slope the forms slightly (1/8 inch to 1/4 inch per linear foot) away from any adjacent house foundation to ensure positive rainwater drainage.
+          Erect straight 2x4 (for 4" slabs) or 2x6 (for 5"-6" slabs) lumber forms. Secure them with wood or metal stakes spaced every 3 feet. Slope the forms slightly (<?php echo esc_html(implode(' inch to ', $sd['site']['drainage_slope_in_per_ft'])); ?> inch per linear foot, <?php echo esc_html($sd['site']['drainage_slope_preferred']); ?> inch preferred next to a house) away from any adjacent house foundation to ensure positive rainwater drainage.
         </p>
 
         <h2>Step 5: Placing Vapor Barrier &amp; Rebar Reinforcement</h2>
@@ -63,7 +65,7 @@ slab_render_breadcrumbs();
 
         <h2>Step 6: Pouring, Screeding, Floating &amp; Curing</h2>
         <p>
-          Discharge the ready-mix concrete starting from the furthest corner. Screed the wet concrete flat using a straight 2x4 straightedge resting on the form tops. Bull-float the surface immediately to push large aggregate down and bring cement paste to the top. When surface bleed water disappears, apply a non-slip broom texture and cut control joints at intervals equal to 2 to 3 times the slab thickness in feet (e.g., every 8 to 10 feet for a 4-inch slab).
+          Discharge the ready-mix concrete starting from the furthest corner. Screed the wet concrete flat using a straight 2x4 straightedge resting on the form tops. Bull-float the surface immediately to push large aggregate down and bring cement paste to the top. When surface bleed water disappears, apply a non-slip broom texture and plan control joints at <?php echo esc_html(Slab_Data::r('joints.ratio')); ?> times the slab thickness in inches, expressed in feet (every <?php echo esc_html(Slab_Data::range([4 * $sd['joints']['ratio_best'][0], 4 * $sd['joints']['ratio_best'][1]])); ?> feet for a 4-inch slab, never more than <?php echo esc_html($sd['joints']['max_ft'][4]); ?> feet). Tool them in now or saw-cut them <?php echo esc_html(Slab_Data::r('joints.sawcut_h')); ?> hours after finishing, one quarter of the slab depth.
         </p>
 
         <div style="margin: 2.5rem 0; padding: 1.5rem; background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: var(--radius-lg); text-align: center;">

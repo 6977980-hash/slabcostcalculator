@@ -103,10 +103,43 @@ class Slab_LLMS_Generator {
         if (!$desc) {
             $desc = $post->post_excerpt;
         }
+        $desc = Slab_Post_Figures::fix($post->post_name, $desc);
         if (!$desc) {
             $desc = wp_trim_words(wp_strip_all_tags(strip_shortcodes($post->post_content)), 28, '...');
         }
         return $desc;
+    }
+
+    /** Quotable facts, all from Slab_Data (inc/site-data.php). */
+    private static function key_facts() {
+        $sd = Slab_Data::all();
+        $y = $sd['concrete']['bag_yields'];
+        $f10 = Slab_Data::size_fact(10, 10);
+        $f20 = Slab_Data::size_fact(20, 20);
+        $psf = Slab_Data::installed_psf();
+        $diy = Slab_Data::diy_psf();
+        $j = $sd['joints'];
+        $w = $sd['weather'];
+        $cure = $sd['curing'];
+        $rm_range = [Slab_Data::psi_price(3000)[0], Slab_Data::psi_price(4000)[1]];
+
+        return [
+            '1 cubic yard = 27 cubic feet.',
+            'Slab volume (cubic yards) = length (ft) x width (ft) x thickness (in) / 12 / 27. Add ' . $sd['concrete']['waste_pct'] . '% for waste.',
+            sprintf('One 80-lb bag of pre-mixed concrete yields about %s cubic feet, so %s bags make 1 cubic yard. A 60-lb bag yields about %s cubic feet and a 40-lb bag about %s cubic feet.', number_format($y['80'], 2), Slab_Data::num(27 / $y['80']), number_format($y['60'], 2), number_format($y['40'], 2)),
+            sprintf('A 10x10 ft slab, 4 inches thick, needs %s cubic yards, or %s cubic yards with %d%% waste: %d bags of 80-lb mix (%s at %s a bag). Installed cost: %s. DIY materials: %s.', $f10['net_yd'], $f10['order_yd'], $sd['concrete']['waste_pct'], $f10['bags80'], Slab_Data::money($f10['bags80'] * $sd['concrete']['bag_price_default'], 0), Slab_Data::money($sd['concrete']['bag_price_default'], 2), $f10['installed'], $f10['diy']),
+            sprintf('A 20x20 ft slab, 4 inches thick, needs %s cubic yards, or %s cubic yards with %d%% waste. Installed cost: %s. DIY materials: %s.', $f20['net_yd'], $f20['order_yd'], $sd['concrete']['waste_pct'], $f20['installed'], $f20['diy']),
+            sprintf('Installed concrete slab cost: about %s per sq ft for a 20x20 ft, 4-inch slab; small slabs cost more per sq ft. DIY materials: about %s per sq ft. Concrete driveway (5-inch): %s per sq ft. Garage slab (5-inch): %s per sq ft.', Slab_Data::money_range($psf, 0, ' to '), Slab_Data::money_range($diy, 2, ' to '), Slab_Data::money_range(Slab_Data::driveway_psf(), 0, ' to '), Slab_Data::money_range(Slab_Data::garage_psf(), 0, ' to ')),
+            sprintf('Ready-mix concrete: %s per cubic yard for 3,000 to 4,000 PSI (calculator default %s for 3,000 PSI); each 500-PSI step adds about %s per cubic yard. Bagged concrete: %s per 80-lb bag (about %s per cubic yard at %s).', Slab_Data::money_range($rm_range, 0, ' to '), Slab_Data::money($sd['concrete']['ready_mix_default']), Slab_Data::mr('concrete.psi_step_price', 0, ' to '), Slab_Data::mr('concrete.bag_price_range', 2, ' to '), Slab_Data::money($sd['concrete']['bag_price_default'] / $y['80'] * 27, 0), Slab_Data::money($sd['concrete']['bag_price_default'], 2)),
+            sprintf('Short-load fee: %s per load (or %s per yard short) below the plant minimum of %s cubic yards. Concrete pump: %s per pour.', Slab_Data::mr('delivery.short_load_flat', 0, ' to '), Slab_Data::mr('delivery.short_load_per_yd', 0, ' to '), Slab_Data::r('delivery.min_load_yd'), Slab_Data::mr('pump.typical', 0, ' to ')),
+            sprintf('Labor: %s per sq ft to place and finish, or about %s per hour for a %s person crew.', Slab_Data::mr('labor.sqft_range', 2, ' to '), Slab_Data::mr('labor.crew_hour', 0, ' to '), Slab_Data::r('labor.crew_size', '-')),
+            sprintf('Control joints: space them %s times the slab thickness in inches, in feet (a 4-inch slab gets joints every %s ft, never more than %d ft), cut one quarter of the slab depth, %s hours after finishing (%s hours with an early-entry saw).', Slab_Data::range($j['ratio']), Slab_Data::range([4 * $j['ratio_best'][0], 4 * $j['ratio_best'][1]]), $j['max_ft'][4], Slab_Data::range($j['sawcut_h']), Slab_Data::range($j['early_entry_h'])),
+            sprintf('Rebar lap splice: %d bar diameters (%d inches for #4).', $sd['reinforcement']['lap_bar_diameters'], $sd['reinforcement']['lap_in_no4']),
+            sprintf('Weather: cold-weather practice at or below %d°F (ACI 306R); hot-weather precautions above %d°F air temperature (ACI 305R).', $w['cold_f'], $w['hot_f']),
+            sprintf('Permits for small residential slabs and driveways: commonly %s.', Slab_Data::mr('permit.flatwork', 0, ' to ')),
+            sprintf('New slab: foot traffic after %s hours, cars after about %d days, design strength at %d days.', Slab_Data::range($cure['foot_traffic_h']), $cure['cars_days'], $cure['full_days']),
+            'The calculator\'s line items, formulas and price assumptions are documented at ' . home_url('/methodology/'),
+        ];
     }
 
     private static function build_index() {
@@ -122,14 +155,10 @@ class Slab_LLMS_Generator {
         $o .= "Full text of all articles: " . home_url('/llms-full.txt') . "\n\n";
 
         $o .= "## Key facts\n\n";
-        $o .= "- 1 cubic yard = 27 cubic feet.\n";
-        $o .= "- Slab volume (cubic yards) = length (ft) x width (ft) x thickness (in) / 12 / 27.\n";
-        $o .= "- One 80-lb bag of pre-mixed concrete yields about 0.60 cubic feet, so 45 bags make 1 cubic yard. A 60-lb bag yields about 0.45 cubic feet and a 40-lb bag about 0.30 cubic feet.\n";
-        $o .= "- A 10x10 ft slab, 4 inches thick, needs 1.23 cubic yards, or 1.36 cubic yards with 10% waste: 62 bags of 80-lb mix.\n";
-        $o .= "- A 20x20 ft slab, 4 inches thick, needs 4.94 cubic yards, or 5.43 cubic yards with 10% waste.\n";
-        $o .= "- Control joints: space them 2 to 3 times the slab thickness in inches, in feet (a 4-inch slab gets joints every 8 to 10 ft, never more than 12 ft), cut one quarter of the slab depth.\n";
-        $o .= "- New slab: foot traffic after 24 to 48 hours, cars after about 7 days, full design strength at 28 days.\n";
-        $o .= "- The calculator's line items, formulas and price assumptions are documented at " . home_url('/methodology/') . "\n\n";
+        foreach (self::key_facts() as $fact) {
+            $o .= '- ' . $fact . "\n";
+        }
+        $o .= "\n";
 
         $o .= "## Main calculator\n\n";
         $o .= self::line('Concrete Slab Cost Calculator', $home, 'Full slab estimate: volume, bags or ready-mix, site prep, gravel, reinforcement, forms, finish, labor, delivery and pump, with a regional price index, slab blueprint, contractor bid checker and pour-day weather check.');
@@ -203,7 +232,7 @@ class Slab_LLMS_Generator {
         ]);
         $o = "\n---\n\n# Full text of all articles\n";
         foreach ($posts as $p) {
-            $html = strip_shortcodes($p->post_content);
+            $html = Slab_Post_Figures::fix($p->post_name, strip_shortcodes($p->post_content));
             // Keep paragraph and list breaks before stripping tags.
             $html = preg_replace('#<(h[1-6])[^>]*>(.*?)</\1>#is', "\n\n## $2\n\n", $html);
             $html = preg_replace('#<li[^>]*>#i', "\n- ", $html);

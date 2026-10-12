@@ -111,6 +111,9 @@ function slab_enqueue_assets() {
             'in_footer' => true,
             'strategy' => 'defer',
         ]);
+        // Every default rate and threshold the calculators use comes from
+        // inc/site-data.php, the same source as the page text and FAQs.
+        wp_add_inline_script('slab-pdf-report', 'window.SLAB_DATA = ' . wp_json_encode(Slab_Data::js_config()) . ';', 'before');
         wp_add_inline_script('slab-pdf-report', 'window.SlabPDFConfig = ' . wp_json_encode([
             'libs' => [
                 get_template_directory_uri() . '/assets/js/vendor/jspdf.umd.min.js?ver=' . $theme_version,
@@ -136,6 +139,8 @@ function slab_enqueue_assets() {
 add_action('wp_enqueue_scripts', 'slab_enqueue_assets');
 
 // 3. Load Modular Includes
+require_once get_template_directory() . '/inc/site-data.php';
+require_once get_template_directory() . '/inc/post-figures.php';
 require_once get_template_directory() . '/inc/seo-engine.php';
 require_once get_template_directory() . '/inc/calculator-faq.php';
 require_once get_template_directory() . '/inc/schema-generator.php';

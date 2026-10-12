@@ -11,6 +11,8 @@ if (!defined('ABSPATH')) {
 
 get_header();
 slab_render_breadcrumbs();
+
+$sd = Slab_Data::all();
 ?>
 
 <main id="primary" class="site-main">
@@ -93,7 +95,7 @@ slab_render_breadcrumbs();
 
       <h2>3. Concrete Mix Strength &amp; PSI Grades</h2>
       <p>
-        Concrete strength is specified by its 28-day compressive strength rating, measured in <strong>PSI (pounds per square inch)</strong> in the US — the imperial equivalent of the metric M-grade system (e.g., M15, M20, M25) used in regions on the metric standard. Per <strong>ACI 318</strong>, the required strength class depends on the application and its exposure to weather, freeze-thaw cycling, and structural load:
+        Concrete strength is specified by its 28-day compressive strength rating, measured in <strong>PSI (pounds per square inch)</strong> in the US — the imperial equivalent of the metric M-grade system (e.g., M15, M20, M25) used in regions on the metric standard. The required strength class depends on the application and its exposure to weather, freeze-thaw cycling, and structural load:
       </p>
       <div class="table-responsive">
         <table class="data-table">
@@ -106,41 +108,19 @@ slab_render_breadcrumbs();
             </tr>
           </thead>
           <tbody>
+            <?php foreach ([2500, 3000, 3500, 4000, 5000] as $psi) : $g = $sd['concrete']['psi_grades'][$psi]; ?>
             <tr>
-              <td><strong>2,500 PSI</strong></td>
-              <td>~M15-M17</td>
-              <td>Non-structural fill, sidewalks in mild climates</td>
-              <td>$125–$145 / yd³</td>
+              <td><strong><?php echo esc_html(number_format($psi)); ?> PSI</strong></td>
+              <td><?php echo esc_html($g['metric']); ?></td>
+              <td><?php echo esc_html($g['use']); ?></td>
+              <td><?php echo esc_html(Slab_Data::money_range(Slab_Data::psi_price($psi), 0, '–')); ?> / yd³</td>
             </tr>
-            <tr>
-              <td><strong>3,000 PSI</strong></td>
-              <td>~M20</td>
-              <td>Standard residential patios, walkways, shed pads</td>
-              <td>$135–$155 / yd³</td>
-            </tr>
-            <tr>
-              <td><strong>3,500 PSI</strong></td>
-              <td>~M22-M25</td>
-              <td>Driveways, standard garage floors</td>
-              <td>$145–$165 / yd³</td>
-            </tr>
-            <tr>
-              <td><strong>4,000 PSI</strong></td>
-              <td>~M25-M28</td>
-              <td>Freeze-thaw climates, air-entrained exterior flatwork, footings</td>
-              <td>$155–$175 / yd³</td>
-            </tr>
-            <tr>
-              <td><strong>5,000 PSI</strong></td>
-              <td>~M30-M35</td>
-              <td>Heavy-duty garage/shop floors, structural foundations</td>
-              <td>$180–$215 / yd³</td>
-            </tr>
+            <?php endforeach; ?>
           </tbody>
         </table>
       </div>
       <p>
-        For freeze-thaw climates, ACI 318 also calls for <strong>air-entrainment</strong> (typically 5%–7% by volume) regardless of strength grade, since entrained air voids relieve the internal pressure of freezing water and prevent surface scaling. This calculator's default pricing assumes a standard 3,000-3,500 PSI residential mix; use the ready-mix price override to reflect your project's actual specified grade.
+        Prices follow one rule: <?php echo esc_html(number_format($sd['concrete']['psi_base'])); ?> PSI at <?php echo esc_html(Slab_Data::mr('concrete.psi_base_price', 0, '–')); ?> per yd³, with each <?php echo esc_html($sd['concrete']['psi_step']); ?>-PSI step adding <?php echo esc_html(Slab_Data::mr('concrete.psi_step_price', 0, '–')); ?> per yd³. The <a href="https://codes.iccsafe.org/" rel="noopener" target="_blank">International Residential Code (Table R402.2)</a> sets the minimums for homes: <?php echo esc_html(number_format($sd['code']['psi_protected'])); ?> PSI where concrete is protected from weather, <?php echo esc_html(number_format($sd['code']['psi_exposed'])); ?> PSI for exposed work, and <?php echo esc_html(number_format($sd['code']['psi_severe'])); ?> PSI, air-entrained (typically <?php echo esc_html(Slab_Data::r('concrete.air_entrainment_pct', '%–')); ?>% air), for garage floors, porches and steps in severe-weathering regions. Where de-icing salt is used, <?php echo esc_html(number_format($sd['code']['psi_deicing_recommended'])); ?> PSI is a common step up. Entrained air voids relieve the internal pressure of freezing water and prevent surface scaling. This calculator's default price (<?php echo esc_html(Slab_Data::money($sd['concrete']['ready_mix_default'])); ?>/yd³) is for a standard <?php echo esc_html(number_format($sd['concrete']['psi_base'])); ?> PSI residential mix; use the ready-mix price field to reflect your project's actual specified grade.
       </p>
 
       <h2>4. Waste Factor Analysis (+10% Standard)</h2>
@@ -155,20 +135,33 @@ slab_render_breadcrumbs();
 
       <h2>5. Crushed Stone Sub-Base &amp; Compaction Factors</h2>
       <p>
-        When loose crushed stone (#57 or aggregate base course) is compacted with a vibratory plate compactor, its volume reduces by approximately <strong>12% to 15%</strong>. Our gravel calculators apply a <strong>1.15 compaction multiplier</strong> ($V_{\text{gravel}} = \text{Area} \times \text{Depth} \times 1.15$) to ensure sufficient material is delivered.
+        When loose crushed stone (#57 or aggregate base course) is compacted with a vibratory plate compactor, its volume reduces by approximately <strong>12% to 15%</strong>. Our gravel calculators apply a <strong><?php echo esc_html(number_format($sd['site']['gravel_compaction'], 2)); ?> compaction multiplier</strong> (Gravel volume = Area × Depth × <?php echo esc_html(number_format($sd['site']['gravel_compaction'], 2)); ?>) to ensure sufficient material is delivered.
       </p>
 
       <h2>6. Steel Reinforcement Lap-Splice Multipliers</h2>
       <p>
-        In accordance with <strong>ACI 318</strong> structural lap-splice guidelines, continuous rebar sticks must overlap each other by at least 30 bar diameters (approx. 15 inches for #4 rebar). Our rebar estimator incorporates a <strong>10% linear footage lap splice and waste allowance</strong>.
+        For slab-on-grade reinforcement we use the common residential rule of lapping bars <strong><?php echo esc_html($sd['reinforcement']['lap_bar_diameters']); ?> bar diameters</strong>, which is <?php echo esc_html($sd['reinforcement']['lap_in_no4']); ?> inches for #4 rebar. Structural members designed to ACI 318 can need longer tension splices, so follow an engineer's drawings where they exist. Our rebar estimator and slab blueprint add a <strong><?php echo esc_html(round($sd['reinforcement']['splice_allowance'] * 100)); ?>% linear footage allowance</strong> for laps and offcuts, keep bars <?php echo esc_html($sd['reinforcement']['edge_cover_in']); ?> inches in from the slab edge, and place support chairs about <?php echo esc_html(Slab_Data::r('reinforcement.chair_grid_ft')); ?> feet apart.
       </p>
 
-      <h2>7. Pricing Data Sourcing &amp; Regional Indexing</h2>
+      <h2>7. Control Joints, Saw-Cut Timing &amp; Weather Limits</h2>
+      <p>
+        Control joints are spaced <?php echo esc_html(Slab_Data::r('joints.ratio')); ?> times the slab thickness in inches, expressed in feet (<?php echo esc_html(Slab_Data::r('joints.ratio_best')); ?> times gives the best crack control), cut to one quarter of the slab depth, with panels no more than <?php echo esc_html(Slab_Data::num($sd['joints']['max_aspect'])); ?> times longer than wide. The slab blueprint uses <?php echo esc_html(Slab_Data::num($sd['joints']['ratio_blueprint'])); ?> times the thickness, capped at <?php echo esc_html($sd['joints']['cap_ft']); ?> ft. Saw cuts go in <?php echo esc_html(Slab_Data::r('joints.sawcut_h')); ?> hours after finishing with a conventional saw, or <?php echo esc_html(Slab_Data::r('joints.early_entry_h')); ?> hours with an early-entry saw (<a href="https://www.concrete.org/" rel="noopener" target="_blank">ACI 302.1R</a>).
+      </p>
+      <p>
+        The pour-day weather check flags cold-weather practice at or below <?php echo esc_html($sd['weather']['cold_f']); ?>°F (<a href="https://www.concrete.org/" rel="noopener" target="_blank">ACI 306R</a>), a cool-weather notice below <?php echo esc_html($sd['weather']['cool_f']); ?>°F, and hot-weather precautions above <?php echo esc_html($sd['weather']['hot_f']); ?>°F air temperature. <a href="https://www.concrete.org/" rel="noopener" target="_blank">ACI 305R</a> sets no single hot-weather temperature; many specifications cap fresh concrete at <?php echo esc_html(Slab_Data::r('weather.concrete_temp_limit_f')); ?>°F, and an evaporation rate above <?php echo esc_html($sd['weather']['evap_limit_lb']); ?> lb/ft²/h is the level where plastic shrinkage cracking becomes likely.
+      </p>
+
+      <h2>8. How Size and Per-Square-Foot Costs Are Calculated</h2>
+      <p>
+        Every cost table, FAQ and guide on this site is computed from the same line items and default rates as the calculator, so they cannot disagree with it. <?php echo esc_html(Slab_Data::cost_basis_note()); ?> The high end equals the top of the Bid Checker's "fair quote" band.
+      </p>
+
+      <h2>9. Pricing Data Sourcing &amp; Regional Indexing</h2>
       <p>
         Our default price points represent quarterly aggregated median values from nationwide ready-mix producers, building supply houses (Home Depot, Lowe's, White Cap), and regional concrete flatwork contractor bid sheets. We intentionally allow full user customization of every rate because local supply market dynamics vary.
       </p>
 
-      <h2>8. Platform Limitations &amp; Safety Disclaimers</h2>
+      <h2>10. Platform Limitations &amp; Safety Disclaimers</h2>
       <div class="callout callout-warning">
         <div class="callout-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h20.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -179,7 +172,17 @@ slab_render_breadcrumbs();
         </p>
       </div>
 
-      <h2>9. Related Reading in the Knowledgebase</h2>
+      <h2>11. Sources &amp; Standards</h2>
+      <ul>
+        <li><a href="https://www.concrete.org/" rel="noopener" target="_blank">ACI 302.1R, Guide for Concrete Floor and Slab Construction</a> (joint spacing, saw-cut timing, slab finishing).</li>
+        <li><a href="https://www.concrete.org/" rel="noopener" target="_blank">ACI 305R, Guide to Hot Weather Concreting</a> (evaporation rate, hot-weather precautions).</li>
+        <li><a href="https://www.concrete.org/" rel="noopener" target="_blank">ACI 306R, Guide to Cold Weather Concreting</a> (40°F threshold, protection until about 500 psi).</li>
+        <li><a href="https://www.cement.org/" rel="noopener" target="_blank">Portland Cement Association (PCA, now the American Cement Association)</a> (curing, air entrainment, mix basics).</li>
+        <li><a href="https://codes.iccsafe.org/" rel="noopener" target="_blank">International Residential Code, Chapter 4 (Table R402.2, R403.1.4.1)</a> (minimum concrete strength, frost protection exemptions).</li>
+        <li><a href="https://www.astm.org/" rel="noopener" target="_blank">ASTM C94, Standard Specification for Ready-Mixed Concrete</a> (how ready-mix is batched and delivered).</li>
+      </ul>
+
+      <h2>12. Related Reading in the Knowledgebase</h2>
       <p>
         These calculators and formulas connect directly to several in-depth guides in our <a href="<?php echo esc_url(home_url('/knowledgebase/')); ?>">Knowledgebase</a>:
       </p>

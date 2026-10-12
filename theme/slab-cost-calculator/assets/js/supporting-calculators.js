@@ -6,6 +6,10 @@
 (function () {
   'use strict';
 
+  // Site-wide figures from inc/site-data.php (window.SLAB_DATA).
+  const SD = window.SLAB_DATA || {};
+  const sd = (key, fallback) => (SD[key] !== undefined && SD[key] !== null ? SD[key] : fallback);
+
   // Number field reader that keeps a typed 0 (parseFloat(x) || def would
   // turn 0% waste into 10% and 0" into 4"). Blank gives def; negatives clamp to 0.
   function numOr(el, def) {
@@ -108,10 +112,10 @@
       const area = numOr(sqft, 0);
       const t = numOr(thk, 4);
       const size = bagSize ? bagSize.value : '80';
-      const wPct = numOr(waste, 10);
-      const price = numOr(bagPrice, 6.50);
+      const wPct = numOr(waste, sd('wastePct', 10));
+      const price = numOr(bagPrice, sd('bagPrice', 6.50));
 
-      const yields = { '80': 0.60, '60': 0.45, '50': 0.375, '40': 0.30 };
+      const yields = sd('bagYields', { '80': 0.60, '60': 0.45, '50': 0.375, '40': 0.30 });
       const bagYield = yields[size] || 0.60;
 
       const cuft = area * (t / 12);
@@ -151,16 +155,35 @@
       const sp = (parseFloat(spacing.value) || 18) / 12; // in feet
       const bLen = parseFloat(barLen ? barLen.value : 20) || 20;
 
-      // Number of bars running lengthwise & widthwise
-      const numAlongWidth = Math.floor(w / sp) + 1;
-      const numAlongLength = Math.floor(l / sp) + 1;
-
-      const totalLinFt = (numAlongWidth * l) + (numAlongLength * w);
-      // Adding 10% overlap splice factor
-      const totalWithSplice = totalLinFt * 1.10;
+      // Same grid as the calculator's slab blueprint: bars start one edge
+      // cover in from each side, chairs at grid intersections about 3-4 ft
+      // apart, plus an allowance for lap splices and offcuts.
+      const cover = sd('edgeCoverIn', 3) / 12;
+      const spIn = sp * 12;
+      const fill = (span) => {
+        const usable = span - 2 * cover;
+        if (usable <= 0) return [];
+        const n = Math.floor(usable / sp + 1e-9) + 1;
+        const step = n > 1 ? usable / (n - 1) : 0;
+        const out = [];
+        for (let i = 0; i < n; i++) out.push(cover + i * step);
+        return out;
+      };
+      const xBars = fill(w);
+      const yBars = fill(l);
+      const totalLinFt = xBars.length * Math.max(0, l - 2 * cover) + yBars.length * Math.max(0, w - 2 * cover);
+      const totalWithSplice = totalLinFt * (1 + sd('spliceAllowance', 0.10));
       const pieces = ceilCount(totalWithSplice / bLen);
-      // Rebar chairs placed every 3-4 feet in a grid
-      const chairs = ceilCount((l / 3) * (w / 3));
+      const k = Math.max(1, Math.round(42 / spIn));
+      const every = (k * spIn) / 12;
+      const pick = (arr) => {
+        const out = arr.filter((_, i) => i % k === 0);
+        if (out.length && out[out.length - 1] !== arr[arr.length - 1] && arr[arr.length - 1] - out[out.length - 1] > every / 2) {
+          out.push(arr[arr.length - 1]);
+        }
+        return out;
+      };
+      const chairs = pick(yBars).length * pick(xBars).length;
 
       if (outLinFt) outLinFt.textContent = `${Math.round(totalWithSplice)} linear ft`;
       if (outPieces) outPieces.textContent = `${pieces} bars (${bLen}ft sticks)`;
@@ -209,7 +232,7 @@
       }
 
       const cuyds = (cuft / 27) * wasteFactor;
-      const bags80 = ceilCount((cuft * wasteFactor) / 0.60);
+      const bags80 = ceilCount((cuft * wasteFactor) / sd('bagYields', { '80': 0.60 })['80']);
 
       if (outYards) outYards.textContent = `${cuyds.toFixed(2)} cu. yds (w/ ${wastePct}% waste)`;
       if (outBags) outBags.textContent = `${bags80} bags (80 lb)`;
@@ -240,7 +263,7 @@
 
     // Consistent with the site-wide density constant used by the primary
     // calculator (145 lb/cu ft ≈ 2,322 kg/m³ for normal-weight concrete).
-    const WET_DENSITY_LBS_PER_CUFT = 145;
+    const WET_DENSITY_LBS_PER_CUFT = sd('densityLbFt3', 145);
     // Cured/dry weight runs a few percent lighter than freshly-poured wet
     // weight due to bleed-water loss during the ~28-day cure — this is an
     // approximation (typically cited in the 2%-4% range), not a precise
@@ -292,9 +315,9 @@
 
       const cuft = area * d;
       // 15% compaction factor
-      const cuyds = (cuft / 27) * 1.15;
+      const cuyds = (cuft / 27) * sd('gravelCompaction', 1.15);
       // 1 cubic yard of crushed gravel ~ 1.4 tons (2,800 lbs)
-      const tons = cuyds * 1.4;
+      const tons = cuyds * sd('gravelTonsPerYard', 1.4);
 
       if (outYards) outYards.textContent = `${cuyds.toFixed(2)} cubic yards`;
       if (outTons) outTons.textContent = `${tons.toFixed(2)} tons crushed gravel`;
@@ -331,7 +354,7 @@
       if (hasRebar) ratePerSqFt += 1.00; // harder to break with jackhammer
 
       const totalCost = area * ratePerSqFt;
-      const weightLbs = area * (t / 12) * 145;
+      const weightLbs = area * (t / 12) * sd('densityLbFt3', 145);
       const tons = weightLbs / 2000;
 
       if (outCost) outCost.textContent = `$${totalCost.toFixed(2)} ($${ratePerSqFt.toFixed(2)}/sq ft)`;
@@ -361,15 +384,15 @@
       const area = numOr(sqft, 0);
       const comp = complexity ? complexity.value : 'standard';
 
-      let rate = 5.00; // $/sqft
-      let crewHoursFactor = 0.035; // crew hours per sqft
+      let rate = sd('laborPerSqFt', 5.00); // $/sqft
+      let crewHoursFactor = sd('crewHoursPerSqFt', 0.035); // crew hours per sqft
 
       if (comp === 'stamp') {
-        rate = 10.00;
-        crewHoursFactor = 0.06;
+        rate = sd('laborStamped', 10.00);
+        crewHoursFactor = sd('crewHoursPerSqFtStamped', 0.06);
       } else if (comp === 'difficult') {
-        rate = 7.50;
-        crewHoursFactor = 0.05;
+        rate = sd('laborDifficult', 7.50);
+        crewHoursFactor = sd('crewHoursPerSqFtDifficult', 0.05);
       }
 
       const totalLabor = area * rate;

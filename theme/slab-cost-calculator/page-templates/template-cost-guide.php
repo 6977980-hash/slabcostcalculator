@@ -11,6 +11,8 @@ if (!defined('ABSPATH')) {
 
 get_header();
 slab_render_breadcrumbs();
+
+$sd = Slab_Data::all();
 ?>
 
 <main id="primary" class="site-main">
@@ -40,9 +42,9 @@ slab_render_breadcrumbs();
         </p>
 
         <ul>
-          <li><strong>Finishing &amp; Placement Labor (40% – 50%):</strong> Site excavation, formwork erection, grading, sub-base compaction, placement, screeding, bull-floating, power troweling, and control joint grooving ($3.50–$7.00/sq. ft.).</li>
-          <li><strong>Ready-Mix Concrete Materials (30% – 35%):</strong> 3,000 to 4,000 PSI concrete delivered via transit mixer ($135–$175/yd³).</li>
-          <li><strong>Gravel Sub-Base &amp; Preparation (10% – 15%):</strong> 4 inches of compacted #57 crushed stone or crushed aggregate base ($35–$55/yd³).</li>
+          <li><strong>Finishing &amp; Placement Labor (40% – 50%):</strong> Site excavation, formwork erection, grading, sub-base compaction, placement, screeding, bull-floating, power troweling, and control joint grooving (<?php echo esc_html(Slab_Data::mr('labor.sqft_range', 2, '–')); ?>/sq. ft.).</li>
+          <li><strong>Ready-Mix Concrete Materials (30% – 35%):</strong> 3,000 to 4,000 PSI concrete delivered via transit mixer (<?php echo esc_html(Slab_Data::money_range([Slab_Data::psi_price(3000)[0], Slab_Data::psi_price(4000)[1]], 0, '–')); ?>/yd³).</li>
+          <li><strong>Gravel Sub-Base &amp; Preparation (10% – 15%):</strong> 4 inches of compacted #57 crushed stone or crushed aggregate base (<?php echo esc_html(Slab_Data::mr('site.gravel_range', 0, '–')); ?>/yd³).</li>
           <li><strong>Reinforcement &amp; Form Lumber (5% – 10%):</strong> #4 rebar grid, support chairs, 2x4/2x6 lumber, stakes, and 10-mil vapor barriers.</li>
         </ul>
 
@@ -62,9 +64,9 @@ slab_render_breadcrumbs();
           It is common to receive quotes differing by 20% to 40% from two qualified contractors in the same municipality. Key reasons include:
         </p>
         <ol>
-          <li><strong>Site Accessibility:</strong> Easy truck access vs. long wheelbarrow runs or specialized pump trucks ($600+ rental).</li>
+          <li><strong>Site Accessibility:</strong> Easy truck access vs. long wheelbarrow runs or specialized pump trucks (<?php echo esc_html(Slab_Data::mr('pump.typical', 0, '–')); ?> per pour).</li>
           <li><strong>Soil Subgrade Stability:</strong> Stable sand/gravel subgrade vs. expansive clay requiring deep excavation and heavy crushed aggregate backfill.</li>
-          <li><strong>Frost Line Depth Requirements:</strong> Northern climates requiring thickened edge footings reaching 36–48 inches below grade to prevent frost heave.</li>
+          <li><strong>Frost Line Depth Requirements:</strong> Northern climates requiring footings reaching <?php echo esc_html(Slab_Data::r('freeze_thaw_ft', '–')); ?> inches below grade to prevent frost heave.</li>
           <li><strong>Surface Finish Requirements:</strong> Standard broom finish vs. multi-stage color stamped decorative flatwork.</li>
         </ol>
 

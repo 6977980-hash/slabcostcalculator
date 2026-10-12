@@ -16,7 +16,7 @@
   <path d="M395 220 L400 250 L405 250" stroke="#F59E0B" stroke-width="2" fill="none" />
   <text x="400" y="135" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12.5" font-weight="700" fill="#FCD34D" text-anchor="middle">Control Joint</text>
   <text x="400" y="272" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#94A3B8" text-anchor="middle">Planned &#8226; cut 1/4 depth</text>
-  <text x="400" y="288" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#94A3B8" text-anchor="middle">spaced 2&#8211;3&#215; thickness (ft)</text>
+  <text x="400" y="288" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#94A3B8" text-anchor="middle">spaced 2&#8211;3&#215; thickness (in) in ft</text>
 
   <!-- Slab 3: Settlement crack (diagonal, full depth, uneven) -->
   <rect x="540" y="150" width="200" height="100" fill="#64748B" rx="2" stroke="#475569" stroke-width="1" />

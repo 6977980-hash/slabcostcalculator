@@ -12,13 +12,28 @@
   const FEET_TO_METERS = 0.3048;
   const YD3_PER_M3 = 1.30795;
 
+  // Site-wide figures from inc/site-data.php (window.SLAB_DATA).
+  const SD = window.SLAB_DATA || {};
+  const sd = (key, fallback) => (SD[key] !== undefined && SD[key] !== null ? SD[key] : fallback);
+
   // National baseline rates. Same defaults as the calculator form.
   const BASE_RATES = {
-    readyMixPerYard: 150.00,
-    excavationPerSqFt: 1.50,
-    laborPerSqFt: 5.00,
-    laborPerHour: 45.00
+    readyMixPerYard: sd('readyMixPerYard', 150.00),
+    excavationPerSqFt: sd('excavation', 1.50),
+    laborPerSqFt: sd('laborPerSqFt', 5.00),
+    laborPerHour: sd('crewHour', 140.00) // whole crew, not one finisher
   };
+  const OVERHEAD_PROFIT = sd('overheadProfit', 0.25);
+  const SPLICE_ALLOWANCE = sd('spliceAllowance', 0.10);
+  const EDGE_COVER_FT = sd('edgeCoverIn', 3) / 12;
+  const WX = {
+    cold: sd('coldF', 40),
+    cool: sd('coolF', 50),
+    hot: sd('hotF', 85),
+    concreteLimit: sd('concreteTempLimitF', [90, 95]),
+    evap: sd('evapLimitLb', 0.2)
+  };
+  const fToC = (f) => Math.round((f - 32) * 5 / 9);
 
   // Approximate construction cost location factors (U.S. national average
   // = 1.00), rounded from published city cost index data and weighted
@@ -133,7 +148,7 @@
   // Control joints: 2.5 x thickness (in) in feet, capped at 15 ft. Matches
   // the joint spacing table in the control-joint guide on the homepage.
   function jointTargetFt(thicknessIn) {
-    return Math.min(Math.max(thicknessIn, 3) * 2.5, 15);
+    return Math.min(Math.max(thicknessIn, 3) * sd('jointRatio', 2.5), sd('jointCapFt', 15));
   }
 
   function slabGeometry(r) {
@@ -145,7 +160,7 @@
     const type = r.detail.reinforcement.type;
     const spacingSel = $('#calc-rebar-spacing');
     const spacingIn = spacingSel ? parseFloat(spacingSel.value) || 18 : 18;
-    const coverFt = 3 / 12;
+    const coverFt = EDGE_COVER_FT;
 
     const geo = { lengthFt, widthFt, thicknessIn, type, spacingIn, quantity: d.quantity, imp };
     geo.xBars = []; // bars running along the length (drawn horizontal), y positions
@@ -239,7 +254,7 @@
 
     // Rebar grid
     if (g.type === 'rebar') {
-      const c = 3 / 12;
+      const c = EDGE_COVER_FT;
       g.xBars.forEach(y => parts.push(`<line x1="${X(c)}" y1="${Y(y)}" x2="${X(g.lengthFt - c)}" y2="${Y(y)}" stroke="#7c3aed" stroke-width="1.3"/>`));
       g.yBars.forEach(x => parts.push(`<line x1="${X(x)}" y1="${Y(c)}" x2="${X(x)}" y2="${Y(g.widthFt - c)}" stroke="#7c3aed" stroke-width="1.3"/>`));
       g.chairs.forEach(p => parts.push(`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3.6" fill="#f59e0b" stroke="#92400e" stroke-width="1"/>`));
@@ -280,7 +295,7 @@
     parts.push(`<line x1="${lx}" y1="${ly}" x2="${lx + 30}" y2="${ly}" stroke="#dc2626" stroke-width="2" stroke-dasharray="9 6"/><text x="${lx + 38}" y="${ly + 4}" ${font} font-size="12" fill="#334155">Control joint (saw cut 1/4 of depth)</text>`);
     lx += 260;
     if (g.type === 'rebar') {
-      parts.push(`<line x1="${lx}" y1="${ly}" x2="${lx + 30}" y2="${ly}" stroke="#7c3aed" stroke-width="1.6"/><text x="${lx + 38}" y="${ly + 4}" ${font} font-size="12" fill="#334155">#4 rebar, 3 in edge cover</text>`);
+      parts.push(`<line x1="${lx}" y1="${ly}" x2="${lx + 30}" y2="${ly}" stroke="#7c3aed" stroke-width="1.6"/><text x="${lx + 38}" y="${ly + 4}" ${font} font-size="12" fill="#334155">#4 rebar, ${sd('edgeCoverIn', 3)} in edge cover</text>`);
       lx += 200;
       parts.push(`<circle cx="${lx + 8}" cy="${ly}" r="4" fill="#f59e0b" stroke="#92400e"/><text x="${lx + 20}" y="${ly + 4}" ${font} font-size="12" fill="#334155">Support chair (~${parseFloat(g.chairEveryFt.toFixed(1))} ft grid)</text>`);
     } else if (g.type === 'mesh') {
@@ -308,8 +323,8 @@
     if (g.type === 'rebar') {
       const linFt = g.barLinFt * g.quantity;
       // +10% for lap splices (40 bar diameters = 20 in for #4) and offcuts.
-      const sticks = Math.ceil((linFt * 1.10) / 20);
-      cards.push(['Rebar', g.imp ? `${Math.round(linFt).toLocaleString('en-US')} lin ft of #4` : `${Math.round(linFt * FEET_TO_METERS).toLocaleString('en-US')} m of #4 (12 mm)`, `About ${sticks} x 20-ft bars incl. ~10% for laps and waste`]);
+      const sticks = Math.ceil(+((linFt * (1 + SPLICE_ALLOWANCE)) / 20).toFixed(6));
+      cards.push(['Rebar', g.imp ? `${Math.round(linFt).toLocaleString('en-US')} lin ft of #4` : `${Math.round(linFt * FEET_TO_METERS).toLocaleString('en-US')} m of #4 (12 mm)`, `About ${sticks} x 20-ft bars incl. ~${Math.round(SPLICE_ALLOWANCE * 100)}% for laps (${sd('lapBarDiameters', 40)} bar diameters, ${sd('lapInNo4', 20)} in for #4) and waste`]);
       cards.push(['Support chairs', `${g.chairs.length * g.quantity} chairs`, 'Hold bars at mid-depth of the slab']);
     }
     $('#blueprint-summary').innerHTML = cards.map(c => `<div class="quantity-card"><div class="quantity-card-label">${esc(c[0])}</div><div class="quantity-card-value tool-card-value">${esc(c[1])}</div><div class="quantity-card-note">${esc(c[2])}</div></div>`).join('');
@@ -370,8 +385,8 @@
       cats: cats,
       materials: materials,
       fair: fair,
-      high: fair * 1.25, // typical 10-25% overhead & profit on top
-      overLine: fair * 1.25 * 1.30 // more than 30% above the high-end benchmark
+      high: fair * (1 + OVERHEAD_PROFIT), // typical 10-25% overhead & profit on top
+      overLine: fair * (1 + OVERHEAD_PROFIT) * 1.30 // more than 30% above the high-end benchmark
     };
   }
 
@@ -494,23 +509,24 @@
     const eLb = eKg * 0.2048;
 
     const notices = [];
-    if (tF <= 40) {
+    const lim = `${WX.concreteLimit[0]} to ${WX.concreteLimit[1]}°F`;
+    if (tF <= WX.cold) {
       notices.push(['wx-cold', 'Cold-weather concreting (ACI 306R)',
-        'At or below 40°F (4°C) ACI 306R cold-weather practice applies. Cold weather slows cement hydration. Use Type III high-early cement or a non-chloride accelerator (calcium chloride corrodes rebar and mesh), never place on frozen or frosted ground, and cover with insulated curing blankets for 3 to 7 days. The concrete must not freeze before it reaches about 500 psi, which takes roughly 2 days at 50°F; ACI 306R calls for keeping thin slabs at 55°F or warmer through that period.']);
-    } else if (tF < 50) {
+        `At or below ${WX.cold}°F (${fToC(WX.cold)}°C) ACI 306R cold-weather practice applies. Cold weather slows cement hydration. Use Type III high-early cement or a non-chloride accelerator (calcium chloride corrodes rebar and mesh), never place on frozen or frosted ground, and cover with insulated curing blankets for 3 to 7 days. The concrete must not freeze before it reaches about 500 psi, which takes roughly 2 days at 50°F; ACI 306R calls for keeping thin slabs at 55°F or warmer through that period.`]);
+    } else if (tF < WX.cool) {
       notices.push(['wx-cool', 'Cool-weather pouring notice',
-        'Below 50°F (10°C) cement hydration slows sharply, so set and saw-cut times stretch and early strength drops. Recommend Type III high-early cement or a non-chloride accelerator plus thermal curing blankets for 3 to 7 days to prevent freezing if nights drop toward 40°F (4°C), where ACI 306R cold-weather rules begin.']);
-    } else if (tF > 85) {
+        `Below ${WX.cool}°F (${fToC(WX.cool)}°C) cement hydration slows sharply, so set and saw-cut times stretch and early strength drops. Recommend Type III high-early cement or a non-chloride accelerator plus thermal curing blankets for 3 to 7 days to prevent freezing if nights drop toward ${WX.cold}°F (${fToC(WX.cold)}°C), where ACI 306R cold-weather rules begin.`]);
+    } else if (tF > WX.hot) {
       notices.push(['wx-hot', 'Hot-weather concreting (ACI 305R)',
-        'High heat causes rapid moisture evaporation and plastic shrinkage cracking, speeds up setting and lowers long-term strength. Recommend pouring at dawn, using a set retarder, wetting the base (no standing water), and applying curing compound right after finishing. ' + (tF > 95 ? 'Above 95°F many specifications limit fresh concrete temperature to 90 to 95°F; ask the plant about chilled water or ice in the mix.' : 'Many specifications limit fresh concrete to 90 to 95°F at placement.')]);
+        'High heat causes rapid moisture evaporation and plastic shrinkage cracking, speeds up setting and lowers long-term strength. Recommend pouring at dawn, using a set retarder, wetting the base (no standing water), and applying curing compound right after finishing. ' + (tF > WX.concreteLimit[1] ? `Above ${WX.concreteLimit[1]}°F many specifications limit fresh concrete temperature to ${lim}; ask the plant about chilled water or ice in the mix.` : `Many specifications limit fresh concrete to ${lim} at placement.`)]);
     } else {
       notices.push(['wx-good', 'Good pouring temperature',
-        'Between 50°F and 85°F (10 to 29°C) concrete sets and gains strength normally. Keep the surface moist or use curing compound for at least 7 days.']);
+        `Between ${WX.cool}°F and ${WX.hot}°F (${fToC(WX.cool)} to ${fToC(WX.hot)}°C) concrete sets and gains strength normally. Keep the surface moist or use curing compound for at least 7 days.`]);
     }
 
     let evapCls = 'wx-good';
     let evapTxt = 'Low plastic shrinkage risk.';
-    if (eLb >= 0.2) {
+    if (eLb >= WX.evap) {
       evapCls = 'wx-hot';
       evapTxt = 'Above the 0.2 lb/ft²/h (1.0 kg/m²/h) level where ACI 305R expects plastic shrinkage cracking. Use windbreaks or sunshades, fog-mist or spray an evaporation retarder between finishing passes, and start curing immediately.';
     } else if (eLb >= 0.1) {

@@ -14,15 +14,29 @@
   const FEET_TO_METERS = 0.3048;
   const INCHES_TO_FEET = 1 / 12;
   const CM_TO_METERS = 0.01;
-  const DENSITY_CONCRETE_LBS_PER_CUFT = 145; // ~3,915 lbs per cubic yard
+  const DENSITY_CONCRETE_LBS_PER_CUFT = (window.SLAB_DATA && window.SLAB_DATA.densityLbFt3) || 145; // ~3,915 lbs per cubic yard
   const DENSITY_CONCRETE_KG_PER_CUM = 2322;
 
+  // Site-wide figures from inc/site-data.php (window.SLAB_DATA). The
+  // fallbacks below are only used if that inline script is missing.
+  const SD = window.SLAB_DATA || {};
+  const sd = (key, fallback) => (SD[key] !== undefined && SD[key] !== null ? SD[key] : fallback);
+  const SD_FINISH = sd('finish', {});
+
   // Bag standard yields (in cubic feet)
-  const BAG_YIELDS = {
+  const BAG_YIELDS = sd('bagYields', {
     '80': 0.60,
     '60': 0.45,
     '50': 0.375,
     '40': 0.30
+  });
+
+  // Finish adders in $/sq ft
+  const FINISH_RATES = {
+    broom: SD_FINISH.broom !== undefined ? SD_FINISH.broom : 0.75,
+    trowel: SD_FINISH.trowel !== undefined ? SD_FINISH.trowel : 1.25,
+    exposed: SD_FINISH.exposed !== undefined ? SD_FINISH.exposed : 3.50,
+    stamped: SD_FINISH.stamped !== undefined ? SD_FINISH.stamped : 7.50
   };
 
   // Default inputs. Reset restores every key from here.
@@ -32,54 +46,57 @@
     width: 20,
     thickness: 4, // inches or cm
     quantity: 1,
-    wastePercent: 10,
+    wastePercent: sd('wastePct', 10),
     materialType: 'readymix', // 'readymix' or 'bagged'
     bagSize: '80',
-    bagPrice: 6.50,
-    readyMixPricePerYard: 150.00,
-    readyMixPricePerM3: 196.19, // $150/yd³ x 1.30795 yd³ per m³, so both unit modes price the same pour alike
+    bagPrice: sd('bagPrice', 6.50),
+    readyMixPricePerYard: sd('readyMixPerYard', 150.00),
+    // Per-yard price x 1.30795 yd³ per m³, so both unit modes price the same pour alike
+    readyMixPricePerM3: Math.round(sd('readyMixPerYard', 150.00) * CUBIC_METERS_TO_CUBIC_YARDS * 100) / 100,
 
     // Site Preparation
     enableSitePrep: false,
-    excavationCostPerSqFt: 1.50,
-    gravelDepthInches: 4,
-    gravelPricePerYard: 45.00,
+    excavationCostPerSqFt: sd('excavation', 1.50),
+    gravelDepthInches: sd('gravelDepthIn', 4),
+    gravelPricePerYard: sd('gravelPerYard', 45.00),
     enableForms: true,
-    formCostPerLinearFt: 2.20,
+    formCostPerLinearFt: sd('forms', 2.20),
     enableVaporBarrier: true,
-    vaporBarrierCostPerSqFt: 0.35,
+    vaporBarrierCostPerSqFt: sd('vapor', 0.35),
     enableDemoRemoval: false,
-    demoCostPerSqFt: 3.50,
+    demoCostPerSqFt: sd('demo', 3.50),
 
     // Reinforcement
     reinforcementType: 'rebar', // 'none', 'mesh', 'rebar', 'custom'
-    meshCostPerSqFt: 0.50,
-    rebarCostPerSqFt: 1.25, // #4 grid at REBAR_BASE_SPACING_IN, chairs included
-    rebarSpacingIn: 18,
+    meshCostPerSqFt: sd('mesh', 0.50),
+    rebarCostPerSqFt: sd('rebar', 1.25), // #4 grid at REBAR_BASE_SPACING_IN, chairs included
+    rebarSpacingIn: sd('rebarBaseSpacingIn', 18),
     customReinforceCost: 0,
 
     // Finish
     finishType: 'broom', // 'none', 'broom', 'trowel', 'exposed', 'stamped', 'custom'
-    finishCostPerSqFt: 0.75,
+    finishCostPerSqFt: FINISH_RATES.broom,
 
     // Labor
     laborMode: 'sqft', // 'diy', 'sqft', 'hourly', 'flat'
-    laborRatePerSqFt: 5.00,
-    laborHourlyRate: 45.00,
-    laborEstimatedHours: 16,
+    laborRatePerSqFt: sd('laborPerSqFt', 5.00),
+    // A whole crew's hourly rate; 400 sq ft x 0.035 crew-hours = 14 h,
+    // which at the default crew rate is close to the per-sq-ft labor.
+    laborHourlyRate: sd('crewHour', 140.00),
+    laborEstimatedHours: Math.round(400 * sd('crewHoursPerSqFt', 0.035)),
     laborFlatCost: 0,
 
     // Delivery & Equipment
     enableDeliveryFee: true,
-    deliveryFee: 120.00,
+    deliveryFee: sd('deliveryFee', 120.00),
     enablePumpRental: false,
-    pumpCost: 650.00,
+    pumpCost: sd('pump', 650.00),
     enableEquipmentRental: false,
-    equipmentRentalCost: 150.00,
+    equipmentRentalCost: sd('equipment', 150.00),
 
     // Markup & Contingency
     markupPercent: 0,
-    contingencyPercent: 5
+    contingencyPercent: sd('contingencyPct', 5)
   };
 
   // State Management
@@ -87,7 +104,7 @@
 
   // The rebar rate is for an 18 in grid. Steel per sq ft scales with
   // 1 / spacing, so a 12 in grid costs 1.5x and a 24 in grid 0.75x.
-  const REBAR_BASE_SPACING_IN = 18;
+  const REBAR_BASE_SPACING_IN = sd('rebarBaseSpacingIn', 18);
 
   // Bag counts are whole bags, but volumes like 52.8 ft3 / 0.6 come out as
   // 88.00000000000001 in floating point. Trim that noise before rounding up
@@ -821,22 +838,22 @@
     let finishLabel = 'Basic Float Only';
     let finishRate = 0;
     if (state.finishType === 'broom') {
-      finishRate = 0.75;
+      finishRate = FINISH_RATES.broom;
       finishCost = areaSqFt * finishRate;
       finishLabel = 'Broom Finish (Standard Non-Slip)';
       items.push({ category: 'other', name: finishLabel, cost: finishCost, qty: areaSqFt, unit: 'sq ft', rate: finishRate });
     } else if (state.finishType === 'trowel') {
-      finishRate = 1.25;
+      finishRate = FINISH_RATES.trowel;
       finishCost = areaSqFt * finishRate;
       finishLabel = 'Smooth Hard Trowel Finish (Interior/Garage)';
       items.push({ category: 'other', name: finishLabel, cost: finishCost, qty: areaSqFt, unit: 'sq ft', rate: finishRate });
     } else if (state.finishType === 'exposed') {
-      finishRate = 3.50;
+      finishRate = FINISH_RATES.exposed;
       finishCost = areaSqFt * finishRate;
       finishLabel = 'Exposed Aggregate Decorative Finish';
       items.push({ category: 'other', name: finishLabel, cost: finishCost, qty: areaSqFt, unit: 'sq ft', rate: finishRate });
     } else if (state.finishType === 'stamped') {
-      finishRate = 7.50;
+      finishRate = FINISH_RATES.stamped;
       finishCost = areaSqFt * finishRate;
       finishLabel = 'Stamped Concrete Pattern & Color Release';
       items.push({ category: 'other', name: finishLabel, cost: finishCost, qty: areaSqFt, unit: 'sq ft', rate: finishRate });

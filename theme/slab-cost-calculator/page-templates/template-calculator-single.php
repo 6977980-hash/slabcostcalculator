@@ -15,6 +15,13 @@ slab_render_breadcrumbs();
 // Determine calculator context based on slug
 global $post;
 $slug = $post ? $post->post_name : get_query_var('slab_slug');
+
+// Placeholder results shown before the JS runs, computed from the same
+// figures (inc/site-data.php) the calculators use.
+$sd = Slab_Data::all();
+$bags_demo = Slab_Data::estimate(10, 10, 4);
+$grid_demo = Slab_Data::rebar_grid(20, 20, 18);
+$lab = $sd['labor'];
 ?>
 
 <main id="primary" class="site-main">
@@ -91,22 +98,22 @@ $slug = $post ? $post->post_name : get_query_var('slab_slug');
               </div>
               <div class="calc-form-group">
                 <label for="bags-waste" class="calc-label">Waste Allowance (%)</label>
-                <input type="number" id="bags-waste" class="calc-control" value="10" step="1">
+                <input type="number" id="bags-waste" class="calc-control" value="<?php echo esc_attr($sd['concrete']['waste_pct']); ?>" step="1">
               </div>
               <div class="calc-form-group">
                 <label for="bags-price" class="calc-label">Price / Bag ($)</label>
-                <input type="number" id="bags-price" class="calc-control" value="6.50" step="0.25">
+                <input type="number" id="bags-price" class="calc-control" value="<?php echo esc_attr(number_format($sd['concrete']['bag_price_default'], 2)); ?>" step="0.25">
               </div>
             </div>
 
             <div class="quantities-grid" style="margin-top: 1.25rem;">
               <div class="quantity-card" style="background: var(--primary-50); border-color: var(--primary-200);">
                 <div class="quantity-card-label">Total Bags Required</div>
-                <div id="bags-out-total" class="quantity-card-value" style="color: var(--primary-800);">62 bags</div>
+                <div id="bags-out-total" class="quantity-card-value" style="color: var(--primary-800);"><?php echo esc_html($bags_demo['bags80']); ?> bags</div>
               </div>
               <div class="quantity-card">
                 <div class="quantity-card-label">Estimated Material Cost</div>
-                <div id="bags-out-cost" class="quantity-card-value">$403.00</div>
+                <div id="bags-out-cost" class="quantity-card-value"><?php echo esc_html(Slab_Data::money($bags_demo['bagged'], 2)); ?></div>
               </div>
             </div>
           </div>
@@ -145,16 +152,16 @@ $slug = $post ? $post->post_name : get_query_var('slab_slug');
 
             <div class="quantities-grid" style="margin-top: 1.25rem;">
               <div class="quantity-card" style="background: var(--primary-50); border-color: var(--primary-200);">
-                <div class="quantity-card-label">Total Linear Footage (w/ 10% Splice)</div>
-                <div id="rebar-out-linft" class="quantity-card-value" style="color: var(--primary-800);">616 lin ft</div>
+                <div class="quantity-card-label">Total Linear Footage (w/ <?php echo esc_html(round($sd['reinforcement']['splice_allowance'] * 100)); ?>% Splice)</div>
+                <div id="rebar-out-linft" class="quantity-card-value" style="color: var(--primary-800);"><?php echo esc_html(round($grid_demo['lin_ft'])); ?> linear ft</div>
               </div>
               <div class="quantity-card">
                 <div class="quantity-card-label">Total Rebar Sticks</div>
-                <div id="rebar-out-pieces" class="quantity-card-value">31 sticks (20ft)</div>
+                <div id="rebar-out-pieces" class="quantity-card-value"><?php echo esc_html($grid_demo['sticks']); ?> bars (20ft sticks)</div>
               </div>
               <div class="quantity-card">
                 <div class="quantity-card-label">Support Chairs Needed</div>
-                <div id="rebar-out-chairs" class="quantity-card-value">49 chairs</div>
+                <div id="rebar-out-chairs" class="quantity-card-value"><?php echo esc_html($grid_demo['chairs']); ?> rebar chairs</div>
               </div>
             </div>
           </div>
@@ -322,9 +329,9 @@ $slug = $post ? $post->post_name : get_query_var('slab_slug');
               <div class="calc-form-group">
                 <label for="labor-complexity" class="calc-label">Finish Complexity</label>
                 <select id="labor-complexity" class="calc-control">
-                  <option value="standard" selected>Standard Broom Finish ($5.00/sq ft)</option>
-                  <option value="stamp">Stamped / Decorative ($10.00/sq ft)</option>
-                  <option value="difficult">Difficult Access / Site ($7.50/sq ft)</option>
+                  <option value="standard" selected>Standard Broom Finish (<?php echo esc_html(Slab_Data::money($lab['sqft_default'], 2)); ?>/sq ft)</option>
+                  <option value="stamp">Stamped / Decorative (<?php echo esc_html(Slab_Data::money($lab['sqft_stamped'], 2)); ?>/sq ft)</option>
+                  <option value="difficult">Difficult Access / Site (<?php echo esc_html(Slab_Data::money($lab['sqft_difficult'], 2)); ?>/sq ft)</option>
                 </select>
               </div>
             </div>
@@ -332,11 +339,11 @@ $slug = $post ? $post->post_name : get_query_var('slab_slug');
             <div class="quantities-grid" style="margin-top: 1.25rem;">
               <div class="quantity-card" style="background: var(--primary-50); border-color: var(--primary-200);">
                 <div class="quantity-card-label">Estimated Labor Cost</div>
-                <div id="labor-out-cost" class="quantity-card-value" style="color: var(--primary-800);">$2,000.00 ($5.00/sq ft)</div>
+                <div id="labor-out-cost" class="quantity-card-value" style="color: var(--primary-800);"><?php echo esc_html(Slab_Data::money(400 * $lab['sqft_default'], 2) . ' (' . Slab_Data::money($lab['sqft_default'], 2) . '/sq ft)'); ?></div>
               </div>
               <div class="quantity-card">
                 <div class="quantity-card-label">Estimated Crew Hours</div>
-                <div id="labor-out-hours" class="quantity-card-value">~14 total crew hours</div>
+                <div id="labor-out-hours" class="quantity-card-value">~<?php echo esc_html(round(400 * $lab['crew_hours_per_sqft'])); ?> total crew hours</div>
               </div>
             </div>
           </div>

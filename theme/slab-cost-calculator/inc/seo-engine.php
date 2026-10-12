@@ -217,7 +217,7 @@ class Slab_SEO_Engine {
             global $post;
             $custom_desc = get_post_meta($post->ID, '_slab_meta_description', true);
             if (!empty($custom_desc)) {
-                return esc_attr($custom_desc);
+                return esc_attr(Slab_Post_Figures::fix($post->post_name, $custom_desc));
             }
 
             // ROOT CAUSE of the site-wide placeholder meta description: every

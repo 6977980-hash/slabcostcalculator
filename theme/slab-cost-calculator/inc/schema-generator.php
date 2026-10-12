@@ -321,52 +321,11 @@ class Slab_Schema_Generator {
     }
 
     private static function get_faq_schema() {
-        // High-value FAQ entries supported by visible front page content
+        // Same entries the homepage renders in its visible FAQ.
         return [
             '@context' => 'https://schema.org',
             '@type' => 'FAQPage',
-            'mainEntity' => array_merge([
-                [
-                    '@type' => 'Question',
-                    'name' => 'How much does a 10x10 concrete slab cost?',
-                    'acceptedAnswer' => [
-                        '@type' => 'Answer',
-                        'text' => 'A 10x10 foot concrete slab (100 square feet) at standard 4-inch depth costs between $600 and $1,200 professionally installed. Material-only DIY cost is approximately $220 to $350. It requires 1.23 cubic yards of concrete (1.36 cubic yards with 10% waste), which is 62 bags of 80-lb pre-mix or 82 bags of 60-lb pre-mix.'
-                    ]
-                ],
-                [
-                    '@type' => 'Question',
-                    'name' => 'How much does a 20x20 concrete slab cost?',
-                    'acceptedAnswer' => [
-                        '@type' => 'Answer',
-                        'text' => 'A 20x20 foot slab (400 square feet) typically costs $2,400 to $4,800 for a standard 4-inch patio or shed floor, and $2,800 to $5,400 for a 5-inch or 6-inch garage floor with rebar reinforcement. At 4 inches thick it requires 4.94 cubic yards of ready-mix concrete (5.43 cubic yards with 10% waste).'
-                    ]
-                ],
-                [
-                    '@type' => 'Question',
-                    'name' => 'How many 80 lb bags of concrete do I need for a cubic yard?',
-                    'acceptedAnswer' => [
-                        '@type' => 'Answer',
-                        'text' => 'It takes exactly 45 bags of 80-lb concrete mix to equal one cubic yard (27 cubic feet). One 80-lb bag yields approximately 0.60 cubic feet of mixed wet concrete (27 ÷ 0.60 = 45 bags).'
-                    ]
-                ],
-                [
-                    '@type' => 'Question',
-                    'name' => 'How long should I wait before driving or parking on a new concrete slab?',
-                    'acceptedAnswer' => [
-                        '@type' => 'Answer',
-                        'text' => 'Foot traffic is safe after 24 to 48 hours. Light passenger cars can park after 7 days (when concrete achieves ~70% design strength). Heavy trucks, RVs, and heavy machinery should wait 28 days until full compressive curing is reached.'
-                    ]
-                ],
-                [
-                    '@type' => 'Question',
-                    'name' => 'Do I need a gravel base under a concrete slab?',
-                    'acceptedAnswer' => [
-                        '@type' => 'Answer',
-                        'text' => 'Yes. A 4-inch to 6-inch compacted crushed stone or gravel base provides uniform subgrade support, facilitates water drainage away from the slab, and dramatically reduces cracking caused by soil settling or freeze-thaw frost heave.'
-                    ]
-                ]
-            ], array_map(function ($faq) {
+            'mainEntity' => array_map(function ($faq) {
                 return [
                     '@type' => 'Question',
                     'name' => $faq['q'],
@@ -375,36 +334,132 @@ class Slab_Schema_Generator {
                         'text' => $faq['a']
                     ]
                 ];
-            }, self::get_cost_factor_faqs()))
+            }, self::get_home_faqs())
         ];
     }
 
     /**
+     * Every homepage FAQ, in display order. front-page.php renders these and
+     * get_faq_schema() marks up the same list, so the two cannot drift.
+     * All figures come from Slab_Data (inc/site-data.php).
+     */
+    public static function get_home_faqs() {
+        $sd = Slab_Data::all();
+        $f10 = Slab_Data::size_fact(10, 10);
+        $f20 = Slab_Data::size_fact(20, 20);
+        $f20_5 = Slab_Data::size_fact(20, 20, 5);
+        $y80 = $sd['concrete']['bag_yields']['80'];
+        $cure = $sd['curing'];
+
+        return array_merge([
+            [
+                'q' => 'How much does a 10x10 concrete slab cost?',
+                'a' => sprintf(
+                    'A 10x10 foot concrete slab (100 square feet) at standard 4-inch depth costs about %s professionally installed. Material-only DIY cost is about %s. It requires %s cubic yards of concrete (%s cubic yards with %d%% waste), which is %d bags of 80-lb pre-mix or %d bags of 60-lb pre-mix; %d bags at %s comes to %s for the concrete alone.',
+                    $f10['installed'], $f10['diy'], $f10['net_yd'], $f10['order_yd'], $sd['concrete']['waste_pct'], $f10['bags80'], $f10['bags60'],
+                    $f10['bags80'], Slab_Data::money($sd['concrete']['bag_price_default'], 2), Slab_Data::money($f10['bags80'] * $sd['concrete']['bag_price_default'], 0)
+                ),
+            ],
+            [
+                'q' => 'How much does a 20x20 concrete slab cost?',
+                'a' => sprintf(
+                    'A 20x20 foot slab (400 square feet) typically costs %s installed for a standard 4-inch patio or shed floor, and %s for a 5-inch garage floor. At 4 inches thick it requires %s cubic yards of ready-mix concrete (%s cubic yards with %d%% waste).',
+                    $f20['installed'], $f20_5['installed'], $f20['net_yd'], $f20['order_yd'], $sd['concrete']['waste_pct']
+                ),
+            ],
+            [
+                'q' => 'How many 80 lb bags of concrete do I need for a cubic yard?',
+                'a' => sprintf(
+                    'It takes %s bags of 80-lb concrete mix to equal one cubic yard (27 cubic feet). One 80-lb bag yields about %s cubic feet of mixed concrete (27 ÷ %s = %s bags).',
+                    Slab_Data::num(27 / $y80), number_format($y80, 2), number_format($y80, 2), Slab_Data::num(27 / $y80)
+                ),
+            ],
+            [
+                'q' => 'How long should I wait before driving or parking on a new concrete slab?',
+                'a' => sprintf(
+                    'Foot traffic is safe after %s hours. Light passenger cars can park after %d days (when concrete reaches about 70%% of its design strength). Heavy trucks, RVs, and heavy machinery should wait %d days until the slab reaches its design strength.',
+                    Slab_Data::range($cure['foot_traffic_h']), $cure['cars_days'], $cure['full_days']
+                ),
+            ],
+            [
+                'q' => 'Do I need a gravel base under a concrete slab?',
+                'a' => sprintf(
+                    'Yes. A %s-inch compacted crushed stone or gravel base provides uniform subgrade support, facilitates water drainage away from the slab, and dramatically reduces cracking caused by soil settling or freeze-thaw frost heave.',
+                    Slab_Data::range($sd['site']['gravel_depth_range'], '-inch to ')
+                ),
+            ],
+        ], self::get_cost_factor_faqs());
+    }
+
+    /**
      * FAQs for the cost factor sections (template-parts/cost-factor-guides.php).
-     * front-page.php renders these same entries in its visible FAQ, so the
-     * schema and the page cannot drift apart.
      */
     public static function get_cost_factor_faqs() {
+        $sd = Slab_Data::all();
+        $ref = Slab_Data::estimate(20, 20, 4);
+        $ref_yd = round($ref['order_yd'], 2);
+        $small = Slab_Data::estimate(10, 10, 4);
+        $step = $sd['concrete']['psi_step_price'];
+        $p = $sd['pump'];
+        $dl = $sd['delivery'];
+        $rm = $sd['concrete']['ready_mix_default'];
+        $order_yd = ceil($small['order_yd'] * 2 - 1e-9) / 2;
+        $m = $sd['monolithic'];
+        $garage_yd = Slab_Data::estimate(24, 24, 4)['order_yd'];
+        $e12 = Slab_Data::edge_yd(24, 24, 4, $m['edge_depth_in'][0]);
+        $e18 = Slab_Data::edge_yd(24, 24, 4, $m['edge_depth_in'][1]);
+        $add = Slab_Data::round_pair([
+            $e12 * $rm + $m['edge_rebar'][0] + $m['trenching']['12'][0],
+            $e18 * $rm + $m['edge_rebar'][1] + $m['trenching']['18'][1],
+        ], 5);
+        $j = $sd['joints'];
+
         return [
             [
                 'q' => 'How much more does 4000 PSI concrete cost than 3000 PSI?',
-                'a' => 'Each 500-PSI step usually adds about $4 to $10 per cubic yard, so 4000 PSI runs roughly $8 to $20 more per yard than 3000 PSI. On a 20x20 ft, 4-inch slab (5.43 cubic yards with waste) that is about $45 to $110 in total. The IRC calls for at least 3500 PSI air-entrained concrete for garage floors, porches and steps in severe-weathering regions.'
+                'a' => sprintf(
+                    'Each 500-PSI step usually adds about %s per cubic yard, so 4000 PSI runs roughly %s more per yard than 3000 PSI. On a 20x20 ft, 4-inch slab (%s cubic yards with waste) that is about %s in total. The IRC calls for at least %s PSI air-entrained concrete for garage floors, porches and steps in severe-weathering regions.',
+                    Slab_Data::money_range($step, 0, ' to '),
+                    Slab_Data::money_range([$step[0] * 2, $step[1] * 2], 0, ' to '),
+                    number_format($ref_yd, 2),
+                    Slab_Data::money_range(Slab_Data::round_pair(Slab_Data::psi_extra(4000, $ref_yd), 5), 0, ' to '),
+                    number_format($sd['code']['psi_severe'])
+                ),
             ],
             [
                 'q' => 'How much does a concrete pump cost for a slab?',
-                'a' => 'Most residential pours cost $600 to $1,200 to pump. A line (trailer) pump runs about $100 to $175 per hour with a 2 to 4 hour minimum, typically $400 to $800 per pour. A boom pump runs about $150 to $350 per hour with a 3 to 4 hour minimum, typically $900 to $1,800 or more. A pump is needed when the truck cannot park within about 15 to 20 feet of the forms.'
+                'a' => sprintf(
+                    'Most residential pours cost %s to pump. A line (trailer) pump runs about %s per hour with a %s hour minimum, typically %s per pour. A boom pump runs about %s per hour with a %s hour minimum, typically %s or more. A pump is needed when the truck cannot park within about %s feet of the forms.',
+                    Slab_Data::money_range($p['typical'], 0, ' to '), Slab_Data::money_range($p['line_rate'], 0, ' to '), Slab_Data::range($p['line_min_h']),
+                    Slab_Data::money_range($p['line_job'], 0, ' to '), Slab_Data::money_range($p['boom_rate'], 0, ' to '), Slab_Data::range($p['boom_min_h']),
+                    Slab_Data::money_range($p['boom_job'], 0, ' to '), Slab_Data::range($sd['site']['chute_reach_ft'])
+                ),
             ],
             [
                 'q' => 'What is a short load fee for ready-mix concrete?',
-                'a' => 'It is a charge for ordering less than the plant\'s minimum load, usually set between 4 and 10 cubic yards. Suppliers charge either a flat $80 to $200 per load or $30 to $45 for each yard short of the minimum. For a 10x10 ft, 4-inch slab, 1.5 cubic yards at $150 plus a $120 short-load fee comes to about $345, compared with $403 for 62 bags of 80-lb mix.'
+                'a' => sprintf(
+                    'It is a charge for ordering less than the plant\'s minimum load, which ranges from %s cubic yards (many residential suppliers use %s). Suppliers charge either a flat %s per load or %s for each yard short of the minimum. For a 10x10 ft, 4-inch slab, %s cubic yards at %s plus a %s short-load fee comes to about %s, compared with %s for %d bags of 80-lb mix.',
+                    Slab_Data::range($dl['min_load_yd']), Slab_Data::range($dl['common_min_yd']),
+                    Slab_Data::money_range($dl['short_load_flat'], 0, ' to '), Slab_Data::money_range($dl['short_load_per_yd'], 0, ' to '),
+                    Slab_Data::num($order_yd), Slab_Data::money($rm), Slab_Data::money($dl['fee_default']),
+                    Slab_Data::money($order_yd * $rm + $dl['fee_default'], 0), Slab_Data::money($small['bagged'], 0), $small['bags80']
+                ),
             ],
             [
                 'q' => 'Is a monolithic slab more expensive than a floating slab?',
-                'a' => 'Yes. A monolithic slab adds a thickened edge footing, usually 12 inches wide and 12 to 18 inches deep, with two continuous #4 bars. On a 24x24 ft, 4-inch garage slab that adds about 2.5 to 4.4 cubic yards of concrete with waste, or roughly $625 to $1,400 including rebar and trenching. Under IRC R403.1.4.1 a detached light-frame accessory building of 600 square feet or less with eaves of 10 feet or lower can usually sit on a floating slab.'
+                'a' => sprintf(
+                    'Yes. A monolithic slab adds a thickened edge footing, usually %d inches wide and %s inches deep, with two continuous #4 bars. On a 24x24 ft, 4-inch garage slab that adds about %s to %s cubic yards of concrete with waste, or roughly %s including rebar and trenching. Under IRC R403.1.4.1 a detached light-frame accessory building of 600 square feet or less with eaves of 10 feet or lower can usually sit on a floating slab.',
+                    $m['edge_width_in'], Slab_Data::range($m['edge_depth_in']), number_format($e12, 1), number_format($e18, 1),
+                    Slab_Data::money_range($add, 0, ' to ')
+                ),
             ],
             [
                 'q' => 'How far apart should control joints be in a 4-inch concrete slab?',
-                'a' => 'Space control joints 2 to 3 times the slab thickness in inches, in feet, so a 4-inch slab gets joints every 8 to 10 feet and never more than 12 feet. Cut them 1 inch deep (one quarter of the thickness), typically 4 to 12 hours after finishing with a conventional wet saw, or 1 to 4 hours with an early-entry saw. A 20x20 ft slab jointed at 10 feet needs 40 linear feet of cuts.'
+                'a' => sprintf(
+                    'Space control joints %s times the slab thickness in inches, in feet, so a 4-inch slab gets joints every %s feet and never more than %d feet. Cut them 1 inch deep (one quarter of the thickness), typically %s hours after finishing with a conventional wet saw, or %s hours with an early-entry saw. A 20x20 ft slab jointed at 10 feet needs 40 linear feet of cuts.',
+                    Slab_Data::range($j['ratio']), Slab_Data::range([4 * $j['ratio_best'][0], 4 * $j['ratio_best'][1]]), $j['max_ft'][4],
+                    Slab_Data::range($j['sawcut_h']), Slab_Data::range($j['early_entry_h'])
+                ),
             ],
         ];
     }

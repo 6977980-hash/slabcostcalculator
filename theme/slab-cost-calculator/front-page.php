@@ -10,6 +10,15 @@ if (!defined('ABSPATH')) {
 }
 
 get_header();
+
+$sd = Slab_Data::all();
+$psf = Slab_Data::installed_psf();
+$diy_psf = Slab_Data::diy_psf();
+$rm_range = [Slab_Data::psi_price(3000)[0], Slab_Data::psi_price(4000)[1]];
+$s20 = Slab_Data::size_costs(20, 20, 4);
+$f10 = Slab_Data::size_fact(10, 10);
+$f20 = Slab_Data::size_fact(20, 20);
+$f = $sd['finish'];
 ?>
 
 <!-- Hero Section with Concise Value Proposition -->
@@ -24,11 +33,11 @@ get_header();
     <div class="hero-key-takeaways">
       <div class="takeaway-card">
         <div class="takeaway-label">Avg. Installed Cost</div>
-        <div class="takeaway-value">$6.00 – $12.00 / sq. ft.</div>
+        <div class="takeaway-value"><?php echo esc_html(Slab_Data::money_range($psf, 2)); ?> / sq. ft.</div>
       </div>
       <div class="takeaway-card">
         <div class="takeaway-label">Ready-Mix Concrete</div>
-        <div class="takeaway-value">$135 – $175 / cubic yard</div>
+        <div class="takeaway-value"><?php echo esc_html(Slab_Data::money_range($rm_range, 0)); ?> / cubic yard</div>
       </div>
       <div class="takeaway-card">
         <div class="takeaway-label">Standard Thickness</div>
@@ -36,7 +45,7 @@ get_header();
       </div>
       <div class="takeaway-card">
         <div class="takeaway-label">Standard Waste Factor</div>
-        <div class="takeaway-value">+10% Recommended</div>
+        <div class="takeaway-value">+<?php echo esc_html($sd['concrete']['waste_pct']); ?>% Recommended</div>
       </div>
     </div>
 
@@ -70,7 +79,7 @@ get_header();
         
         <h2>How Much Does a Concrete Slab Cost in 2026?</h2>
         <p>
-          On average, pouring a residential concrete slab costs between <strong>$6.00 and $12.00 per square foot</strong> for professional installation. For a standard 4-inch thick slab measuring 400 square feet (20×20 ft), the total installed cost typically ranges from <strong>$2,400 to $4,800</strong>. If you choose to self-perform the work (DIY mode) and purchase only the raw materials and tools, concrete slab costs typically range between <strong>$2.50 and $4.50 per square foot</strong>.
+          On average, pouring a residential concrete slab costs between <strong><?php echo esc_html(Slab_Data::money($psf[0], 2) . ' and ' . Slab_Data::money($psf[1], 2)); ?> per square foot</strong> for professional installation. For a standard 4-inch thick slab measuring 400 square feet (20×20 ft), the total installed cost typically ranges from <strong><?php echo esc_html(Slab_Data::money_range($s20['installed'], 0, ' to ')); ?></strong>. Small slabs cost more per square foot because delivery, forms and setup are spread over less area (a 10×10 ft slab runs <?php echo esc_html($f10['installed']); ?>). If you choose to self-perform the work (DIY mode) and purchase only the raw materials, concrete slab costs typically range between <strong><?php echo esc_html(Slab_Data::money($diy_psf[0], 2) . ' and ' . Slab_Data::money($diy_psf[1], 2)); ?> per square foot</strong>.
         </p>
 
         <div class="definition-card">
@@ -79,7 +88,7 @@ get_header();
             Key Cost Distinction: Material Cost vs. Total Installed Cost
           </div>
           <p>
-            <strong>Material-only cost</strong> includes ready-mix concrete, gravel base, form boards, vapor barrier, and rebar ($2.50–$4.50/sq ft). <strong>Installed cost</strong> includes professional site excavation, grading, sub-base compaction, form layout, reinforcement tying, screeding, bull floating, power troweling, saw-cut control joints, and curing seals ($6.00–$12.00/sq ft).
+            <strong>Material-only cost</strong> includes the concrete (ready-mix or bags), form boards, vapor barrier, and rebar (<?php echo esc_html(Slab_Data::money_range($diy_psf, 2, '–')); ?>/sq ft). <strong>Installed cost</strong> includes form layout, reinforcement tying, screeding, bull floating, power troweling, saw-cut control joints, and curing (<?php echo esc_html(Slab_Data::money_range($psf, 2, '–')); ?>/sq ft). Site excavation, grading and a compacted gravel base add about <?php echo esc_html(Slab_Data::money_range(Slab_Data::site_prep_psf(), 2, '–')); ?>/sq ft when the site needs them.
           </p>
         </div>
 
@@ -98,32 +107,32 @@ get_header();
 
         <h3>1. Concrete Material (Ready-Mix or Bags)</h3>
         <p>
-          Ready-mix concrete delivered by a transit truck averages <strong>$135 to $175 per cubic yard</strong> (3,000 to 4,000 PSI standard compressive mix). Bagged concrete mix (such as Quikrete or Sakrete) costs approximately <strong>$6.00 to $8.00 per 80-lb bag</strong>. Ready-mix is more economical for projects exceeding 1.5 to 2 cubic yards, while bagged concrete is ideal for small pads or remote locations where ready-mix trucks cannot access.
+          Ready-mix concrete delivered by a transit truck averages <strong><?php echo esc_html(Slab_Data::money_range($rm_range, 0, ' to ')); ?> per cubic yard</strong> (3,000 to 4,000 PSI standard compressive mix). Bagged concrete mix (such as Quikrete or Sakrete) costs approximately <strong><?php echo esc_html(Slab_Data::mr('concrete.bag_price_range', 2, ' to ')); ?> per 80-lb bag</strong>. Ready-mix is usually more economical above about <?php echo esc_html(Slab_Data::num($sd['delivery']['ready_mix_wins_above_yd'])); ?> cubic yards, even with a short-load fee, while bagged concrete is ideal for small pads or remote locations where ready-mix trucks cannot access.
         </p>
 
         <h3>2. Site Excavation &amp; Grading</h3>
         <p>
-          Preparing the ground involves removing grass, topsoil, and organic matter to a depth of 4 to 8 inches. Excavation costs typically run <strong>$1.00 to $2.50 per square foot</strong>, depending on root systems, slope, and soil density.
+          Preparing the ground involves removing grass, topsoil, and organic matter to a depth of 4 to 8 inches. Excavation costs typically run <strong><?php echo esc_html(Slab_Data::mr('site.excavation_range', 2, ' to ')); ?> per square foot</strong>, depending on root systems, slope, and soil density.
         </p>
 
         <h3>3. Compacted Gravel Sub-Base</h3>
         <p>
-          A sturdy 4-inch base of crushed stone (such as #57 stone or crushed aggregate base) distributes vehicle loads, prevents frost heaving, and allows water drainage. Crushed gravel costs approximately <strong>$35 to $55 per cubic yard</strong> (or $25 to $40 per ton).
+          A sturdy 4-inch base of crushed stone (such as #57 stone or crushed aggregate base) distributes vehicle loads, prevents frost heaving, and allows water drainage. Crushed gravel costs approximately <strong><?php echo esc_html(Slab_Data::mr('site.gravel_range', 0, ' to ')); ?> per cubic yard</strong> (or <?php echo esc_html(Slab_Data::mr('site.gravel_ton_range', 0, ' to ')); ?> per ton).
         </p>
 
         <h3>4. Perimeter Formwork Lumber</h3>
         <p>
-          Wood formwork built with 2×4 or 2×6 dimensional lumber, wood stakes, and duplex nails holds the wet concrete in place during placement and curing. Form lumber and staking materials generally cost <strong>$1.50 to $3.00 per linear foot</strong> of slab perimeter.
+          Wood formwork built with 2×4 or 2×6 dimensional lumber, wood stakes, and duplex nails holds the wet concrete in place during placement and curing. Form lumber and staking materials generally cost <strong><?php echo esc_html(Slab_Data::mr('site.forms_range', 2, ' to ')); ?> per linear foot</strong> of slab perimeter.
         </p>
 
         <h3>5. Steel Reinforcement (Rebar vs. Wire Mesh)</h3>
         <p>
-          Reinforcement absorbs tensile stresses and controls drying shrinkage cracking. Standard <strong>#4 (1/2") steel rebar</strong> tied on 12-inch to 18-inch grid centers costs approximately <strong>$1.00 to $1.75 per square foot</strong> including rebar support chairs. <strong>Welded wire mesh (6×6 W1.4/W2.9)</strong> costs approximately <strong>$0.40 to $0.70 per square foot</strong>.
+          Reinforcement absorbs tensile stresses and controls drying shrinkage cracking. Standard <strong>#4 (1/2") steel rebar</strong> tied on 12-inch to 18-inch grid centers costs approximately <strong><?php echo esc_html(Slab_Data::mr('reinforcement.rebar_range', 2, ' to ')); ?> per square foot</strong> including rebar support chairs. <strong>Welded wire mesh (6×6 W1.4/W2.9)</strong> costs approximately <strong><?php echo esc_html(Slab_Data::mr('reinforcement.mesh_range', 2, ' to ')); ?> per square foot</strong>.
         </p>
 
         <h3>6. Vapor Barrier Moisture Retarder</h3>
         <p>
-          A heavy-duty 10-mil to 15-mil polyethylene vapor barrier placed beneath interior garage or enclosed shed slabs prevents ground moisture vapor from migrating through the cured concrete. Vapor barriers cost <strong>$0.25 to $0.45 per square foot</strong>.
+          A heavy-duty 10-mil to 15-mil polyethylene vapor barrier placed beneath interior garage or enclosed shed slabs prevents ground moisture vapor from migrating through the cured concrete. Vapor barriers cost <strong><?php echo esc_html(Slab_Data::mr('site.vapor_range', 2, ' to ')); ?> per square foot</strong>.
         </p>
 
         <h3>7. Surface Finishing Technique</h3>
@@ -131,20 +140,20 @@ get_header();
           Finishing determines appearance and slip resistance:
         </p>
         <ul>
-          <li><strong>Broom Finish:</strong> Standard textured exterior finish for walkways and driveways (included in standard labor or +$0.50–$0.80/sq ft).</li>
-          <li><strong>Smooth Hard Trowel:</strong> Polished interior finish for workshops and garages (+$1.00–$1.50/sq ft).</li>
-          <li><strong>Exposed Aggregate:</strong> Decorative stone surface (+$2.50–$4.50/sq ft).</li>
-          <li><strong>Stamped &amp; Stained Concrete:</strong> Patterned brick/slate textures (+$6.00–$12.00/sq ft).</li>
+          <li><strong>Broom Finish:</strong> Standard textured exterior finish for walkways and driveways (included in standard labor or +<?php echo esc_html(Slab_Data::money_range($f['broom']['range'], 2, '–')); ?>/sq ft).</li>
+          <li><strong>Smooth Hard Trowel:</strong> Polished interior finish for workshops and garages (+<?php echo esc_html(Slab_Data::money_range($f['trowel']['range'], 2, '–')); ?>/sq ft).</li>
+          <li><strong>Exposed Aggregate:</strong> Decorative stone surface (+<?php echo esc_html(Slab_Data::money_range($f['exposed']['range'], 2, '–')); ?>/sq ft).</li>
+          <li><strong>Stamped &amp; Stained Concrete:</strong> Patterned brick/slate textures (+<?php echo esc_html(Slab_Data::money_range($f['stamped']['range'], 2, '–')); ?>/sq ft).</li>
         </ul>
 
         <h3>8. Concrete Finishing Labor</h3>
         <p>
-          Experienced concrete finishers charge between <strong>$3.50 and $7.00 per square foot</strong> (or $40 to $75 per crew hour) for setup, pouring, screeding, floating, edging, control joint cutting, and applying curing compound.
+          Experienced concrete finishers charge between <strong><?php echo esc_html(Slab_Data::money($sd['labor']['sqft_range'][0], 2) . ' and ' . Slab_Data::money($sd['labor']['sqft_range'][1], 2)); ?> per square foot</strong> (about <?php echo esc_html(Slab_Data::mr('labor.worker_hour', 0, ' to ')); ?> per finisher-hour, or <?php echo esc_html(Slab_Data::mr('labor.crew_hour', 0, ' to ')); ?> per hour for a <?php echo esc_html(Slab_Data::r('labor.crew_size', '–')); ?> person crew) for setup, pouring, screeding, floating, edging, control joint cutting, and applying curing compound.
         </p>
 
         <h3>9. Delivery Charges &amp; Pump Rental</h3>
         <p>
-          Transit mixer suppliers often add a short-load fee of <strong>$80 to $200</strong> on orders below their minimum, commonly 5 to 6 cubic yards (<a href="#ready-mix-short-load-fee">fee breakdown</a>). If the concrete truck cannot park within 15 to 20 feet of the forms due to fences, landscaping, or steep terrain, a trailer line pump or boom pump truck must be rented for <strong>$600 to $1,200 per pour</strong> (<a href="#concrete-pump-cost">line vs. boom pump</a>).
+          Transit mixer suppliers often add a short-load fee of <strong><?php echo esc_html(Slab_Data::mr('delivery.short_load_flat', 0, ' to ')); ?></strong> on orders below their minimum, which ranges from <?php echo esc_html(Slab_Data::r('delivery.min_load_yd')); ?> cubic yards and is commonly <?php echo esc_html(Slab_Data::r('delivery.common_min_yd')); ?> cubic yards (<a href="#ready-mix-short-load-fee">fee breakdown</a>). If the concrete truck cannot park within <?php echo esc_html(Slab_Data::r('site.chute_reach_ft')); ?> feet of the forms due to fences, landscaping, or steep terrain, a trailer line pump or boom pump truck must be rented for <strong><?php echo esc_html(Slab_Data::mr('pump.typical', 0, ' to ')); ?> per pour</strong> (<a href="#concrete-pump-cost">line vs. boom pump</a>).
         </p>
 
         <h2>Concrete Slab Cost by Size (Reference Matrix)</h2>
@@ -164,8 +173,8 @@ get_header();
         </figure>
 
         <ul>
-          <li><strong>4-Inch Slab:</strong> Best for foot-traffic applications, including patios, sidewalks, trash bin pads, and light utility sheds (min 3,000 PSI).</li>
-          <li><strong>5-Inch Slab:</strong> Ideal for standard residential driveways, 2-car garages, and parking pads supporting passenger sedans and light pickup trucks (3,500–4,000 PSI).</li>
+          <li><strong>4-Inch Slab:</strong> Best for foot-traffic applications, including patios, sidewalks, trash bin pads, and light utility sheds (min <?php echo esc_html(number_format($sd['code']['psi_exposed'])); ?> PSI).</li>
+          <li><strong>5-Inch Slab:</strong> Ideal for standard residential driveways, 2-car garages, and parking pads supporting passenger sedans and light pickup trucks (<?php echo esc_html(number_format($sd['code']['psi_severe']) . '–' . number_format($sd['code']['psi_deicing_recommended'])); ?> PSI, air-entrained in freeze-thaw areas).</li>
           <li><strong>6-Inch Slab:</strong> Recommended for RV parking pads, heavy-duty workshops, commercial loading docks, and heavy multi-axle vehicle storage (4,000+ PSI with #4 rebar grid).</li>
         </ul>
 
@@ -194,8 +203,8 @@ get_header();
           <li><strong>Calculate Surface Area:</strong> 20 ft × 20 ft = 400 sq. ft.</li>
           <li><strong>Convert Thickness to Feet:</strong> 4 inches ÷ 12 = 0.3333 ft.</li>
           <li><strong>Calculate Net Volume:</strong> 400 sq. ft. × 0.3333 ft = 133.33 cubic feet.</li>
-          <li><strong>Convert to Cubic Yards:</strong> 133.33 cu. ft. ÷ 27 = <strong>4.94 cubic yards</strong>.</li>
-          <li><strong>Apply 10% Waste Factor:</strong> 4.94 × 1.10 = <strong>5.43 cubic yards</strong> (Order 5.5 yards from your ready-mix supplier).</li>
+          <li><strong>Convert to Cubic Yards:</strong> 133.33 cu. ft. ÷ 27 = <strong><?php echo esc_html($f20['net_yd']); ?> cubic yards</strong>.</li>
+          <li><strong>Apply <?php echo esc_html($sd['concrete']['waste_pct']); ?>% Waste Factor:</strong> <?php echo esc_html($f20['net_yd']); ?> × <?php echo esc_html(number_format(1 + $sd['concrete']['waste_pct'] / 100, 2)); ?> = <strong><?php echo esc_html($f20['order_yd']); ?> cubic yards</strong> (Order <?php echo esc_html(Slab_Data::num(ceil($s20['est']['order_yd'] * 2 - 1e-9) / 2)); ?> yards from your ready-mix supplier).</li>
         </ol>
 
         <h2>Ready-Mix vs. Bagged Concrete: Which is Better for Your Slab?</h2>
@@ -211,13 +220,14 @@ get_header();
             <tbody>
               <tr>
                 <td><strong>Best For</strong></td>
-                <td>Slabs > 1.5 cubic yards (Patios, Driveways, Garages)</td>
-                <td>Small repairs, post holes, pads < 1.0 cu yd (4x4, 6x6)</td>
+                <td>Slabs &gt; <?php echo esc_html(Slab_Data::num($sd['delivery']['ready_mix_wins_above_yd'])); ?> cubic yards (Patios, Driveways, Garages)</td>
+                <td>Small repairs, post holes, pads &lt; <?php echo esc_html(Slab_Data::num($sd['delivery']['bags_win_below_yd'], 1)); ?> cu yd (4x4, 6x6)</td>
               </tr>
               <tr>
                 <td><strong>Cost Comparison</strong></td>
-                <td>$135–$175/yd³ + delivery (~$5.00–$6.50/cu ft)</td>
-                <td>$6.50/80-lb bag = $10.83/cu ft (~$290/cu yd)</td>
+                <td><?php echo esc_html(Slab_Data::money_range($rm_range, 0, '–')); ?>/yd³ + delivery (~<?php echo esc_html(Slab_Data::money_range([$rm_range[0] / 27, $rm_range[1] / 27], 2, '–')); ?>/cu ft before fees)</td>
+                <?php $bp = $sd['concrete']['bag_price_default']; $by = $sd['concrete']['bag_yields']['80']; ?>
+                <td><?php echo esc_html(Slab_Data::money($bp, 2)); ?>/80-lb bag = <?php echo esc_html(Slab_Data::money($bp / $by, 2)); ?>/cu ft (~<?php echo esc_html(Slab_Data::money($bp / $by * 27, 0)); ?>/cu yd)</td>
               </tr>
               <tr>
                 <td><strong>Mixing Effort</strong></td>
@@ -255,10 +265,10 @@ get_header();
           When requesting contractor quotes, several jobsite variables can increase unit prices:
         </p>
         <ul>
-          <li><strong>Restricted Site Access:</strong> If concrete trucks cannot back up directly to the slab forms, wheelbarrowing concrete or hiring a pump truck ($600–$1,200) increases labor and equipment expense.</li>
+          <li><strong>Restricted Site Access:</strong> If concrete trucks cannot back up directly to the slab forms, wheelbarrowing concrete or hiring a pump truck (<?php echo esc_html(Slab_Data::mr('pump.typical', 0, '–')); ?>) increases labor and equipment expense.</li>
           <li><strong>Sloped or Uneven Ground:</strong> Sloped terrain requires additional excavation, retaining walls, or thicker edge forms.</li>
           <li><strong>Tree Root Removal &amp; Rock Excavation:</strong> Rocky soil or large root systems require mini-excavator equipment or jackhammers.</li>
-          <li><strong>Permits &amp; Inspections:</strong> Municipal flatwork or building permits range from $50 to $350 depending on local jurisdiction.</li>
+          <li><strong>Permits &amp; Inspections:</strong> Municipal flatwork or building permits for small residential slabs commonly range from <?php echo esc_html(Slab_Data::mr('permit.flatwork', 0, ' to ')); ?> depending on local jurisdiction.</li>
         </ul>
 
         <?php get_template_part('template-parts/cost-factor-guides'); ?>
@@ -319,52 +329,7 @@ get_header();
         <section class="faq-section" aria-label="Frequently Asked Questions">
           <h2>Frequently Asked Questions About Concrete Slab Costs</h2>
 
-          <div class="faq-item">
-            <button type="button" class="faq-question" aria-expanded="false">
-              How much does a 10x10 concrete slab cost?
-            </button>
-            <div class="faq-answer">
-              A 10x10 foot concrete slab (100 square feet) at standard 4-inch depth costs between <strong>$600 and $1,200</strong> professionally installed. Material-only DIY cost is approximately $220 to $350. It requires 1.23 cubic yards of concrete (1.36 cubic yards with 10% waste), which is 62 bags of 80-lb pre-mix or 82 bags of 60-lb pre-mix.
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <button type="button" class="faq-question" aria-expanded="false">
-              How much does a 20x20 concrete slab cost?
-            </button>
-            <div class="faq-answer">
-              A 20x20 foot slab (400 square feet) typically costs <strong>$2,400 to $4,800</strong> for a standard 4-inch patio or shed floor, and <strong>$2,800 to $5,400</strong> for a 5-inch or 6-inch garage floor with rebar reinforcement. At 4 inches thick it requires 4.94 cubic yards of ready-mix concrete (5.43 cubic yards with 10% waste).
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <button type="button" class="faq-question" aria-expanded="false">
-              How many 80 lb bags of concrete do I need for a cubic yard?
-            </button>
-            <div class="faq-answer">
-              It takes exactly <strong>45 bags of 80-lb concrete mix</strong> to equal one cubic yard (27 cubic feet). One 80-lb bag yields approximately 0.60 cubic feet of mixed wet concrete (27 ÷ 0.60 = 45 bags).
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <button type="button" class="faq-question" aria-expanded="false">
-              How long should I wait before driving or parking on a new concrete slab?
-            </button>
-            <div class="faq-answer">
-              Foot traffic is safe after <strong>24 to 48 hours</strong>. Light passenger cars can park after <strong>7 days</strong> (when concrete achieves ~70% design strength). Heavy trucks, RVs, and heavy machinery should wait <strong>28 days</strong> until full compressive curing is reached.
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <button type="button" class="faq-question" aria-expanded="false">
-              Do I need a gravel base under a concrete slab?
-            </button>
-            <div class="faq-answer">
-              Yes. A 4-inch to 6-inch compacted crushed stone or gravel base provides uniform subgrade support, facilitates water drainage away from the slab, and dramatically reduces cracking caused by soil settling or freeze-thaw frost heave.
-            </div>
-          </div>
-
-          <?php foreach (Slab_Schema_Generator::get_cost_factor_faqs() as $faq) : ?>
+          <?php foreach (Slab_Schema_Generator::get_home_faqs() as $faq) : ?>
           <div class="faq-item">
             <button type="button" class="faq-question" aria-expanded="false">
               <?php echo esc_html($faq['q']); ?>
@@ -499,10 +464,15 @@ get_header();
         <div class="sidebar-widget">
           <div class="widget-title">Cost Breakdown Guides</div>
           <ul class="calculator-nav-list">
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/10x10-concrete-slab-cost-breakdown/')); ?>">10x10 Slab Cost ($600–$1.2k)</a></li>
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/12x12-concrete-slab-cost-breakdown/')); ?>">12x12 Slab Cost ($850–$1.7k)</a></li>
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/20x20-concrete-slab-cost-breakdown/')); ?>">20x20 Slab Cost ($2.4k–$4.8k)</a></li>
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/24x24-concrete-slab-cost-breakdown/')); ?>">24x24 Garage Slab ($3.5k–$6.9k)</a></li>
+            <?php
+            $short_k = function ($n) {
+                return $n >= 1000 ? '$' . rtrim(rtrim(number_format($n / 1000, 1), '0'), '.') . 'k' : '$' . number_format($n);
+            };
+            foreach ([[10, 10, '10x10 Slab Cost'], [12, 12, '12x12 Slab Cost'], [20, 20, '20x20 Slab Cost'], [24, 24, '24x24 Garage Slab']] as $sz) :
+                $c = Slab_Data::size_costs($sz[0], $sz[1], 4);
+            ?>
+            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/' . $sz[0] . 'x' . $sz[1] . '-concrete-slab-cost-breakdown/')); ?>"><?php echo esc_html($sz[2] . ' (' . $short_k($c['installed'][0]) . '–' . $short_k($c['installed'][1]) . ')'); ?></a></li>
+            <?php endforeach; ?>
           </ul>
         </div>
       </aside>

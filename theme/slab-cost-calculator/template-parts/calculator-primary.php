@@ -8,6 +8,14 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// Default field values come from inc/site-data.php, the same figures the
+// calculator JS (window.SLAB_DATA) and the page text use.
+$sd = Slab_Data::all();
+$v = function ($n, $dec = 2) {
+    return esc_attr(number_format((float) $n, $dec, '.', ''));
+};
+$fin = $sd['finish'];
 ?>
 
 <div id="concrete-slab-calculator" class="calculator-app-wrapper" role="region" aria-label="Concrete Slab Cost Estimator">
@@ -115,7 +123,7 @@ if (!defined('ABSPATH')) {
           <label for="calc-readymix-price" class="calc-label">Ready-Mix Price / <span class="unit-vol-label">cu. yds</span></label>
           <div class="calc-input-wrapper has-addon-left">
             <span class="calc-input-addon-left">$</span>
-            <input type="number" id="calc-readymix-price" class="calc-control" value="150" min="50" step="5">
+            <input type="number" id="calc-readymix-price" class="calc-control" value="<?php echo $v($sd['concrete']['ready_mix_default'], 0); ?>" min="50" step="5">
           </div>
         </div>
       </div>
@@ -136,7 +144,7 @@ if (!defined('ABSPATH')) {
           <label for="calc-bag-price" class="calc-label">Price Per Bag</label>
           <div class="calc-input-wrapper has-addon-left">
             <span class="calc-input-addon-left">$</span>
-            <input type="number" id="calc-bag-price" class="calc-control" value="6.50" min="1" step="0.25">
+            <input type="number" id="calc-bag-price" class="calc-control" value="<?php echo $v($sd['concrete']['bag_price_default']); ?>" min="1" step="0.25">
           </div>
         </div>
       </div>
@@ -161,14 +169,14 @@ if (!defined('ABSPATH')) {
               <label for="calc-excavation-rate" class="calc-label">Excavation &amp; Grading Rate</label>
               <div class="calc-input-wrapper has-addon-left has-addon-right">
                 <span class="calc-input-addon-left">$</span>
-                <input type="number" id="calc-excavation-rate" class="calc-control" value="1.50" step="0.25">
+                <input type="number" id="calc-excavation-rate" class="calc-control" value="<?php echo $v($sd['site']['excavation_default']); ?>" step="0.25">
                 <span class="calc-input-addon-right">/sq ft</span>
               </div>
             </div>
             <div class="calc-form-group">
               <label for="calc-gravel-depth" class="calc-label">Gravel Sub-Base Depth</label>
               <div class="calc-input-wrapper has-addon-right">
-                <input type="number" id="calc-gravel-depth" class="calc-control" value="4" step="1">
+                <input type="number" id="calc-gravel-depth" class="calc-control" value="<?php echo $v($sd['site']['gravel_depth_in'], 0); ?>" step="1">
                 <span class="calc-input-addon-right unit-thick-label">inches</span>
               </div>
             </div>
@@ -178,7 +186,7 @@ if (!defined('ABSPATH')) {
               <label for="calc-gravel-price" class="calc-label">Crushed Gravel Price</label>
               <div class="calc-input-wrapper has-addon-left has-addon-right">
                 <span class="calc-input-addon-left">$</span>
-                <input type="number" id="calc-gravel-price" class="calc-control" value="45.00" step="5">
+                <input type="number" id="calc-gravel-price" class="calc-control" value="<?php echo $v($sd['site']['gravel_default']); ?>" step="5">
                 <span class="calc-input-addon-right">/yd³</span>
               </div>
             </div>
@@ -202,7 +210,7 @@ if (!defined('ABSPATH')) {
               </label>
               <div class="calc-input-wrapper has-addon-left has-addon-right">
                 <span class="calc-input-addon-left">$</span>
-                <input type="number" id="calc-form-cost" class="calc-control" aria-label="Formwork cost per linear foot" value="2.20" step="0.20">
+                <input type="number" id="calc-form-cost" class="calc-control" aria-label="Formwork cost per linear foot" value="<?php echo $v($sd['site']['forms_default']); ?>" step="0.20">
                 <span class="calc-input-addon-right">/lin ft</span>
               </div>
             </div>
@@ -213,7 +221,7 @@ if (!defined('ABSPATH')) {
               </label>
               <div class="calc-input-wrapper has-addon-left has-addon-right">
                 <span class="calc-input-addon-left">$</span>
-                <input type="number" id="calc-vapor-cost" class="calc-control" aria-label="Vapor barrier cost per square foot" value="0.35" step="0.05">
+                <input type="number" id="calc-vapor-cost" class="calc-control" aria-label="Vapor barrier cost per square foot" value="<?php echo $v($sd['site']['vapor_default']); ?>" step="0.05">
                 <span class="calc-input-addon-right">/sq ft</span>
               </div>
             </div>
@@ -274,10 +282,10 @@ if (!defined('ABSPATH')) {
             <div class="calc-form-group">
               <label for="calc-finish-type" class="calc-label">Finish Style</label>
               <select id="calc-finish-type" class="calc-control">
-                <option value="broom" selected>Broom Finish (Standard Outdoor, +$0.75/sq ft)</option>
-                <option value="trowel">Smooth Trowel (Interior/Garage, +$1.25/sq ft)</option>
-                <option value="exposed">Exposed Aggregate Decorative (+$3.50/sq ft)</option>
-                <option value="stamped">Stamped &amp; Stained Pattern (+$7.50/sq ft)</option>
+                <option value="broom" selected>Broom Finish (Standard Outdoor, +$<?php echo $v($fin['broom']['default']); ?>/sq ft)</option>
+                <option value="trowel">Smooth Trowel (Interior/Garage, +$<?php echo $v($fin['trowel']['default']); ?>/sq ft)</option>
+                <option value="exposed">Exposed Aggregate Decorative (+$<?php echo $v($fin['exposed']['default']); ?>/sq ft)</option>
+                <option value="stamped">Stamped &amp; Stained Pattern (+$<?php echo $v($fin['stamped']['default']); ?>/sq ft)</option>
                 <option value="none">Basic Float Only ($0.00)</option>
                 <option value="custom">Custom Finish Rate</option>
               </select>
@@ -286,7 +294,7 @@ if (!defined('ABSPATH')) {
               <label for="calc-finish-cost" class="calc-label">Custom Finish Rate</label>
               <div class="calc-input-wrapper has-addon-left has-addon-right">
                 <span class="calc-input-addon-left">$</span>
-                <input type="number" id="calc-finish-cost" class="calc-control" value="0.75" step="0.25">
+                <input type="number" id="calc-finish-cost" class="calc-control" value="<?php echo $v($fin['broom']['default']); ?>" step="0.25">
                 <span class="calc-input-addon-right">/sq ft</span>
               </div>
             </div>
@@ -318,22 +326,22 @@ if (!defined('ABSPATH')) {
               <label for="calc-labor-sqft-rate" class="calc-label">Labor Rate / Sq. Ft.</label>
               <div class="calc-input-wrapper has-addon-left">
                 <span class="calc-input-addon-left">$</span>
-                <input type="number" id="calc-labor-sqft-rate" class="calc-control" value="5.00" min="0" step="0.50">
+                <input type="number" id="calc-labor-sqft-rate" class="calc-control" value="<?php echo $v($sd['labor']['sqft_default']); ?>" min="0" step="0.50">
               </div>
             </div>
           </div>
 
           <div id="row-labor-hourly" class="input-grid-2" style="display: none;">
             <div class="calc-form-group">
-              <label for="calc-labor-hourly-rate" class="calc-label">Crew Rate / Hour</label>
+              <label for="calc-labor-hourly-rate" class="calc-label">Whole-Crew Rate / Hour</label>
               <div class="calc-input-wrapper has-addon-left">
                 <span class="calc-input-addon-left">$</span>
-                <input type="number" id="calc-labor-hourly-rate" class="calc-control" value="45.00" step="5">
+                <input type="number" id="calc-labor-hourly-rate" class="calc-control" value="<?php echo $v($sd['labor']['crew_hour_default']); ?>" step="5">
               </div>
             </div>
             <div class="calc-form-group">
               <label for="calc-labor-hours" class="calc-label">Estimated Total Hours</label>
-              <input type="number" id="calc-labor-hours" class="calc-control" value="16" step="1">
+              <input type="number" id="calc-labor-hours" class="calc-control" value="<?php echo esc_attr(round(400 * $sd['labor']['crew_hours_per_sqft'])); ?>" step="1">
             </div>
           </div>
 
@@ -362,21 +370,21 @@ if (!defined('ABSPATH')) {
               <p class="calc-field-note">Not charged when bagged concrete is selected.</p>
               <div class="calc-input-wrapper has-addon-left">
                 <span class="calc-input-addon-left">$</span>
-                <input type="number" id="calc-delivery-amount" class="calc-control" aria-label="Ready-mix delivery or short-load fee" value="120" step="10">
+                <input type="number" id="calc-delivery-amount" class="calc-control" aria-label="Ready-mix delivery or short-load fee" value="<?php echo $v($sd['delivery']['fee_default'], 0); ?>" step="10">
               </div>
             </div>
             <div class="calc-form-group">
               <label class="calc-label"><input type="checkbox" id="chk-pump-rental"> Concrete Pump Truck</label>
               <div class="calc-input-wrapper has-addon-left">
                 <span class="calc-input-addon-left">$</span>
-                <input type="number" id="calc-pump-amount" class="calc-control" aria-label="Concrete pump truck cost" value="650" step="25">
+                <input type="number" id="calc-pump-amount" class="calc-control" aria-label="Concrete pump truck cost" value="<?php echo $v($sd['pump']['default'], 0); ?>" step="25">
               </div>
             </div>
             <div class="calc-form-group">
               <label class="calc-label"><input type="checkbox" id="chk-equipment-rental"> Equipment Rentals</label>
               <div class="calc-input-wrapper has-addon-left">
                 <span class="calc-input-addon-left">$</span>
-                <input type="number" id="calc-equipment-amount" class="calc-control" aria-label="Equipment rental cost" value="150" step="25">
+                <input type="number" id="calc-equipment-amount" class="calc-control" aria-label="Equipment rental cost" value="<?php echo $v($sd['equipment_default'], 0); ?>" step="25">
               </div>
             </div>
           </div>
@@ -399,7 +407,7 @@ if (!defined('ABSPATH')) {
             <label for="calc-demo-cost" class="calc-label">Demolition &amp; Disposal Rate</label>
             <div class="calc-input-wrapper has-addon-left has-addon-right">
               <span class="calc-input-addon-left">$</span>
-              <input type="number" id="calc-demo-cost" class="calc-control" value="3.50" step="0.25">
+              <input type="number" id="calc-demo-cost" class="calc-control" value="<?php echo $v($sd['site']['demo_default']); ?>" step="0.25">
               <span class="calc-input-addon-right">/sq ft</span>
             </div>
           </div>
@@ -418,7 +426,7 @@ if (!defined('ABSPATH')) {
         <div class="calc-form-group">
           <label for="calc-contingency-percent" class="calc-label">Contingency Buffer (%)</label>
           <div class="calc-input-wrapper has-addon-right">
-            <input type="number" id="calc-contingency-percent" class="calc-control" value="5" min="0" max="50" step="1">
+            <input type="number" id="calc-contingency-percent" class="calc-control" value="<?php echo esc_attr($sd['contingency_pct']); ?>" min="0" max="50" step="1">
             <span class="calc-input-addon-right">%</span>
           </div>
         </div>
