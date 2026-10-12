@@ -25,8 +25,8 @@
     '40': 0.30
   };
 
-  // State Management
-  const state = {
+  // Default inputs. Reset restores every key from here.
+  const DEFAULTS = {
     unitSystem: 'imperial', // 'imperial' or 'metric'
     length: 20,
     width: 20,
@@ -54,7 +54,8 @@
     // Reinforcement
     reinforcementType: 'rebar', // 'none', 'mesh', 'rebar', 'custom'
     meshCostPerSqFt: 0.50,
-    rebarCostPerSqFt: 1.25,
+    rebarCostPerSqFt: 1.25, // #4 grid at REBAR_BASE_SPACING_IN, chairs included
+    rebarSpacingIn: 18,
     customReinforceCost: 0,
 
     // Finish
@@ -80,6 +81,26 @@
     markupPercent: 0,
     contingencyPercent: 5
   };
+
+  // State Management
+  const state = Object.assign({}, DEFAULTS);
+
+  // The rebar rate is for an 18 in grid. Steel per sq ft scales with
+  // 1 / spacing, so a 12 in grid costs 1.5x and a 24 in grid 0.75x.
+  const REBAR_BASE_SPACING_IN = 18;
+
+  // Bag counts are whole bags, but volumes like 52.8 ft3 / 0.6 come out as
+  // 88.00000000000001 in floating point. Trim that noise before rounding up
+  // so a 12x12x4 slab needs 88 bags, not 89.
+  function ceilCount(x) {
+    return Math.ceil(parseFloat(x.toFixed(6)));
+  }
+
+  // Reads a number field: blank or invalid gives 0, negatives clamp to 0.
+  function readNum(el) {
+    const v = parseFloat(el.value);
+    return Number.isFinite(v) ? Math.max(0, v) : 0;
+  }
 
   // Project Type Presets (Length, Width, Thickness in standard Imperial)
   const PRESETS = {
@@ -111,7 +132,9 @@
     dom = {
       root: root,
       unitBtns: root.querySelectorAll('.unit-btn'),
-      presetBtns: root.querySelectorAll('.preset-btn'),
+      // [data-preset] only: the weather tool's Cold/Mild/Hot buttons share
+      // the pill style but are not project presets.
+      presetBtns: root.querySelectorAll('.preset-btn[data-preset]'),
 
       // Inputs
       inputLength: root.querySelector('#calc-length'),
@@ -143,6 +166,7 @@
 
       // Reinforcement
       selectReinforcement: root.querySelector('#calc-reinforce-type'),
+      selectRebarSpacing: root.querySelector('#calc-rebar-spacing'),
       inputReinforceCost: root.querySelector('#calc-reinforce-cost'),
 
       // Finish
@@ -179,6 +203,8 @@
       outWasteCubicYards: root.querySelector('#out-waste-yards'),
       outNetCubicMeters: root.querySelector('#out-net-meters'),
       outTotalBags: root.querySelector('#out-total-bags'),
+      outBagNote: root.querySelector('#out-bag-note'),
+      validationMsg: root.querySelector('#calc-validation-msg'),
       outAreaSqFt: root.querySelector('#out-area-sqft'),
       outPerimeterFt: root.querySelector('#out-perimeter-ft'),
       outTotalWeight: root.querySelector('#out-total-weight'),
@@ -224,8 +250,7 @@
         btn.addEventListener('click', function () {
           const presetKey = this.getAttribute('data-preset');
           applyPreset(presetKey);
-          dom.presetBtns.forEach(b => b.classList.remove('active'));
-          this.classList.add('active');
+          setActivePreset(this);
         });
       });
     }
@@ -236,8 +261,8 @@
       const header = acc.querySelector('.scope-header');
       if (header) {
         header.addEventListener('click', function (e) {
-          if (e.target.tagName.toLowerCase() === 'input') return; // don't toggle if clicking checkbox directly
-          acc.classList.toggle('open');
+          const open = acc.classList.toggle('open');
+          header.setAttribute('aria-expanded', open ? 'true' : 'false');
         });
       }
     });
@@ -246,13 +271,7 @@
     if (dom.selectMaterialType) {
       dom.selectMaterialType.addEventListener('change', function () {
         state.materialType = this.value;
-        if (state.materialType === 'readymix') {
-          dom.rowReadyMix.style.display = 'block';
-          dom.rowBagged.style.display = 'none';
-        } else {
-          dom.rowReadyMix.style.display = 'none';
-          dom.rowBagged.style.display = 'block';
-        }
+        syncConditionalRows();
         recalculate();
       });
     }
@@ -261,9 +280,7 @@
     if (dom.selectLaborMode) {
       dom.selectLaborMode.addEventListener('change', function () {
         state.laborMode = this.value;
-        dom.rowLaborSqft.style.display = state.laborMode === 'sqft' ? 'block' : 'none';
-        dom.rowLaborHourly.style.display = state.laborMode === 'hourly' ? 'grid' : 'none';
-        dom.rowLaborFlat.style.display = state.laborMode === 'flat' ? 'block' : 'none';
+        syncConditionalRows();
         recalculate();
       });
     }
@@ -297,6 +314,7 @@
     // window.print() behavior rather than doing nothing.
     if (dom.btnPrint) {
       dom.btnPrint.addEventListener('click', function () {
+        if (!ensureValid()) return;
         const report = window.SlabPDFReport;
         if (!report || typeof report.load !== 'function') {
           window.print();
@@ -338,7 +356,9 @@
 
   function updateUnitLabels() {
     dom.unitBtns.forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('data-unit') === state.unitSystem);
+      const on = btn.getAttribute('data-unit') === state.unitSystem;
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
 
     const isImp = state.unitSystem === 'imperial';
@@ -377,11 +397,11 @@
     activePresetKey = null;
     activePresetName = null;
 
-    state.length = parseFloat(dom.inputLength.value) || 0;
-    state.width = parseFloat(dom.inputWidth.value) || 0;
-    state.thickness = parseFloat(dom.inputThickness.value) || 0;
-    state.quantity = parseInt(dom.inputQuantity.value, 10) || 1;
-    state.wastePercent = parseFloat(dom.inputWaste.value) || 0;
+    state.length = readNum(dom.inputLength);
+    state.width = readNum(dom.inputWidth);
+    state.thickness = readNum(dom.inputThickness);
+    state.quantity = Math.max(1, parseInt(dom.inputQuantity.value, 10) || 1);
+    state.wastePercent = readNum(dom.inputWaste);
 
     // Materials
     state.materialType = dom.selectMaterialType ? dom.selectMaterialType.value : 'readymix';
@@ -389,56 +409,57 @@
     // in the matching field: computeEstimate() prices metric pours with
     // readyMixPricePerM3, which used to never receive the typed value.
     if (dom.inputReadyMixPrice) {
-      const price = parseFloat(dom.inputReadyMixPrice.value) || 0;
+      const price = readNum(dom.inputReadyMixPrice);
       if (state.unitSystem === 'imperial') state.readyMixPricePerYard = price;
       else state.readyMixPricePerM3 = price;
     }
     if (dom.selectBagSize) state.bagSize = dom.selectBagSize.value;
-    if (dom.inputBagPrice) state.bagPrice = parseFloat(dom.inputBagPrice.value) || 0;
+    if (dom.inputBagPrice) state.bagPrice = readNum(dom.inputBagPrice);
 
     // Site Prep
     if (dom.chkSitePrep) state.enableSitePrep = dom.chkSitePrep.checked;
-    if (dom.inputExcavationCost) state.excavationCostPerSqFt = parseFloat(dom.inputExcavationCost.value) || 0;
+    if (dom.inputExcavationCost) state.excavationCostPerSqFt = readNum(dom.inputExcavationCost);
     // Gravel depth is shown in inches or cm with the unit toggle but kept
     // in inches in state, which is what computeEstimate() and the PDF use.
     if (dom.inputGravelDepth) {
-      const depth = parseFloat(dom.inputGravelDepth.value) || 0;
+      const depth = readNum(dom.inputGravelDepth);
       state.gravelDepthInches = state.unitSystem === 'imperial' ? depth : parseFloat((depth / 2.54).toFixed(2));
     }
-    if (dom.inputGravelPrice) state.gravelPricePerYard = parseFloat(dom.inputGravelPrice.value) || 0;
+    if (dom.inputGravelPrice) state.gravelPricePerYard = readNum(dom.inputGravelPrice);
     if (dom.chkForms) state.enableForms = dom.chkForms.checked;
-    if (dom.inputFormCost) state.formCostPerLinearFt = parseFloat(dom.inputFormCost.value) || 0;
+    if (dom.inputFormCost) state.formCostPerLinearFt = readNum(dom.inputFormCost);
     if (dom.chkVaporBarrier) state.enableVaporBarrier = dom.chkVaporBarrier.checked;
-    if (dom.inputVaporCost) state.vaporBarrierCostPerSqFt = parseFloat(dom.inputVaporCost.value) || 0;
+    if (dom.inputVaporCost) state.vaporBarrierCostPerSqFt = readNum(dom.inputVaporCost);
     if (dom.chkDemo) state.enableDemoRemoval = dom.chkDemo.checked;
-    if (dom.inputDemoCost) state.demoCostPerSqFt = parseFloat(dom.inputDemoCost.value) || 0;
+    if (dom.inputDemoCost) state.demoCostPerSqFt = readNum(dom.inputDemoCost);
 
     // Reinforce
     if (dom.selectReinforcement) state.reinforcementType = dom.selectReinforcement.value;
-    if (dom.inputReinforceCost) state.customReinforceCost = parseFloat(dom.inputReinforceCost.value) || 0;
+    if (dom.selectRebarSpacing) state.rebarSpacingIn = parseFloat(dom.selectRebarSpacing.value) || REBAR_BASE_SPACING_IN;
+    if (dom.inputReinforceCost) state.customReinforceCost = readNum(dom.inputReinforceCost);
 
     // Finish
     if (dom.selectFinish) state.finishType = dom.selectFinish.value;
-    if (dom.inputFinishCost) state.finishCostPerSqFt = parseFloat(dom.inputFinishCost.value) || 0;
+    if (dom.inputFinishCost) state.finishCostPerSqFt = readNum(dom.inputFinishCost);
 
     // Labor
     if (dom.selectLaborMode) state.laborMode = dom.selectLaborMode.value;
-    if (dom.inputLaborSqft) state.laborRatePerSqFt = parseFloat(dom.inputLaborSqft.value) || 0;
-    if (dom.inputLaborHourlyRate) state.laborHourlyRate = parseFloat(dom.inputLaborHourlyRate.value) || 0;
-    if (dom.inputLaborHours) state.laborEstimatedHours = parseFloat(dom.inputLaborHours.value) || 0;
-    if (dom.inputLaborFlat) state.laborFlatCost = parseFloat(dom.inputLaborFlat.value) || 0;
+    if (dom.inputLaborSqft) state.laborRatePerSqFt = readNum(dom.inputLaborSqft);
+    if (dom.inputLaborHourlyRate) state.laborHourlyRate = readNum(dom.inputLaborHourlyRate);
+    if (dom.inputLaborHours) state.laborEstimatedHours = readNum(dom.inputLaborHours);
+    if (dom.inputLaborFlat) state.laborFlatCost = readNum(dom.inputLaborFlat);
 
     // Delivery / Equip
     if (dom.chkDelivery) state.enableDeliveryFee = dom.chkDelivery.checked;
-    if (dom.inputDeliveryFee) state.deliveryFee = parseFloat(dom.inputDeliveryFee.value) || 0;
+    if (dom.inputDeliveryFee) state.deliveryFee = readNum(dom.inputDeliveryFee);
     if (dom.chkPump) state.enablePumpRental = dom.chkPump.checked;
-    if (dom.inputPumpCost) state.pumpCost = parseFloat(dom.inputPumpCost.value) || 0;
+    if (dom.inputPumpCost) state.pumpCost = readNum(dom.inputPumpCost);
     if (dom.chkEquipment) state.enableEquipmentRental = dom.chkEquipment.checked;
-    if (dom.inputEquipmentCost) state.equipmentRentalCost = parseFloat(dom.inputEquipmentCost.value) || 0;
+    if (dom.inputEquipmentCost) state.equipmentRentalCost = readNum(dom.inputEquipmentCost);
 
     // Markup
-    if (dom.inputMarkup) state.markupPercent = parseFloat(dom.inputMarkup.value) || 0;
-    if (dom.inputContingency) state.contingencyPercent = parseFloat(dom.inputContingency.value) || 0;
+    if (dom.inputMarkup) state.markupPercent = readNum(dom.inputMarkup);
+    if (dom.inputContingency) state.contingencyPercent = readNum(dom.inputContingency);
   }
 
   function syncDOMFromState() {
@@ -450,6 +471,64 @@
     const isImp = state.unitSystem === 'imperial';
     if (dom.inputReadyMixPrice) dom.inputReadyMixPrice.value = (isImp ? state.readyMixPricePerYard : state.readyMixPricePerM3).toFixed(2);
     if (dom.inputGravelDepth) dom.inputGravelDepth.value = isImp ? state.gravelDepthInches : parseFloat((state.gravelDepthInches * 2.54).toFixed(1));
+  }
+
+  // Writes every remaining field (selects, checkboxes, rates) from state.
+  // Used by reset so the screen matches the defaults it restores.
+  function syncAllFieldsFromState() {
+    syncDOMFromState();
+    const set = (el, v) => { if (el) el.value = v; };
+    const check = (el, v) => { if (el) el.checked = v; };
+    set(dom.selectMaterialType, state.materialType);
+    set(dom.selectBagSize, state.bagSize);
+    set(dom.inputBagPrice, state.bagPrice.toFixed(2));
+    check(dom.chkSitePrep, state.enableSitePrep);
+    set(dom.inputExcavationCost, state.excavationCostPerSqFt.toFixed(2));
+    set(dom.inputGravelPrice, state.gravelPricePerYard.toFixed(2));
+    check(dom.chkForms, state.enableForms);
+    set(dom.inputFormCost, state.formCostPerLinearFt.toFixed(2));
+    check(dom.chkVaporBarrier, state.enableVaporBarrier);
+    set(dom.inputVaporCost, state.vaporBarrierCostPerSqFt.toFixed(2));
+    check(dom.chkDemo, state.enableDemoRemoval);
+    set(dom.inputDemoCost, state.demoCostPerSqFt.toFixed(2));
+    set(dom.selectReinforcement, state.reinforcementType);
+    set(dom.selectRebarSpacing, String(state.rebarSpacingIn));
+    set(dom.inputReinforceCost, state.customReinforceCost);
+    set(dom.selectFinish, state.finishType);
+    set(dom.inputFinishCost, state.finishCostPerSqFt.toFixed(2));
+    set(dom.selectLaborMode, state.laborMode);
+    set(dom.inputLaborSqft, state.laborRatePerSqFt.toFixed(2));
+    set(dom.inputLaborHourlyRate, state.laborHourlyRate.toFixed(2));
+    set(dom.inputLaborHours, state.laborEstimatedHours);
+    set(dom.inputLaborFlat, state.laborFlatCost);
+    check(dom.chkDelivery, state.enableDeliveryFee);
+    set(dom.inputDeliveryFee, state.deliveryFee);
+    check(dom.chkPump, state.enablePumpRental);
+    set(dom.inputPumpCost, state.pumpCost);
+    check(dom.chkEquipment, state.enableEquipmentRental);
+    set(dom.inputEquipmentCost, state.equipmentRentalCost);
+    set(dom.inputMarkup, state.markupPercent);
+    set(dom.inputContingency, state.contingencyPercent);
+    syncConditionalRows();
+  }
+
+  // Shows the price row that matches the concrete source and labor method.
+  function syncConditionalRows() {
+    const bagged = state.materialType === 'bagged';
+    if (dom.rowReadyMix) dom.rowReadyMix.style.display = bagged ? 'none' : 'block';
+    if (dom.rowBagged) dom.rowBagged.style.display = bagged ? 'grid' : 'none';
+    if (dom.rowLaborSqft) dom.rowLaborSqft.style.display = state.laborMode === 'sqft' ? 'block' : 'none';
+    if (dom.rowLaborHourly) dom.rowLaborHourly.style.display = state.laborMode === 'hourly' ? 'grid' : 'none';
+    if (dom.rowLaborFlat) dom.rowLaborFlat.style.display = state.laborMode === 'flat' ? 'block' : 'none';
+  }
+
+  function setActivePreset(btn) {
+    if (!dom.presetBtns) return;
+    dom.presetBtns.forEach(b => {
+      const on = b === btn;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
   }
 
   /**
@@ -511,6 +590,11 @@
       netCubicYds = netCubicFt / YIELD_CUBIC_FEET_PER_YARD;
     }
 
+    // A slab needs a length, width and thickness above zero. Without them
+    // no line item is priced (lump sums like delivery would otherwise still
+    // show up as a total for a slab that doesn't exist).
+    const valid = areaSqFt > 0 && netCubicFt > 0;
+
     // 3. Waste-Adjusted Volume
     const wasteFactor = 1 + (state.wastePercent / 100);
     const orderCubicYds = netCubicYds * wasteFactor;
@@ -525,7 +609,7 @@
 
     // 5. Bag Quantities
     const bagYieldCuFt = BAG_YIELDS[state.bagSize] || 0.60;
-    const totalBags = Math.ceil(orderCubicFt / bagYieldCuFt);
+    const totalBags = ceilCount(orderCubicFt / bagYieldCuFt);
 
     // ================= LINE-ITEM COSTS =================
     const items = [];
@@ -713,10 +797,12 @@
       reinforceBasis = { qty: areaSqFt, unit: 'sq ft', rate: state.meshCostPerSqFt };
       items.push({ category: 'reinforce', name: reinforceLabel, cost: reinforceCost, qty: areaSqFt, unit: 'sq ft', rate: state.meshCostPerSqFt });
     } else if (state.reinforcementType === 'rebar') {
-      reinforceCost = areaSqFt * state.rebarCostPerSqFt;
-      reinforceLabel = '#4 (1/2") Steel Rebar Grid & Support Chairs';
-      reinforceBasis = { qty: areaSqFt, unit: 'sq ft', rate: state.rebarCostPerSqFt };
-      items.push({ category: 'reinforce', name: reinforceLabel, cost: reinforceCost, qty: areaSqFt, unit: 'sq ft', rate: state.rebarCostPerSqFt });
+      const spacingIn = state.rebarSpacingIn > 0 ? state.rebarSpacingIn : REBAR_BASE_SPACING_IN;
+      const rebarRate = state.rebarCostPerSqFt * REBAR_BASE_SPACING_IN / spacingIn;
+      reinforceCost = areaSqFt * rebarRate;
+      reinforceLabel = `#4 (1/2") Steel Rebar Grid @ ${spacingIn} in o.c. & Support Chairs`;
+      reinforceBasis = { qty: areaSqFt, unit: 'sq ft', rate: rebarRate };
+      items.push({ category: 'reinforce', name: reinforceLabel, cost: reinforceCost, qty: areaSqFt, unit: 'sq ft', rate: rebarRate });
     } else if (state.reinforcementType === 'custom') {
       reinforceCost = state.customReinforceCost;
       reinforceLabel = 'Custom Reinforcement Specification';
@@ -808,12 +894,14 @@
     };
 
     // Delivery & Equipment
+    // The truck delivery / short-load fee only applies to ready-mix.
     let deliveryCost = 0;
-    if (state.enableDeliveryFee && state.deliveryFee > 0) {
+    const deliveryOn = state.enableDeliveryFee && state.deliveryFee > 0 && state.materialType === 'readymix';
+    if (deliveryOn) {
       deliveryCost = state.deliveryFee;
       items.push({ category: 'other', name: `Ready-Mix Truck Delivery / Short-Load Fee`, cost: deliveryCost, qty: 1, unit: 'lump sum', rate: deliveryCost });
     }
-    detail.delivery = { enabled: state.enableDeliveryFee && state.deliveryFee > 0, cost: deliveryCost };
+    detail.delivery = { enabled: deliveryOn, cost: deliveryCost };
 
     let pumpCost = 0;
     if (state.enablePumpRental && state.pumpCost > 0) {
@@ -828,6 +916,8 @@
       items.push({ category: 'other', name: `Vibrator, Power Trowel & Buggy Rental`, cost: equipCost, qty: 1, unit: 'lump sum', rate: equipCost });
     }
     detail.equipment = { enabled: state.enableEquipmentRental && state.equipmentRentalCost > 0, cost: equipCost };
+
+    if (!valid) items.length = 0;
 
     // SUBTOTAL DIRECT COSTS
     const directSubtotal = items.reduce((sum, it) => sum + it.cost, 0);
@@ -869,6 +959,7 @@
       },
       inputsSnapshot: JSON.parse(JSON.stringify(state)),
       isImperial: isImp,
+      valid: valid,
       dimensions: {
         length: state.length,
         width: state.width,
@@ -933,10 +1024,16 @@
     if (dom.outCostPerSqFt) dom.outCostPerSqFt.textContent = `$${formatNumber(u.costPerSqFt, 2)}`;
     if (dom.outCostPerSqM) dom.outCostPerSqM.textContent = `$${formatNumber(u.costPerSqM, 2)}`;
 
-    if (dom.outNetCubicYards) dom.outNetCubicYards.textContent = `${d.netCubicYds.toFixed(2)} yd³`;
+    if (dom.validationMsg) {
+      dom.validationMsg.hidden = result.valid;
+      dom.validationMsg.textContent = result.valid ? '' : 'Enter a length, width and thickness greater than zero to see an estimate.';
+    }
+
+    if (dom.outNetCubicYards) dom.outNetCubicYards.textContent = `Net: ${d.netCubicYds.toFixed(2)} yd³`;
     if (dom.outWasteCubicYards) dom.outWasteCubicYards.textContent = `${d.orderCubicYds.toFixed(2)} yd³`;
-    if (dom.outNetCubicMeters) dom.outNetCubicMeters.textContent = `${d.orderCubicM.toFixed(2)} m³`;
+    if (dom.outNetCubicMeters) dom.outNetCubicMeters.textContent = `Order volume: ${d.orderCubicM.toFixed(2)} m³`;
     if (dom.outTotalBags) dom.outTotalBags.textContent = `${result.bags.totalBags} bags`;
+    if (dom.outBagNote) dom.outBagNote.textContent = `${result.bags.bagSize}-lb pre-mix bags`;
     if (dom.outAreaSqFt) dom.outAreaSqFt.textContent = `${d.areaSqFt.toFixed(0)} sq ft (${d.areaSqM.toFixed(1)} m²)`;
     if (dom.outPerimeterFt) dom.outPerimeterFt.textContent = `${d.perimeterFt.toFixed(0)} ft`;
     if (dom.outTotalWeight) dom.outTotalWeight.textContent = isImp ? `${formatNumber(d.weightLbs, 0)} lbs` : `${formatNumber(d.weightKg, 0)} kg`;
@@ -994,7 +1091,12 @@
   }
 
   function updateCostDistributionBar(items, total) {
-    if (!dom.segMaterial || total <= 0) return;
+    if (!dom.segMaterial) return;
+    if (total <= 0) {
+      [dom.segMaterial, dom.segLabor, dom.segBase, dom.segReinforce, dom.segForms, dom.segOther]
+        .forEach(seg => { if (seg) seg.style.width = '0%'; });
+      return;
+    }
 
     let catTotals = {
       material: 0,
@@ -1036,51 +1138,27 @@
   }
 
   function resetCalculator() {
-    state.length = 20;
-    state.width = 20;
-    state.thickness = 4;
-    state.quantity = 1;
-    state.wastePercent = 10;
-    state.materialType = 'readymix';
-    state.bagSize = '80';
-    state.enableSitePrep = false;
-    state.enableForms = true;
-    state.enableVaporBarrier = true;
-    state.enableDemoRemoval = false;
-    state.reinforcementType = 'rebar';
-    state.finishType = 'broom';
-    state.laborMode = 'sqft';
-    state.enableDeliveryFee = true;
-    state.enablePumpRental = false;
-    state.enableEquipmentRental = false;
-    state.markupPercent = 0;
-    state.contingencyPercent = 5;
+    Object.assign(state, DEFAULTS);
     activePresetKey = null;
     activePresetName = null;
+    setActivePreset(null);
 
-    syncDOMFromState();
-    if (dom.selectMaterialType) dom.selectMaterialType.value = 'readymix';
-    if (dom.rowReadyMix) dom.rowReadyMix.style.display = 'block';
-    if (dom.rowBagged) dom.rowBagged.style.display = 'none';
-    if (dom.selectLaborMode) dom.selectLaborMode.value = 'sqft';
-    if (dom.rowLaborSqft) dom.rowLaborSqft.style.display = 'block';
-    if (dom.rowLaborHourly) dom.rowLaborHourly.style.display = 'none';
-    if (dom.rowLaborFlat) dom.rowLaborFlat.style.display = 'none';
-    if (dom.chkSitePrep) dom.chkSitePrep.checked = false;
-    if (dom.chkForms) dom.chkForms.checked = true;
-    if (dom.chkVaporBarrier) dom.chkVaporBarrier.checked = true;
-    if (dom.chkDemo) dom.chkDemo.checked = false;
-    if (dom.selectReinforcement) dom.selectReinforcement.value = 'rebar';
-    if (dom.selectFinish) dom.selectFinish.value = 'broom';
-    if (dom.chkDelivery) dom.chkDelivery.checked = true;
-    if (dom.chkPump) dom.chkPump.checked = false;
-    if (dom.chkEquipment) dom.chkEquipment.checked = false;
-
+    updateUnitLabels();
+    syncAllFieldsFromState();
     recalculate();
     showToast('Calculator has been reset to defaults.');
   }
 
+  // Blocks copy/export/PDF while the dimensions can't make a slab.
+  function ensureValid() {
+    const r = lastResult || computeEstimate();
+    if (r.valid) return true;
+    showToast('Enter a length, width and thickness greater than zero first.');
+    return false;
+  }
+
   function copySummaryToClipboard() {
+    if (!ensureValid()) return;
     const total = dom.outTotalCost ? dom.outTotalCost.textContent : '$0';
     const rate = dom.outCostPerSqFt ? dom.outCostPerSqFt.textContent : '$0';
     const yds = dom.outWasteCubicYards ? dom.outWasteCubicYards.textContent : '0';
@@ -1088,12 +1166,12 @@
 
     const text = `CONCRETE SLAB ESTIMATE SUMMARY\n` +
       `------------------------------------\n` +
-      `Dimensions: ${state.length} x ${state.width} @ ${state.thickness}" (${state.unitSystem})\n` +
+      `Dimensions: ${state.length} x ${state.width} ${state.unitSystem === 'imperial' ? 'ft' : 'm'} @ ${state.thickness} ${state.unitSystem === 'imperial' ? 'in' : 'cm'} thick\n` +
       `Area: ${dom.outAreaSqFt.textContent}\n` +
       `Order Volume (incl. ${state.wastePercent}% waste): ${yds} (~${bags})\n` +
       `Estimated Total Project Cost: ${total}\n` +
       `Estimated Rate: ${rate}/sq ft\n` +
-      `Calculated with Slab Cost Calculator (https://slabcostcalculator.org)`;
+      `Calculated with Slab Cost Calculator (https://slabcostcalculator.com)`;
 
     navigator.clipboard.writeText(text).then(() => {
       showToast('Estimate summary copied to clipboard!');
@@ -1103,6 +1181,7 @@
   }
 
   function exportEstimateFile() {
+    if (!ensureValid()) return;
     const data = {
       project: 'Concrete Slab Project Estimate',
       date: new Date().toISOString().split('T')[0],

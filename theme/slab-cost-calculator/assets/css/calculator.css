@@ -250,6 +250,24 @@ select.calc-control {
   background: var(--slate-200);
 }
 
+/* Accordions with an include/exclude checkbox keep it outside the toggle
+   button: interactive content inside a <button> is invalid HTML. */
+.scope-header-row {
+  display: flex;
+  align-items: center;
+  background: var(--slate-100);
+}
+
+.scope-header-row .scope-toggle-checkbox {
+  flex: none;
+  margin: 0 0 0 1rem;
+}
+
+.scope-header-row .scope-header {
+  flex: 1;
+  padding-left: 0.6rem;
+}
+
 .scope-title-group {
   display: flex;
   align-items: center;
@@ -565,6 +583,17 @@ select.calc-control {
   color: var(--slate-500);
   margin: 0.35rem 0 0;
   line-height: 1.45;
+}
+
+.calc-validation-msg {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md);
+  padding: 0.6rem 0.8rem;
+  margin: 0 0 1rem;
 }
 
 .region-selector-group {

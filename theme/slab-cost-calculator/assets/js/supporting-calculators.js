@@ -6,6 +6,18 @@
 (function () {
   'use strict';
 
+  // Number field reader that keeps a typed 0 (parseFloat(x) || def would
+  // turn 0% waste into 10% and 0" into 4"). Blank gives def; negatives clamp to 0.
+  function numOr(el, def) {
+    const v = el ? parseFloat(el.value) : NaN;
+    return Number.isFinite(v) ? Math.max(0, v) : def;
+  }
+
+  // Whole-unit round up without float noise (52.8 / 0.6 = 88.00000000000001).
+  function ceilCount(x) {
+    return Math.ceil(parseFloat(x.toFixed(6)));
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     // 1. Concrete Volume / Cubic Yard Calculator
     initVolumeCalculator();
@@ -49,9 +61,9 @@
     const outCuM = el.querySelector('#vol-out-cum');
 
     function calc() {
-      const l = parseFloat(len.value) || 0;
-      const w = parseFloat(wid.value) || 0;
-      const t = parseFloat(thk.value) || 0;
+      const l = numOr(len, 0);
+      const w = numOr(wid, 0);
+      const t = numOr(thk, 0);
       const isImp = !unit || unit.value === 'imperial';
 
       let cuft = 0, cuyd = 0, cum = 0;
@@ -93,18 +105,18 @@
     const bagPrice = el.querySelector('#bags-price');
 
     function calc() {
-      const area = parseFloat(sqft.value) || 0;
-      const t = parseFloat(thk.value) || 4;
+      const area = numOr(sqft, 0);
+      const t = numOr(thk, 4);
       const size = bagSize ? bagSize.value : '80';
-      const wPct = parseFloat(waste.value) || 10;
-      const price = parseFloat(bagPrice ? bagPrice.value : 6.50) || 6.50;
+      const wPct = numOr(waste, 10);
+      const price = numOr(bagPrice, 6.50);
 
       const yields = { '80': 0.60, '60': 0.45, '50': 0.375, '40': 0.30 };
       const bagYield = yields[size] || 0.60;
 
       const cuft = area * (t / 12);
       const withWaste = cuft * (1 + (wPct / 100));
-      const count = Math.ceil(withWaste / bagYield);
+      const count = ceilCount(withWaste / bagYield);
       const cost = count * price;
 
       if (outBags) outBags.textContent = `${count} bags (${size} lbs each)`;
@@ -134,8 +146,8 @@
     const outChairs = el.querySelector('#rebar-out-chairs');
 
     function calc() {
-      const l = parseFloat(len.value) || 0;
-      const w = parseFloat(wid.value) || 0;
+      const l = numOr(len, 0);
+      const w = numOr(wid, 0);
       const sp = (parseFloat(spacing.value) || 18) / 12; // in feet
       const bLen = parseFloat(barLen ? barLen.value : 20) || 20;
 
@@ -146,9 +158,9 @@
       const totalLinFt = (numAlongWidth * l) + (numAlongLength * w);
       // Adding 10% overlap splice factor
       const totalWithSplice = totalLinFt * 1.10;
-      const pieces = Math.ceil(totalWithSplice / bLen);
+      const pieces = ceilCount(totalWithSplice / bLen);
       // Rebar chairs placed every 3-4 feet in a grid
-      const chairs = Math.ceil((l / 3) * (w / 3));
+      const chairs = ceilCount((l / 3) * (w / 3));
 
       if (outLinFt) outLinFt.textContent = `${Math.round(totalWithSplice)} linear ft`;
       if (outPieces) outPieces.textContent = `${pieces} bars (${bLen}ft sticks)`;
@@ -180,12 +192,12 @@
 
     function calc() {
       const isPier = fType && fType.value === 'pier';
-      const l = parseFloat(len.value) || 0;
-      const w = (parseFloat(wid.value) || 0) / 12; // in feet
-      const d = (parseFloat(dep.value) || 0) / 12; // in feet
-      const count = parseInt(qty ? qty.value : 1, 10) || 1;
+      const l = numOr(len, 0);
+      const w = numOr(wid, 0) / 12; // in feet
+      const d = numOr(dep, 0) / 12; // in feet
+      const count = Math.max(1, parseInt(qty ? qty.value : 1, 10) || 1);
       // Optional wastage allowance input (default 10% if the field isn't present)
-      const wastePct = waste ? (parseFloat(waste.value) || 0) : 10;
+      const wastePct = waste ? numOr(waste, 0) : 10;
       const wasteFactor = 1 + (wastePct / 100);
 
       let cuft = 0;
@@ -197,7 +209,7 @@
       }
 
       const cuyds = (cuft / 27) * wasteFactor;
-      const bags80 = Math.ceil((cuft * wasteFactor) / 0.60);
+      const bags80 = ceilCount((cuft * wasteFactor) / 0.60);
 
       if (outYards) outYards.textContent = `${cuyds.toFixed(2)} cu. yds (w/ ${wastePct}% waste)`;
       if (outBags) outBags.textContent = `${bags80} bags (80 lb)`;
@@ -237,9 +249,9 @@
     const LBS_PER_KG = 0.45359237;
 
     function calc() {
-      const l = parseFloat(len.value) || 0;
-      const w = parseFloat(wid.value) || 0;
-      const t = (parseFloat(thk.value) || 0) / 12; // inches -> feet
+      const l = numOr(len, 0);
+      const w = numOr(wid, 0);
+      const t = (numOr(thk, 0)) / 12; // inches -> feet
 
       const cuft = l * w * t;
       const wetLbs = cuft * WET_DENSITY_LBS_PER_CUFT;
@@ -275,8 +287,8 @@
     const outTons = el.querySelector('#gravel-out-tons');
 
     function calc() {
-      const area = parseFloat(sqft.value) || 0;
-      const d = (parseFloat(depth.value) || 4) / 12; // in ft
+      const area = numOr(sqft, 0);
+      const d = numOr(depth, 4) / 12; // in ft
 
       const cuft = area * d;
       // 15% compaction factor
@@ -309,8 +321,8 @@
     const outWeight = el.querySelector('#demo-out-weight');
 
     function calc() {
-      const area = parseFloat(sqft.value) || 0;
-      const t = parseFloat(thick.value) || 4;
+      const area = numOr(sqft, 0);
+      const t = numOr(thick, 4);
       const hasRebar = rebar && rebar.checked;
 
       // Base demo rate: $3.00 - $4.00 per sq ft for 4" unreinforced slab
@@ -346,7 +358,7 @@
     const outHours = el.querySelector('#labor-out-hours');
 
     function calc() {
-      const area = parseFloat(sqft.value) || 0;
+      const area = numOr(sqft, 0);
       const comp = complexity ? complexity.value : 'standard';
 
       let rate = 5.00; // $/sqft

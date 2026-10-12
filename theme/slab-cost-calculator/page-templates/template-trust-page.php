@@ -89,8 +89,7 @@ slab_render_breadcrumbs();
           Have questions regarding our formulas, suggestions for additional construction calculators, or feedback on local pricing data? Reach out to our technical team:
         </p>
         <div style="background: #ffffff; border: 1px solid var(--slate-200); padding: 1.5rem; border-radius: var(--radius-md); margin-top: 1.5rem;">
-          <p><strong>Email:</strong> support@slabcostcalculator.org</p>
-          <p><strong>Editorial Inquiries:</strong> editorial@slabcostcalculator.org</p>
+          <p><strong>Email (technical &amp; editorial):</strong> <a href="mailto:contact@slabcostcalculator.com">contact@slabcostcalculator.com</a></p>
           <p><strong>Response Time:</strong> We typically respond to technical and editorial inquiries within 1–2 business days.</p>
         </div>
 

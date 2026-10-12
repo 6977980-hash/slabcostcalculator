@@ -388,6 +388,10 @@
     }
 
     const quote = parseFloat($('#bid-total').value);
+    if (!r.valid || !(d.areaSqFt > 0)) {
+      box.innerHTML = '<p class="calc-field-note">Enter a length, width and thickness above zero to get a benchmark for this slab.</p>';
+      return;
+    }
     if (!(quote > 0) || !(b.fair > 0)) {
       box.innerHTML = `<p class="calc-field-note">Benchmark for this slab: <strong>${money(b.fair)}</strong> before overhead and profit; a fair quote usually lands between <strong>${money(b.fair)}</strong> and <strong>${money(b.high)}</strong>.</p>`;
       return;

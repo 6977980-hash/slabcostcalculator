@@ -20,8 +20,8 @@ if (!defined('ABSPATH')) {
 
     <!-- Unit System Toggle -->
     <div class="unit-toggle-group" role="group" aria-label="Unit System Selection">
-      <button type="button" class="unit-btn active" data-unit="imperial">Imperial (ft / in / yd³)</button>
-      <button type="button" class="unit-btn" data-unit="metric">Metric (m / cm / m³)</button>
+      <button type="button" class="unit-btn active" data-unit="imperial" aria-pressed="true">Imperial (ft / in / yd³)</button>
+      <button type="button" class="unit-btn" data-unit="metric" aria-pressed="false">Metric (m / cm / m³)</button>
     </div>
   </div>
 
@@ -32,12 +32,12 @@ if (!defined('ABSPATH')) {
       <div class="preset-selector-group">
         <div class="calc-section-label">Quick Project Presets</div>
         <div class="preset-pills-scroll" role="group" aria-label="Project Type Presets">
-          <button type="button" class="preset-btn" data-preset="patio">Patio (12x12)</button>
-          <button type="button" class="preset-btn" data-preset="walkway">Walkway (4x30)</button>
-          <button type="button" class="preset-btn" data-preset="driveway">Driveway (20x40)</button>
-          <button type="button" class="preset-btn" data-preset="garage">2-Car Garage (24x24)</button>
-          <button type="button" class="preset-btn" data-preset="shed">Shed Pad (10x10)</button>
-          <button type="button" class="preset-btn" data-preset="foundation">Foundation (30x40)</button>
+          <button type="button" class="preset-btn" data-preset="patio" aria-pressed="false">Patio (12x12)</button>
+          <button type="button" class="preset-btn" data-preset="walkway" aria-pressed="false">Walkway (4x30)</button>
+          <button type="button" class="preset-btn" data-preset="driveway" aria-pressed="false">Driveway (20x40)</button>
+          <button type="button" class="preset-btn" data-preset="garage" aria-pressed="false">2-Car Garage (24x24)</button>
+          <button type="button" class="preset-btn" data-preset="shed" aria-pressed="false">Shed Pad (10x10)</button>
+          <button type="button" class="preset-btn" data-preset="foundation" aria-pressed="false">Foundation (30x40)</button>
         </div>
       </div>
 
@@ -96,6 +96,7 @@ if (!defined('ABSPATH')) {
           </select>
         </div>
       </div>
+      <p id="calc-validation-msg" class="calc-validation-msg" role="alert" hidden></p>
 
       <!-- Concrete Material Selection -->
       <div class="calc-section-label" style="margin-top: 1.5rem;">2. Concrete Material Type &amp; Pricing</div>
@@ -145,14 +146,16 @@ if (!defined('ABSPATH')) {
 
       <!-- Accordion: Site Prep & Base -->
       <div class="scope-accordion">
-        <button type="button" class="scope-header" aria-expanded="false">
-          <div class="scope-title-group">
-            <input type="checkbox" id="chk-site-prep" class="scope-toggle-checkbox">
-            <span class="scope-title">Site Prep, Excavation &amp; Gravel Base</span>
-          </div>
-          <span class="scope-chevron">&#9662;</span>
-        </button>
-        <div class="scope-body">
+        <div class="scope-header-row">
+          <input type="checkbox" id="chk-site-prep" class="scope-toggle-checkbox" aria-label="Include site prep, excavation and gravel base">
+          <button type="button" class="scope-header" aria-expanded="false" aria-controls="body-site-prep">
+            <span class="scope-title-group">
+              <span class="scope-title">Site Prep, Excavation &amp; Gravel Base</span>
+            </span>
+            <span class="scope-chevron" aria-hidden="true">&#9662;</span>
+          </button>
+        </div>
+        <div class="scope-body" id="body-site-prep">
           <div class="input-grid-2">
             <div class="calc-form-group">
               <label for="calc-excavation-rate" class="calc-label">Excavation &amp; Grading Rate</label>
@@ -186,10 +189,10 @@ if (!defined('ABSPATH')) {
       <!-- Accordion: Forms & Vapor Barrier -->
       <div class="scope-accordion open">
         <button type="button" class="scope-header" aria-expanded="true">
-          <div class="scope-title-group">
+          <span class="scope-title-group">
             <span class="scope-title">Formwork &amp; Moisture Protection</span>
-          </div>
-          <span class="scope-chevron">&#9662;</span>
+          </span>
+          <span class="scope-chevron" aria-hidden="true">&#9662;</span>
         </button>
         <div class="scope-body">
           <div class="input-grid-2">
@@ -199,7 +202,7 @@ if (!defined('ABSPATH')) {
               </label>
               <div class="calc-input-wrapper has-addon-left has-addon-right">
                 <span class="calc-input-addon-left">$</span>
-                <input type="number" id="calc-form-cost" class="calc-control" value="2.20" step="0.20">
+                <input type="number" id="calc-form-cost" class="calc-control" aria-label="Formwork cost per linear foot" value="2.20" step="0.20">
                 <span class="calc-input-addon-right">/lin ft</span>
               </div>
             </div>
@@ -210,7 +213,7 @@ if (!defined('ABSPATH')) {
               </label>
               <div class="calc-input-wrapper has-addon-left has-addon-right">
                 <span class="calc-input-addon-left">$</span>
-                <input type="number" id="calc-vapor-cost" class="calc-control" value="0.35" step="0.05">
+                <input type="number" id="calc-vapor-cost" class="calc-control" aria-label="Vapor barrier cost per square foot" value="0.35" step="0.05">
                 <span class="calc-input-addon-right">/sq ft</span>
               </div>
             </div>
@@ -221,10 +224,10 @@ if (!defined('ABSPATH')) {
       <!-- Accordion: Steel Reinforcement -->
       <div class="scope-accordion open">
         <button type="button" class="scope-header" aria-expanded="true">
-          <div class="scope-title-group">
+          <span class="scope-title-group">
             <span class="scope-title">Reinforcement Specification</span>
-          </div>
-          <span class="scope-chevron">&#9662;</span>
+          </span>
+          <span class="scope-chevron" aria-hidden="true">&#9662;</span>
         </button>
         <div class="scope-body">
           <div class="input-grid-2">
@@ -245,6 +248,7 @@ if (!defined('ABSPATH')) {
                 <option value="18" selected>18 in (45 cm)</option>
                 <option value="24">24 in (60 cm)</option>
               </select>
+              <p class="calc-field-note">Closer spacing uses more steel and raises the rebar cost.</p>
             </div>
             <div class="calc-form-group">
               <label for="calc-reinforce-cost" class="calc-label">Custom Cost Override</label>
@@ -260,10 +264,10 @@ if (!defined('ABSPATH')) {
       <!-- Accordion: Surface Finish -->
       <div class="scope-accordion">
         <button type="button" class="scope-header" aria-expanded="false">
-          <div class="scope-title-group">
+          <span class="scope-title-group">
             <span class="scope-title">Surface Finishing Technique</span>
-          </div>
-          <span class="scope-chevron">&#9662;</span>
+          </span>
+          <span class="scope-chevron" aria-hidden="true">&#9662;</span>
         </button>
         <div class="scope-body">
           <div class="input-grid-2">
@@ -293,10 +297,10 @@ if (!defined('ABSPATH')) {
       <!-- Accordion: Labor -->
       <div class="scope-accordion open">
         <button type="button" class="scope-header" aria-expanded="true">
-          <div class="scope-title-group">
+          <span class="scope-title-group">
             <span class="scope-title">Labor &amp; Contractor Installation</span>
-          </div>
-          <span class="scope-chevron">&#9662;</span>
+          </span>
+          <span class="scope-chevron" aria-hidden="true">&#9662;</span>
         </button>
         <div class="scope-body">
           <div class="input-grid-2">
@@ -346,32 +350,33 @@ if (!defined('ABSPATH')) {
       <!-- Accordion: Delivery & Equipment -->
       <div class="scope-accordion">
         <button type="button" class="scope-header" aria-expanded="false">
-          <div class="scope-title-group">
+          <span class="scope-title-group">
             <span class="scope-title">Delivery, Pumping &amp; Rentals</span>
-          </div>
-          <span class="scope-chevron">&#9662;</span>
+          </span>
+          <span class="scope-chevron" aria-hidden="true">&#9662;</span>
         </button>
         <div class="scope-body">
           <div class="input-grid-3">
             <div class="calc-form-group">
-              <label class="calc-label"><input type="checkbox" id="chk-delivery-fee" checked> Delivery / Short Load</label>
+              <label class="calc-label"><input type="checkbox" id="chk-delivery-fee" checked> Ready-Mix Delivery / Short Load</label>
+              <p class="calc-field-note">Not charged when bagged concrete is selected.</p>
               <div class="calc-input-wrapper has-addon-left">
                 <span class="calc-input-addon-left">$</span>
-                <input type="number" id="calc-delivery-amount" class="calc-control" value="120" step="10">
+                <input type="number" id="calc-delivery-amount" class="calc-control" aria-label="Ready-mix delivery or short-load fee" value="120" step="10">
               </div>
             </div>
             <div class="calc-form-group">
               <label class="calc-label"><input type="checkbox" id="chk-pump-rental"> Concrete Pump Truck</label>
               <div class="calc-input-wrapper has-addon-left">
                 <span class="calc-input-addon-left">$</span>
-                <input type="number" id="calc-pump-amount" class="calc-control" value="650" step="25">
+                <input type="number" id="calc-pump-amount" class="calc-control" aria-label="Concrete pump truck cost" value="650" step="25">
               </div>
             </div>
             <div class="calc-form-group">
               <label class="calc-label"><input type="checkbox" id="chk-equipment-rental"> Equipment Rentals</label>
               <div class="calc-input-wrapper has-addon-left">
                 <span class="calc-input-addon-left">$</span>
-                <input type="number" id="calc-equipment-amount" class="calc-control" value="150" step="25">
+                <input type="number" id="calc-equipment-amount" class="calc-control" aria-label="Equipment rental cost" value="150" step="25">
               </div>
             </div>
           </div>
@@ -380,14 +385,16 @@ if (!defined('ABSPATH')) {
 
       <!-- Demolition / Removal -->
       <div class="scope-accordion">
-        <button type="button" class="scope-header" aria-expanded="false">
-          <div class="scope-title-group">
-            <input type="checkbox" id="chk-demo-removal" class="scope-toggle-checkbox">
-            <span class="scope-title">Old Slab Demolition &amp; Removal</span>
-          </div>
-          <span class="scope-chevron">&#9662;</span>
-        </button>
-        <div class="scope-body">
+        <div class="scope-header-row">
+          <input type="checkbox" id="chk-demo-removal" class="scope-toggle-checkbox" aria-label="Include old slab demolition and removal">
+          <button type="button" class="scope-header" aria-expanded="false" aria-controls="body-demo-removal">
+            <span class="scope-title-group">
+              <span class="scope-title">Old Slab Demolition &amp; Removal</span>
+            </span>
+            <span class="scope-chevron" aria-hidden="true">&#9662;</span>
+          </button>
+        </div>
+        <div class="scope-body" id="body-demo-removal">
           <div class="calc-form-group">
             <label for="calc-demo-cost" class="calc-label">Demolition &amp; Disposal Rate</label>
             <div class="calc-input-wrapper has-addon-left has-addon-right">
@@ -442,13 +449,13 @@ if (!defined('ABSPATH')) {
         <div class="quantity-card">
           <div class="quantity-card-label">Or Bagged Equivalent</div>
           <div id="out-total-bags" class="quantity-card-value">0 bags</div>
-          <div class="quantity-card-note">80-lb pre-mix bags</div>
+          <div id="out-bag-note" class="quantity-card-note">80-lb pre-mix bags</div>
         </div>
 
         <div class="quantity-card">
           <div class="quantity-card-label">Total Surface Area</div>
           <div id="out-area-sqft" class="quantity-card-value">0 sq ft</div>
-          <div id="out-net-meters" class="quantity-card-note">0.00 m³ volume</div>
+          <div id="out-net-meters" class="quantity-card-note">Order volume: 0.00 m³</div>
         </div>
 
         <div class="quantity-card">
@@ -586,9 +593,9 @@ if (!defined('ABSPATH')) {
         </div>
       </div>
       <div class="wx-quick" role="group" aria-label="Quick temperature presets">
-        <button type="button" class="preset-btn" data-wx="cold">Cold day</button>
-        <button type="button" class="preset-btn" data-wx="mild">Mild day</button>
-        <button type="button" class="preset-btn" data-wx="hot">Hot day</button>
+        <button type="button" class="preset-btn wx-btn" data-wx="cold">Cold day</button>
+        <button type="button" class="preset-btn wx-btn" data-wx="mild">Mild day</button>
+        <button type="button" class="preset-btn wx-btn" data-wx="hot">Hot day</button>
       </div>
       <div id="wx-result" class="wx-result" aria-live="polite"></div>
     </div>
