@@ -98,11 +98,11 @@ $slug = $post ? $post->post_name : get_query_var('slab_slug');
             <div class="quantities-grid" style="margin-top: 1.25rem;">
               <div class="quantity-card" style="background: var(--primary-50); border-color: var(--primary-200);">
                 <div class="quantity-card-label">Total Bags Required</div>
-                <div id="bags-out-total" class="quantity-card-value" style="color: var(--primary-800);">61 bags</div>
+                <div id="bags-out-total" class="quantity-card-value" style="color: var(--primary-800);">62 bags</div>
               </div>
               <div class="quantity-card">
                 <div class="quantity-card-label">Estimated Material Cost</div>
-                <div id="bags-out-cost" class="quantity-card-value">$396.50</div>
+                <div id="bags-out-cost" class="quantity-card-value">$403.00</div>
               </div>
             </div>
           </div>

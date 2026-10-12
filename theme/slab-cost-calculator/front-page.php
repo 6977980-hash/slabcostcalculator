@@ -318,7 +318,7 @@ get_header();
               How much does a 10x10 concrete slab cost?
             </button>
             <div class="faq-answer">
-              A 10x10 foot concrete slab (100 square feet) at standard 4-inch depth costs between <strong>$600 and $1,200</strong> professionally installed. Material-only DIY cost is approximately $250 to $400. It requires approximately 1.23 cubic yards of concrete or 23 bags of 80-lb pre-mix (including 10% waste).
+              A 10x10 foot concrete slab (100 square feet) at standard 4-inch depth costs between <strong>$600 and $1,200</strong> professionally installed. Material-only DIY cost is approximately $220 to $350. It requires 1.23 cubic yards of concrete (1.36 cubic yards with 10% waste), which is 62 bags of 80-lb pre-mix or 82 bags of 60-lb pre-mix.
             </div>
           </div>
 
@@ -327,7 +327,7 @@ get_header();
               How much does a 20x20 concrete slab cost?
             </button>
             <div class="faq-answer">
-              A 20x20 foot slab (400 square feet) typically costs <strong>$2,400 to $4,800</strong> for a standard 4-inch patio or shed floor, and <strong>$2,800 to $5,400</strong> for a 5-inch or 6-inch garage floor with rebar reinforcement. It requires approximately 5.0 to 5.5 cubic yards of ready-mix concrete.
+              A 20x20 foot slab (400 square feet) typically costs <strong>$2,400 to $4,800</strong> for a standard 4-inch patio or shed floor, and <strong>$2,800 to $5,400</strong> for a 5-inch or 6-inch garage floor with rebar reinforcement. At 4 inches thick it requires 4.94 cubic yards of ready-mix concrete (5.43 cubic yards with 10% waste).
             </div>
           </div>
 

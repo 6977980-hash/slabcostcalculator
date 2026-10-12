@@ -283,18 +283,10 @@ class Slab_Schema_Generator {
             'mainEntity' => [
                 [
                     '@type' => 'Question',
-                    'name' => 'How much does a concrete slab cost per square foot?',
-                    'acceptedAnswer' => [
-                        '@type' => 'Answer',
-                        'text' => 'On average, a residential concrete slab costs between $6.00 and $12.00 per square foot installed, including materials, site preparation, base gravel, reinforcement, forms, and finishing labor. DIY projects with material only cost approximately $2.50 to $4.50 per square foot.'
-                    ]
-                ],
-                [
-                    '@type' => 'Question',
                     'name' => 'How much does a 10x10 concrete slab cost?',
                     'acceptedAnswer' => [
                         '@type' => 'Answer',
-                        'text' => 'A 10x10 foot concrete slab (100 square feet) at a standard 4-inch thickness costs between $600 and $1,200 professionally installed. It requires approximately 1.23 to 1.35 cubic yards of concrete (around 28 bags of 60-lb or 21 bags of 80-lb concrete mix including waste).'
+                        'text' => 'A 10x10 foot concrete slab (100 square feet) at standard 4-inch depth costs between $600 and $1,200 professionally installed. Material-only DIY cost is approximately $220 to $350. It requires 1.23 cubic yards of concrete (1.36 cubic yards with 10% waste), which is 62 bags of 80-lb pre-mix or 82 bags of 60-lb pre-mix.'
                     ]
                 ],
                 [
@@ -302,23 +294,31 @@ class Slab_Schema_Generator {
                     'name' => 'How much does a 20x20 concrete slab cost?',
                     'acceptedAnswer' => [
                         '@type' => 'Answer',
-                        'text' => 'A 20x20 foot concrete slab (400 square feet) typically costs between $2,400 and $4,800 installed for a 4-inch slab, and $2,800 to $5,400 for a 5-inch or 6-inch garage slab. It requires approximately 5.0 to 5.5 cubic yards of ready-mix concrete.'
+                        'text' => 'A 20x20 foot slab (400 square feet) typically costs $2,400 to $4,800 for a standard 4-inch patio or shed floor, and $2,800 to $5,400 for a 5-inch or 6-inch garage floor with rebar reinforcement. At 4 inches thick it requires 4.94 cubic yards of ready-mix concrete (5.43 cubic yards with 10% waste).'
                     ]
                 ],
                 [
                     '@type' => 'Question',
-                    'name' => 'How thick should a concrete slab be?',
+                    'name' => 'How many 80 lb bags of concrete do I need for a cubic yard?',
                     'acceptedAnswer' => [
                         '@type' => 'Answer',
-                        'text' => 'Standard non-traffic patios, walkways, and shed floors require a 4-inch slab (minimum 3,000 PSI). Residential driveways and 2-car garages accommodating SUVs and trucks require a 5-inch or 6-inch slab (3,500 to 4,000 PSI) with rebar reinforcement. Heavy RV pads or commercial slabs require 6 to 8 inches.'
+                        'text' => 'It takes exactly 45 bags of 80-lb concrete mix to equal one cubic yard (27 cubic feet). One 80-lb bag yields approximately 0.60 cubic feet of mixed wet concrete (27 ÷ 0.60 = 45 bags).'
                     ]
                 ],
                 [
                     '@type' => 'Question',
-                    'name' => 'Is ready-mix concrete cheaper than bagged concrete?',
+                    'name' => 'How long should I wait before driving or parking on a new concrete slab?',
                     'acceptedAnswer' => [
                         '@type' => 'Answer',
-                        'text' => 'For projects requiring more than 1.5 to 2 cubic yards (approx. 70+ 80-lb bags), ready-mix delivered by a transit-mix truck is almost always cheaper, faster, and provides superior compressive strength consistency compared to hand-mixing bags.'
+                        'text' => 'Foot traffic is safe after 24 to 48 hours. Light passenger cars can park after 7 days (when concrete achieves ~70% design strength). Heavy trucks, RVs, and heavy machinery should wait 28 days until full compressive curing is reached.'
+                    ]
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => 'Do I need a gravel base under a concrete slab?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => 'Yes. A 4-inch to 6-inch compacted crushed stone or gravel base provides uniform subgrade support, facilitates water drainage away from the slab, and dramatically reduces cracking caused by soil settling or freeze-thaw frost heave.'
                     ]
                 ]
             ]

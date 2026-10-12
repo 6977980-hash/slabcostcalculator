@@ -188,7 +188,7 @@ class Slab_Content_Seeder {
                 'slug' => 'how-many-bags-of-concrete-do-i-need',
                 'category' => 'Concrete Estimating',
                 'excerpt' => 'How many 80, 60, 50, and 40-lb bags of concrete you need per cubic yard, with a worked example for a 10x10 slab at 4 inches thick.',
-                'content' => '<h2>Pre-Mixed Concrete Bag Yield Constants</h2><p>One 80-lb bag yields 0.60 cu ft (45 bags per cubic yard). One 60-lb bag yields 0.45 cu ft (60 bags per cubic yard). For a 10x10 slab at 4-inch depth, you need 61 bags of 80-lb mix.</p>'
+                'content' => '<h2>Pre-Mixed Concrete Bag Yield Constants</h2><p>One 80-lb bag yields 0.60 cu ft (45 bags per cubic yard). One 60-lb bag yields 0.45 cu ft (60 bags per cubic yard). For a 10x10 slab at 4-inch depth, you need 1.23 cubic yards (1.36 with 10% waste), which is 62 bags of 80-lb mix or 82 bags of 60-lb mix.</p>'
             ],
             [
                 'title' => 'Ready-Mix vs. Bagged Concrete: Cost, Strength & Breakeven Analysis',
