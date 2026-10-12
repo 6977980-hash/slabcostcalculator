@@ -12,9 +12,10 @@ Only custom theme/plugin code lives here. WordPress core, uploads and
 
 ## Theme
 
-The active theme (`slab-cost-calculator`) is kept in `theme/slab-cost-calculator/`.
-Hostinger's Git deployment only updates this plugin's folder, so the plugin points
-WordPress at that copy (see `slabcostcalculator.php`). Edit theme files here and push
-to `main`; the copy in `wp-content/themes/` on the server is only a fallback and is used
-again if the plugin is deactivated or `SCC_DISABLE_BUNDLED_THEME` is defined in
-`wp-config.php`.
+The source of the active theme (`slab-cost-calculator`) is kept in
+`theme/slab-cost-calculator/`. Hostinger's Git deployment only updates this plugin's
+folder, so after each push the plugin copies any changed theme files into the real
+`wp-content/themes/slab-cost-calculator/` folder on the next page load (see
+`slabcostcalculator.php`). Edit theme files here and push to `main`; the fixes then live
+in the theme folder itself and stay even if the plugin is deactivated or deleted.
+Bump `Version` in the theme's `style.css` to bust browser caches for CSS/JS changes.
