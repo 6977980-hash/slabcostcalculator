@@ -254,7 +254,7 @@ class Slab_SEO_Engine {
             }
 
             if (!empty($post->post_excerpt)) {
-                return esc_attr(wp_strip_all_tags($post->post_excerpt));
+                return esc_attr(wp_strip_all_tags(Slab_Post_Figures::fix($post->post_name, $post->post_excerpt)));
             }
             if (!$looks_like_placeholder && !empty($raw_content)) {
                 return esc_attr(wp_trim_words($raw_content, 26, '...'));
