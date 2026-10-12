@@ -50,10 +50,10 @@ add_action('after_setup_theme', 'slab_theme_setup');
 
 // 2. Enqueue Styles & Scripts
 function slab_enqueue_assets() {
-    // Read the version from the style.css actually being served.
-    // wp_get_theme() always reads wp-content/themes/, which is not the
-    // copy this site runs from (see the Slab Cost Calculator Fixes
-    // plugin), so bumping Version there would never bust asset caches.
+    // Read the version from the style.css actually being served. Normally
+    // that is wp-content/themes/, but if the deploy plugin could not update
+    // that folder it serves its own bundled copy for the request, and
+    // wp_get_theme() would still report the old folder's version.
     $theme_version = get_file_data(get_template_directory() . '/style.css', ['Version' => 'Version'])['Version'];
 
     // CSS

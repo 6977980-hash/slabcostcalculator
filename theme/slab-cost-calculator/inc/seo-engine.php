@@ -151,23 +151,56 @@ class Slab_SEO_Engine {
             $title['site'] = '';
         }
 
-        // The 30 imported blog posts carry full, keyword-rich headlines as
-        // their own post_title (several run 60-85 characters on their own).
-        // WordPress's default document-title behavior appends
-        // " – Slab Cost Calculator" (~23 more characters) to every singular
-        // post regardless, which pushed a number of these well past
-        // Google's ~60-character/~600px SERP truncation point — up to
-        // 110+ characters total, the exact issue the homepage title fix
-        // above already addressed once. Only drop the site-name suffix
-        // when the post's own title is already long enough that adding it
-        // would blow the budget further; a short post title still gets the
-        // normal "Title – Slab Cost Calculator" treatment.
-        if (is_singular('post') && !empty($title['title']) && strlen($title['title']) >= 50) {
-            $title['tagline'] = '';
-            $title['site'] = '';
+        // Google cuts titles off at about 60 characters. Articles whose own
+        // headline is longer get a shorter <title> here; the headline on the
+        // page (H1) and the URL stay as they are.
+        if (is_singular('post')) {
+            $short = self::get_short_post_titles();
+            $slug = get_post_field('post_name', get_queried_object_id());
+            if (isset($short[$slug])) {
+                $title['title'] = $short[$slug];
+                $title['tagline'] = '';
+                $title['site'] = '';
+                return $title;
+            }
+        }
+
+        // Drop the " – Site Name" suffix whenever it would push the title
+        // past 60 characters (most calculator, application and policy pages).
+        if (!empty($title['title']) && !empty($title['site'])) {
+            $full = html_entity_decode(wp_strip_all_tags($title['title'] . ' – ' . $title['site']), ENT_QUOTES, 'UTF-8');
+            if (mb_strlen($full) > 60) {
+                $title['tagline'] = '';
+                $title['site'] = '';
+            }
         }
 
         return $title;
+    }
+
+    /** Shorter <title> text for articles whose headline runs past 60 characters. */
+    private static function get_short_post_titles() {
+        return [
+            'how-much-does-a-concrete-slab-cost'          => 'Concrete Slab Cost in 2026: Complete Price Breakdown',
+            'how-to-calculate-concrete-for-a-slab'        => 'How to Calculate Concrete for a Slab (Formulas & Steps)',
+            'how-many-bags-of-concrete-do-i-need'         => 'How Many Bags of Concrete Do I Need? (80/60/50/40 lb)',
+            'ready-mix-vs-bagged-concrete'                => 'Ready-Mix vs Bagged Concrete: Cost & Breakeven',
+            '10x10-concrete-slab-cost-breakdown'          => '10x10 Concrete Slab Cost: Pricing & Material Breakdown',
+            '24x24-concrete-slab-cost-breakdown'          => '24x24 Concrete Slab Cost: 2-Car Garage & Shop Floor',
+            'how-much-does-a-garage-slab-cost'            => 'Garage Slab Cost: Monolithic vs Stem Wall Footings',
+            'how-much-does-a-concrete-driveway-cost'      => 'Concrete Driveway Cost in 2026: Price & Design Guide',
+            'how-thick-should-a-concrete-slab-be'         => 'How Thick Should a Concrete Slab Be? (4″ to 8″ Guide)',
+            'how-much-gravel-do-i-need-under-a-concrete-slab' => 'How Much Gravel Do I Need Under a Concrete Slab?',
+            'concrete-slab-waste-factor-explained'        => 'Concrete Slab Waste Factor: Why 10% Is Recommended',
+            'how-to-estimate-concrete-labor-cost'         => 'How to Estimate Concrete Labor Cost (Crew Hours & Rates)',
+            'concrete-cost-per-cubic-yard-pricing-explained' => 'Concrete Cost Per Cubic Yard (2026 Ready-Mix Pricing)',
+            'concrete-shed-pad-cost-and-construction'     => 'Concrete Shed Pad Cost & Build Guide (4″ Slab vs Gravel)',
+            'concrete-foundation-monolithic-slab-cost'    => 'Monolithic Slab Foundation Cost: Full Structural Guide',
+            'concrete-slab-cracks-causes-and-prevention'  => 'Concrete Slab Cracks: Causes and How to Prevent Them',
+            'concrete-vs-asphalt-driveway'                => 'Concrete vs Asphalt Driveway: Cost, Lifespan & Winner',
+            'best-time-of-year-to-pour-concrete'          => 'Best Time of Year to Pour Concrete (and Why It Matters)',
+            'yard-prep-checklist-for-a-slab-pour'         => 'Yard Prep Checklist Before a Concrete Slab Pour',
+        ];
     }
 
     public static function get_meta_description() {
