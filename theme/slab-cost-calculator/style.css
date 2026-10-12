@@ -1,0 +1,18 @@
+/*
+Theme Name: Slab Cost Calculator
+Theme URI: https://slabcostcalculator.org/
+Author: Concrete Slab Estimating & Technical Architecture Team
+Author URI: https://slabcostcalculator.org/about/
+Description: Ultra-fast, authoritative concrete slab cost calculator and construction project estimating platform for WordPress. Features deep topical SEO, Schema.org integration, zero-dependency real-time calculators, and accessible responsive UX.
+Version: 1.2.1
+Requires at least: 6.0
+Tested up to: 6.7
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: slab-cost-calculator
+Tags: construction, calculator, estimator, concrete, responsive-layout, clean, modern, accessibility-ready
+*/
+
+@import url('assets/css/main.css');
+@import url('assets/css/calculator.css');

@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none" width="1200" height="630">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="50%" stop-color="#1E293B" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGrad)" />
+
+  <!-- Subtle Blueprint Grid Pattern -->
+  <g stroke="#334155" stroke-width="0.5" opacity="0.3">
+    <line x1="0" y1="70" x2="1200" y2="70" /><line x1="0" y1="140" x2="1200" y2="140" /><line x1="0" y1="210" x2="1200" y2="210" /><line x1="0" y1="280" x2="1200" y2="280" /><line x1="0" y1="350" x2="1200" y2="350" /><line x1="0" y1="420" x2="1200" y2="420" /><line x1="0" y1="490" x2="1200" y2="490" /><line x1="0" y1="560" x2="1200" y2="560" />
+    <line x1="100" y1="0" x2="100" y2="630" /><line x1="200" y1="0" x2="200" y2="630" /><line x1="300" y1="0" x2="300" y2="630" /><line x1="400" y1="0" x2="400" y2="630" /><line x1="500" y1="0" x2="500" y2="630" /><line x1="600" y1="0" x2="600" y2="630" /><line x1="700" y1="0" x2="700" y2="630" /><line x1="800" y1="0" x2="800" y2="630" /><line x1="900" y1="0" x2="900" y2="630" /><line x1="1000" y1="0" x2="1000" y2="630" /><line x1="1100" y1="0" x2="1100" y2="630" />
+  </g>
+
+  <!-- Decorative Corner Accents -->
+  <rect x="50" y="50" width="1100" height="530" rx="16" fill="none" stroke="#2563EB" stroke-width="1.5" opacity="0.4" />
+  <circle cx="50" cy="50" r="4" fill="#F59E0B" />
+  <circle cx="1150" cy="50" r="4" fill="#F59E0B" />
+  <circle cx="50" cy="580" r="4" fill="#F59E0B" />
+  <circle cx="1150" cy="580" r="4" fill="#F59E0B" />
+
+  <!-- Brand Badge Top Left -->
+  <g transform="translate(90, 90)">
+    <rect width="210" height="38" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1" />
+    <circle cx="20" cy="19" r="6" fill="#2563EB" />
+    <text x="36" y="24" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" fill="#93C5FD">SLAB COST CALCULATOR</text>
+  </g>
+
+  <!-- Main Headline -->
+  <g transform="translate(90, 200)">
+    <text x="0" y="0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="52" font-weight="900" fill="#FFFFFF" letter-spacing="-1">Concrete Slab Cost Calculator</text>
+    <text x="0" y="60" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="600" fill="#38BDF8">Estimate Concrete Volume, Materials, Labor &amp; Total Project Cost</text>
+  </g>
+
+  <!-- Feature Metric Pills -->
+  <g transform="translate(90, 320)">
+    <!-- Pill 1 -->
+    <g transform="translate(0, 0)">
+      <rect width="230" height="74" rx="10" fill="#1E293B" stroke="#334155" />
+      <text x="20" y="32" font-family="sans-serif" font-size="12" font-weight="600" fill="#94A3B8">ACCURATE QUANTITIES</text>
+      <text x="20" y="56" font-family="sans-serif" font-size="18" font-weight="800" fill="#F8FAFC">Yards, Bags &amp; m³</text>
+    </g>
+    <!-- Pill 2 -->
+    <g transform="translate(250, 0)">
+      <rect width="230" height="74" rx="10" fill="#1E293B" stroke="#334155" />
+      <text x="20" y="32" font-family="sans-serif" font-size="12" font-weight="600" fill="#94A3B8">FULL PROJECT SCOPE</text>
+      <text x="20" y="56" font-family="sans-serif" font-size="18" font-weight="800" fill="#F8FAFC">Gravel, Rebar &amp; Labor</text>
+    </g>
+    <!-- Pill 3 -->
+    <g transform="translate(500, 0)">
+      <rect width="230" height="74" rx="10" fill="#1E293B" stroke="#334155" />
+      <text x="20" y="32" font-family="sans-serif" font-size="12" font-weight="600" fill="#94A3B8">UNIT SYSTEMS</text>
+      <text x="20" y="56" font-family="sans-serif" font-size="18" font-weight="800" fill="#F8FAFC">Imperial &amp; Metric</text>
+    </g>
+    <!-- Pill 4 -->
+    <g transform="translate(750, 0)">
+      <rect width="260" height="74" rx="10" fill="#1E293B" stroke="#2563EB" />
+      <text x="20" y="32" font-family="sans-serif" font-size="12" font-weight="600" fill="#60A5FA">ENGINEERED TRANSPARENCY</text>
+      <text x="20" y="56" font-family="sans-serif" font-size="18" font-weight="800" fill="#38BDF8">Line-Item Cost Breakout</text>
+    </g>
+  </g>
+
+  <!-- Bottom Bar with Technical Badge -->
+  <g transform="translate(90, 480)">
+    <text x="0" y="24" font-family="sans-serif" font-size="16" font-weight="700" fill="#E2E8F0">Professional Estimating Suite • 16+ Specialized Calculators • Transparent Formulas</text>
+  </g>
+</svg>

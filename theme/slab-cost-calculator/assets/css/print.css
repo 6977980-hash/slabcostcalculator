@@ -1,0 +1,138 @@
+/* ==========================================================================
+   SLAB COST CALCULATOR - PRINT STYLESHEET
+   Clean 8.5x11 / A4 Estimate Sheet for Contractors and Clients
+   ========================================================================== */
+
+@media print {
+  *, *::before, *::after {
+    background: transparent !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  body {
+    font-size: 10pt;
+    line-height: 1.4;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #ffffff !important;
+    margin: 0;
+    padding: 10mm;
+  }
+
+  /* Hide Non-Essential Web UI Elements */
+  .site-header,
+  .site-footer,
+  .breadcrumb-nav,
+  .mobile-menu-toggle,
+  .calc-header,
+  .preset-selector-group,
+  .unit-toggle-group,
+  .calc-actions-bar,
+  .sidebar-col,
+  .faq-section,
+  .calc-toast,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Print Header with Document Metadata */
+  .print-header-block {
+    display: block !important;
+    border-bottom: 2px solid #000000;
+    padding-bottom: 8mm;
+    margin-bottom: 8mm;
+  }
+
+  .print-header-title {
+    font-size: 18pt;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .print-meta-grid {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4mm;
+    font-size: 9pt;
+  }
+
+  /* Adjust Calculator Container */
+  .calculator-app-wrapper {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+
+  .calc-body-grid {
+    display: block !important;
+  }
+
+  .calc-inputs-col, .calc-results-col {
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  /* Project Specifications Table */
+  .print-spec-table {
+    display: table !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 6mm !important;
+  }
+
+  .print-spec-table th, .print-spec-table td {
+    border: 1px solid #cccccc !important;
+    padding: 4pt 6pt !important;
+    font-size: 9pt !important;
+  }
+
+  .print-spec-table th {
+    background: #f0f0f0 !important;
+    font-weight: 700 !important;
+  }
+
+  /* Bill of Quantities Print Table */
+  .boq-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-top: 6mm !important;
+  }
+
+  .boq-table th, .boq-table td {
+    border: 1px solid #333333 !important;
+    padding: 5pt 8pt !important;
+    font-size: 9.5pt !important;
+  }
+
+  .boq-table th {
+    background: #eeeeee !important;
+    font-weight: 800 !important;
+  }
+
+  .boq-table tr.total-row {
+    font-weight: 800 !important;
+    font-size: 11pt !important;
+    border-top: 2pt solid #000000 !important;
+  }
+
+  /* Print Disclaimer */
+  .print-disclaimer {
+    display: block !important;
+    margin-top: 10mm;
+    padding-top: 4mm;
+    border-top: 1px solid #cccccc;
+    font-size: 7.5pt;
+    color: #555555 !important;
+  }
+
+  /* Page Breaks */
+  h2, h3 {
+    page-break-after: avoid;
+  }
+
+  table, figure, .definition-card {
+    page-break-inside: avoid;
+  }
+}

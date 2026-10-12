@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none" width="100%" height="100%">
+<rect width="800" height="450" rx="12" fill="#0F172A" />
+  <text x="40" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="700" fill="#F8FAFC">Concrete vs. Asphalt Driveway: Structure &amp; Lifecycle</text>
+  <text x="40" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#94A3B8">Cross-section build-up and typical installed cost / service-life ranges</text>
+  <!-- Concrete cross-section -->
+  <text x="220" y="110" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" fill="#F8FAFC" text-anchor="middle">Concrete</text>
+  <rect x="110" y="120" width="220" height="14" fill="#94A3B8" />
+  <line x1="110" y1="127" x2="330" y2="127" stroke="#F59E0B" stroke-width="3" stroke-dasharray="4 3"/>
+  <rect x="110" y="134" width="220" height="35" fill="#475569" />
+  <text x="220" y="188" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#F1F5F9" text-anchor="middle">5&#8243; slab, 3,500 PSI, #4 rebar</text>
+  <text x="220" y="204" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#94A3B8" text-anchor="middle">on 4&#8243; compacted gravel base</text>
+
+  <!-- Asphalt cross-section -->
+  <text x="580" y="110" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" fill="#F8FAFC" text-anchor="middle">Asphalt</text>
+  <rect x="470" y="120" width="220" height="10" fill="#1E293B" stroke="#475569" stroke-width="1"/>
+  <rect x="470" y="130" width="220" height="18" fill="#334155" />
+  <rect x="470" y="148" width="220" height="21" fill="#475569" />
+  <text x="580" y="188" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#F1F5F9" text-anchor="middle">2&#8211;3&#8243; asphalt (2 lifts)</text>
+  <text x="580" y="204" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" fill="#94A3B8" text-anchor="middle">on 4&#8211;6&#8243; compacted gravel base</text>
+
+  <!-- Comparison bars: cost -->
+  <text x="130" y="245" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#F1F5F9">Installed Cost / sq. ft.</text>
+  <rect x="130" y="255" width="150" height="18" rx="3" fill="#64748B"/>
+  <text x="290" y="269" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#F8FAFC">$8 &#8211; $20 (concrete)</text>
+  <rect x="130" y="280" width="112" height="18" rx="3" fill="#334155"/>
+  <text x="252" y="294" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#F8FAFC">$7 &#8211; $15 (asphalt)</text>
+
+  <!-- Comparison bars: lifespan -->
+  <text x="130" y="330" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#F1F5F9">Typical Service Life</text>
+  <rect x="130" y="340" width="220" height="18" rx="3" fill="#22C55E"/>
+  <text x="360" y="354" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#F8FAFC">27&#8211;40 years (concrete)</text>
+  <rect x="130" y="365" width="120" height="18" rx="3" fill="#F59E0B"/>
+  <text x="260" y="379" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#F8FAFC">15&#8211;20 years (asphalt)</text>
+
+  <text x="400" y="420" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#38BDF8" text-anchor="middle">Asphalt costs less up front and re-seals cheaply; concrete costs more but lasts roughly twice as long</text>
+
+</svg>

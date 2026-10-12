@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none" width="100%" height="100%">
+<rect width="800" height="450" rx="12" fill="#0F172A" />
+  <text x="40" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="700" fill="#F8FAFC">Yard Prep Checklist Before a Slab Pour</text>
+  <text x="40" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#94A3B8">Five milestones to complete before ready-mix trucks arrive</text><rect x="119" y="120" width="48" height="48" rx="8" fill="#1E3A8A" stroke="#38BDF8" stroke-width="1.5"/>
+<text x="143" y="150" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="800" fill="#93C5FD" text-anchor="middle">1</text>
+<line x1="169" y1="144" x2="245" y2="144" stroke="#334155" stroke-width="2" stroke-dasharray="5 3"/>
+<text x="143" y="188" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#F1F5F9" text-anchor="middle">Call 811</text>
+<text x="143" y="208" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" fill="#94A3B8" text-anchor="middle">Locate utilities</text>
+<text x="143" y="224" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" fill="#94A3B8" text-anchor="middle">before digging</text>
+<rect x="245" y="120" width="48" height="48" rx="8" fill="#1E3A8A" stroke="#38BDF8" stroke-width="1.5"/>
+<text x="269" y="150" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="800" fill="#93C5FD" text-anchor="middle">2</text>
+<line x1="295" y1="144" x2="371" y2="144" stroke="#334155" stroke-width="2" stroke-dasharray="5 3"/>
+<text x="269" y="188" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#F1F5F9" text-anchor="middle">Clear &amp; Grade</text>
+<text x="269" y="208" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" fill="#94A3B8" text-anchor="middle">Remove sod,</text>
+<text x="269" y="224" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" fill="#94A3B8" text-anchor="middle">slope for drainage</text>
+<rect x="371" y="120" width="48" height="48" rx="8" fill="#1E3A8A" stroke="#38BDF8" stroke-width="1.5"/>
+<text x="395" y="150" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="800" fill="#93C5FD" text-anchor="middle">3</text>
+<line x1="421" y1="144" x2="497" y2="144" stroke="#334155" stroke-width="2" stroke-dasharray="5 3"/>
+<text x="395" y="188" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#F1F5F9" text-anchor="middle">Excavate</text>
+<text x="395" y="208" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" fill="#94A3B8" text-anchor="middle">Depth = slab +</text>
+<text x="395" y="224" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" fill="#94A3B8" text-anchor="middle">gravel base</text>
+<rect x="497" y="120" width="48" height="48" rx="8" fill="#1E3A8A" stroke="#38BDF8" stroke-width="1.5"/>
+<text x="521" y="150" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="800" fill="#93C5FD" text-anchor="middle">4</text>
+<line x1="547" y1="144" x2="623" y2="144" stroke="#334155" stroke-width="2" stroke-dasharray="5 3"/>
+<text x="521" y="188" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#F1F5F9" text-anchor="middle">Compact</text>
+<text x="521" y="208" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" fill="#94A3B8" text-anchor="middle">Plate compactor,</text>
+<text x="521" y="224" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" fill="#94A3B8" text-anchor="middle">multiple passes</text>
+<rect x="623" y="120" width="48" height="48" rx="8" fill="#1E3A8A" stroke="#38BDF8" stroke-width="1.5"/>
+<text x="647" y="150" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="800" fill="#93C5FD" text-anchor="middle">5</text>
+<text x="647" y="188" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#F1F5F9" text-anchor="middle">Forms &amp; Base</text>
+<text x="647" y="208" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" fill="#94A3B8" text-anchor="middle">2x4/2x6 forms +</text>
+<text x="647" y="224" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" fill="#94A3B8" text-anchor="middle">4&#8221; gravel</text>
+  <rect x="90" y="300" width="620" height="90" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+  <text x="115" y="328" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12.5" font-weight="700" fill="#FCA5A5">Do not skip Call 811</text>
+  <text x="115" y="350" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#F1F5F9">Striking a buried gas, electric, or water line during excavation is a safety hazard and</text>
+  <text x="115" y="370" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#F1F5F9">a billable repair &#8212; the locate service is free in the U.S. and Canada.</text>
+
+</svg>

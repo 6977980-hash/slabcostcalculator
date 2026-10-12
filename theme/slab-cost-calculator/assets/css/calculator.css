@@ -1,0 +1,584 @@
+/* ==========================================================================
+   CONCRETE SLAB CALCULATOR ENGINE - STYLESHEET
+   Component Architecture: Interactive Estimating Suite
+   ========================================================================== */
+
+.calculator-app-wrapper {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  margin: 2rem 0;
+}
+
+/* Calculator Header Bar */
+.calc-header {
+  background: linear-gradient(135deg, var(--slate-900) 0%, var(--slate-800) 100%);
+  color: #ffffff;
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 3px solid var(--primary-600);
+}
+
+.calc-header-title h2 {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.25rem;
+  border: none;
+  padding: 0;
+}
+
+.calc-header-title p {
+  font-size: 0.8125rem;
+  color: var(--slate-400);
+  margin: 0;
+}
+
+/* Unit System Switcher */
+.unit-toggle-group {
+  display: flex;
+  background: var(--slate-950);
+  padding: 0.3rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--slate-700);
+}
+
+.unit-btn {
+  background: transparent;
+  border: none;
+  color: var(--slate-400);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.unit-btn.active {
+  background: var(--primary-600);
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Calculator Layout Grid */
+.calc-body-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  min-height: 600px;
+}
+
+/* Left Column: Form Controls */
+.calc-inputs-col {
+  padding: 2rem;
+  background: #ffffff;
+  border-right: 1px solid var(--slate-200);
+}
+
+/* Right Column: Output Results Dashboard */
+.calc-results-col {
+  padding: 2rem;
+  background: var(--slate-50);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Preset Application Buttons */
+.preset-selector-group {
+  margin-bottom: 1.75rem;
+}
+
+.calc-section-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--slate-500);
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.preset-pills-scroll {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.preset-btn {
+  background: var(--slate-100);
+  border: 1px solid var(--slate-200);
+  color: var(--slate-700);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.preset-btn:hover {
+  background: var(--primary-50);
+  border-color: var(--primary-300);
+  color: var(--primary-700);
+}
+
+.preset-btn.active {
+  background: var(--primary-600);
+  border-color: var(--primary-600);
+  color: #ffffff;
+}
+
+/* Form Groups & Inputs */
+.input-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.input-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.calc-form-group {
+  margin-bottom: 1.25rem;
+}
+
+.calc-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--slate-700);
+  margin-bottom: 0.35rem;
+}
+
+.calc-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.calc-input-addon-left {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--slate-400);
+  font-weight: 700;
+  font-size: 0.875rem;
+  pointer-events: none;
+}
+
+.calc-input-addon-right {
+  position: absolute;
+  right: 0.85rem;
+  color: var(--slate-500);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  pointer-events: none;
+}
+
+.calc-control {
+  width: 100%;
+  height: 42px;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--slate-900);
+  background-color: #ffffff;
+  border: 1.5px solid var(--slate-300);
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
+}
+
+.has-addon-left .calc-control {
+  padding-left: 2rem;
+}
+
+.has-addon-right .calc-control {
+  padding-right: 3.5rem;
+}
+
+.calc-control:focus {
+  outline: none;
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+select.calc-control {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.15rem;
+  padding-right: 2.25rem;
+  cursor: pointer;
+}
+
+/* Accordion Sections for Scope Breakdown */
+.scope-accordion {
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  margin-bottom: 0.85rem;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.scope-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  background: var(--slate-100);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s ease;
+}
+
+.scope-header:hover {
+  background: var(--slate-200);
+}
+
+.scope-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.scope-toggle-checkbox {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--primary-600);
+  cursor: pointer;
+}
+
+.scope-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--slate-800);
+}
+
+.scope-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary-700);
+  background: var(--primary-100);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+}
+
+.scope-chevron {
+  font-size: 0.875rem;
+  color: var(--slate-500);
+  transition: transform 0.2s ease;
+}
+
+.scope-accordion.open .scope-chevron {
+  transform: rotate(180deg);
+}
+
+.scope-body {
+  display: none;
+  padding: 1rem;
+  border-top: 1px solid var(--slate-200);
+  background: #ffffff;
+}
+
+.scope-accordion.open .scope-body {
+  display: block;
+}
+
+/* ==========================================================================
+   RESULTS DASHBOARD & BREAKDOWN
+   ========================================================================== */
+
+.results-hero-card {
+  background: linear-gradient(135deg, var(--slate-900) 0%, var(--slate-950) 100%);
+  color: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--slate-800);
+}
+
+.results-hero-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--slate-400);
+  margin-bottom: 0.25rem;
+}
+
+.results-hero-total {
+  font-size: 2.25rem;
+  font-weight: 900;
+  color: #38bdf8;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+
+.results-hero-subrates {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--slate-300);
+  border-top: 1px solid var(--slate-800);
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.results-hero-subrates strong {
+  color: #ffffff;
+}
+
+/* Key Quantities Metric Grid */
+.quantities-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.quantity-card {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+}
+
+.quantity-card-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--slate-500);
+  margin-bottom: 0.2rem;
+}
+
+.quantity-card-value {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--slate-900);
+}
+
+.quantity-card-note {
+  font-size: 0.6875rem;
+  color: var(--slate-400);
+}
+
+/* Visual Cost Distribution Bar */
+.visual-cost-bar-wrapper {
+  margin-bottom: 1.5rem;
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--slate-200);
+}
+
+.cost-bar-container {
+  display: flex;
+  height: 14px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  background: var(--slate-200);
+  margin-bottom: 0.75rem;
+}
+
+.cost-bar-seg {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.seg-material { background-color: #2563eb; }
+.seg-labor { background-color: #10b981; }
+.seg-base { background-color: #f59e0b; }
+.seg-reinforce { background-color: #8b5cf6; }
+.seg-forms { background-color: #ec4899; }
+.seg-other { background-color: #64748b; }
+
+.cost-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--slate-600);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+}
+
+/* Detailed Bill of Quantities Table */
+.boq-table-card {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.boq-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.boq-table th {
+  background: var(--slate-100);
+  color: var(--slate-700);
+  font-weight: 700;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--slate-200);
+}
+
+.boq-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--slate-100);
+  color: var(--slate-700);
+}
+
+.boq-table tr.total-row {
+  background: var(--primary-50);
+  font-weight: 800;
+  color: var(--primary-900);
+}
+
+.boq-table tr.total-row td {
+  border-top: 2px solid var(--primary-200);
+  font-size: 0.875rem;
+}
+
+/* User Action Buttons */
+.calc-actions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.calc-action-btn {
+  flex: 1;
+  min-width: 100px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--slate-300);
+  background: #ffffff;
+  color: var(--slate-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.calc-action-btn:hover {
+  background: var(--slate-100);
+  color: var(--slate-900);
+  border-color: var(--slate-400);
+}
+
+.calc-action-btn.btn-primary {
+  background: var(--primary-600);
+  color: #ffffff;
+  border-color: var(--primary-600);
+}
+
+.calc-action-btn.btn-primary:hover {
+  background: var(--primary-700);
+}
+
+/* Toast Notification */
+.calc-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--slate-900);
+  color: #ffffff;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-xl);
+  display: none;
+  z-index: 9999;
+  border-left: 4px solid var(--accent-emerald);
+}
+
+/* ==========================================================================
+   SUPPORTING CALCULATOR CARDS & MODES
+   ========================================================================== */
+
+.subcalc-card {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 2rem;
+}
+
+.subcalc-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--slate-900);
+  margin-bottom: 0.5rem;
+}
+
+.subcalc-desc {
+  font-size: 0.875rem;
+  color: var(--slate-600);
+  margin-bottom: 1.25rem;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 900px) {
+  .calc-body-grid {
+    grid-template-columns: 1fr;
+  }
+  .calc-inputs-col {
+    border-right: none;
+    border-bottom: 1px solid var(--slate-200);
+    padding: 1.25rem;
+  }
+  .calc-results-col {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .input-grid-2, .input-grid-3 {
+    grid-template-columns: 1fr;
+  }
+  .quantities-grid {
+    grid-template-columns: 1fr;
+  }
+  .calc-header {
+    padding: 1rem 1.25rem;
+  }
+}

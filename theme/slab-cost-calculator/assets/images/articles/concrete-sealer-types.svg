@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none" width="100%" height="100%">
+<rect width="800" height="450" rx="12" fill="#0F172A" />
+  <text x="40" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="700" fill="#F8FAFC">Concrete Sealer Types: How They Protect the Surface</text>
+  <text x="40" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#94A3B8">Penetrating sealers react inside the pores; film-forming sealers sit on top</text>
+  <!-- Penetrating -->
+  <text x="220" y="110" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" fill="#F8FAFC" text-anchor="middle">Penetrating Sealer</text>
+  <rect x="110" y="130" width="220" height="75" fill="#64748B"/>
+  <g stroke="#38BDF8" stroke-width="2" opacity="0.85">
+    <line x1="130" y1="130" x2="130" y2="158"/><line x1="170" y1="130" x2="170" y2="166"/>
+    <line x1="210" y1="130" x2="210" y2="152"/><line x1="250" y1="130" x2="250" y2="162"/>
+    <line x1="290" y1="130" x2="290" y2="156"/>
+  </g>
+  <text x="220" y="225" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#F1F5F9" text-anchor="middle">Silane/siloxane soaks in &#8211; repels</text>
+  <text x="220" y="240" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#94A3B8" text-anchor="middle">water, keeps the natural look</text>
+  <text x="220" y="260" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#4ADE80" text-anchor="middle">Reseal every 3&#8211;5 years</text>
+
+  <!-- Film-forming -->
+  <text x="580" y="110" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="800" fill="#F8FAFC" text-anchor="middle">Film-Forming Sealer</text>
+  <rect x="470" y="138" width="220" height="67" fill="#64748B"/>
+  <rect x="470" y="130" width="220" height="8" fill="#F59E0B"/>
+  <text x="580" y="225" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#F1F5F9" text-anchor="middle">Acrylic / epoxy / polyurethane</text>
+  <text x="580" y="240" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#94A3B8" text-anchor="middle">adds sheen, can be slick when wet</text>
+  <text x="580" y="260" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#FCD34D" text-anchor="middle">Acrylic 1&#8211;3 yrs &#8226; Epoxy/urethane 5&#8211;15 yrs</text>
+
+  <rect x="90" y="290" width="620" height="100" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+  <text x="115" y="316" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#F1F5F9">Typical installed cost by type</text>
+  <text x="115" y="338" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#94A3B8">Penetrating: $1&#8211;$3/sq ft &#8226; Acrylic: $1&#8211;$2/sq ft</text>
+  <text x="115" y="358" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#94A3B8">Polyurethane: $1.25&#8211;$3/sq ft &#8226; Epoxy: $4&#8211;$10/sq ft</text>
+  <text x="115" y="378" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#94A3B8">Stamped/decorative concrete: reseal every 2&#8211;3 years regardless of type</text>
+
+</svg>

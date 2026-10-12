@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none" width="100%" height="100%">
+  <rect width="800" height="450" rx="12" fill="#0F172A" />
+  
+  <!-- Title -->
+  <text x="40" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="700" fill="#F8FAFC">Standard Concrete Slab Cross-Section &amp; Layers</text>
+  <text x="40" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#94A3B8">Engineered structural buildup showing sub-base, vapor barrier, reinforcement, and concrete slab with formwork</text>
+
+  <!-- Ground / Subgrade (Bottom) -->
+  <rect x="60" y="340" width="680" height="60" fill="#2E2419" rx="4" />
+  <!-- Soil texture dots -->
+  <g fill="#523E2A" opacity="0.6">
+    <circle cx="90" cy="360" r="3"/><circle cx="140" cy="370" r="4"/><circle cx="210" cy="355" r="2"/><circle cx="310" cy="380" r="5"/><circle cx="430" cy="365" r="3"/><circle cx="560" cy="375" r="4"/><circle cx="680" cy="360" r="3"/>
+    <circle cx="110" cy="385" r="3"/><circle cx="180" cy="365" r="2"/><circle cx="270" cy="370" r="4"/><circle cx="380" cy="355" r="3"/><circle cx="500" cy="385" r="5"/><circle cx="630" cy="365" r="3"/>
+  </g>
+  <text x="75" y="375" font-family="sans-serif" font-size="12" font-weight="600" fill="#D6D3D1">Compacted Native Soil Subgrade</text>
+
+  <!-- Crushed Gravel Sub-base (4" - 6") -->
+  <rect x="60" y="270" width="680" height="70" fill="#475569" rx="2" />
+  <!-- Gravel stones pattern -->
+  <g fill="#94A3B8" opacity="0.5">
+    <polygon points="100,285 112,280 118,292 106,298" />
+    <polygon points="180,310 195,302 202,316 186,322" />
+    <polygon points="260,280 274,275 280,288 268,294" />
+    <polygon points="340,315 352,308 360,320 346,326" />
+    <polygon points="440,282 455,278 460,290 445,296" />
+    <polygon points="530,312 542,305 550,318 536,324" />
+    <polygon points="620,285 634,280 640,292 626,298" />
+    <polygon points="700,310 712,304 718,315 706,320" />
+  </g>
+  <text x="75" y="310" font-family="sans-serif" font-size="12" font-weight="600" fill="#F1F5F9">4"–6" Compacted Crushed Gravel / Stone Base (#57 or crushed run)</text>
+
+  <!-- Vapor Retarder / Barrier (10-15 mil Polyethylene) -->
+  <line x1="60" y1="268" x2="740" y2="268" stroke="#38BDF8" stroke-width="3" stroke-dasharray="6 3" />
+  <text x="440" y="260" font-family="sans-serif" font-size="11" font-weight="600" fill="#38BDF8">Vapor Barrier (10–15 mil Polyethylene Sheet)</text>
+
+  <!-- Concrete Slab (4" - 6") -->
+  <rect x="60" y="140" width="680" height="126" fill="#64748B" rx="2" stroke="#475569" stroke-width="1" />
+  <text x="75" y="170" font-family="sans-serif" font-size="14" font-weight="700" fill="#FFFFFF">Poured Concrete Slab (3,000–4,000 PSI Mix)</text>
+
+  <!-- Reinforcement (Rebar Grid on Support Chairs) -->
+  <!-- Rebar Chairs -->
+  <path d="M160 266 L170 215 L180 266" stroke="#94A3B8" stroke-width="2" />
+  <path d="M340 266 L350 215 L360 266" stroke="#94A3B8" stroke-width="2" />
+  <path d="M520 266 L530 215 L540 266" stroke="#94A3B8" stroke-width="2" />
+  <path d="M660 266 L670 215 L680 266" stroke="#94A3B8" stroke-width="2" />
+  
+  <!-- Longitudinal Rebar -->
+  <line x1="80" y1="210" x2="720" y2="210" stroke="#F59E0B" stroke-width="6" stroke-linecap="round" />
+  <!-- Transverse Rebar Nodes -->
+  <circle cx="120" cy="210" r="6" fill="#D97706" stroke="#FFF" stroke-width="1" />
+  <circle cx="210" cy="210" r="6" fill="#D97706" stroke="#FFF" stroke-width="1" />
+  <circle cx="300" cy="210" r="6" fill="#D97706" stroke="#FFF" stroke-width="1" />
+  <circle cx="390" cy="210" r="6" fill="#D97706" stroke="#FFF" stroke-width="1" />
+  <circle cx="480" cy="210" r="6" fill="#D97706" stroke="#FFF" stroke-width="1" />
+  <circle cx="570" cy="210" r="6" fill="#D97706" stroke="#FFF" stroke-width="1" />
+  <circle cx="660" cy="210" r="6" fill="#D97706" stroke="#FFF" stroke-width="1" />
+  <text x="395" y="200" font-family="sans-serif" font-size="11" font-weight="700" fill="#FDE68A">#4 (1/2") Rebar Grid @ 12"-18" O.C. centered with Rebar Chairs</text>
+
+  <!-- Wooden Form Boards (Sides) -->
+  <rect x="42" y="130" width="16" height="150" fill="#B45309" stroke="#78350F" stroke-width="1" rx="1" />
+  <rect x="742" y="130" width="16" height="150" fill="#B45309" stroke="#78350F" stroke-width="1" rx="1" />
+  <!-- Wooden Stakes -->
+  <polygon points="26,160 42,160 42,320 34,360 26,320" fill="#D97706" stroke="#78350F" stroke-width="1" />
+  <polygon points="758,160 774,160 774,320 766,360 758,320" fill="#D97706" stroke="#78350F" stroke-width="1" />
+  <text x="8" y="120" font-family="sans-serif" font-size="11" font-weight="600" fill="#FCD34D">2x4 / 2x6 Formwork</text>
+
+  <!-- Dimension Indicator Lines -->
+  <!-- Thickness Dimension (Left) -->
+  <line x1="755" y1="140" x2="775" y2="140" stroke="#38BDF8" stroke-width="1.5" />
+  <line x1="755" y1="266" x2="775" y2="266" stroke="#38BDF8" stroke-width="1.5" />
+  <line x1="765" y1="140" x2="765" y2="266" stroke="#38BDF8" stroke-width="1.5" />
+  <text x="775" y="208" font-family="sans-serif" font-size="12" font-weight="700" fill="#38BDF8">4" to 6" Slab Thickness</text>
+
+  <!-- Width / Length Dimension (Top) -->
+  <line x1="60" y1="110" x2="740" y2="110" stroke="#22C55E" stroke-width="2" />
+  <polygon points="60,110 70,106 70,114" fill="#22C55E" />
+  <polygon points="740,110 730,106 730,114" fill="#22C55E" />
+  <text x="340" y="102" font-family="sans-serif" font-size="13" font-weight="700" fill="#4ADE80">Length × Width (Slab Footprint Area)</text>
+</svg>

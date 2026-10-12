@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none" width="100%" height="100%">
+<rect width="800" height="450" rx="12" fill="#0F172A" />
+  <text x="40" y="45" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="700" fill="#F8FAFC">DIY vs. Hiring a Contractor: Where the Line Is</text>
+  <text x="40" y="70" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#94A3B8">Decision guide by slab size, load, and site complexity</text>
+  <rect x="90" y="110" width="620" height="60" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1"/>
+  <text x="400" y="135" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#F1F5F9" text-anchor="middle">Is the slab under ~100 sq ft, non-structural, and hand-mix or 1-2 yd delivered?</text>
+  <text x="400" y="155" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#94A3B8" text-anchor="middle">(shed pad, stepping pad, small patio repair)</text>
+
+  <line x1="300" y1="170" x2="180" y2="210" stroke="#334155" stroke-width="2"/>
+  <line x1="500" y1="170" x2="620" y2="210" stroke="#334155" stroke-width="2"/>
+  <text x="220" y="195" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#4ADE80">YES</text>
+  <text x="560" y="195" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#FCA5A5">NO</text>
+
+  <rect x="90" y="215" width="260" height="150" rx="8" fill="#052e1e" stroke="#22C55E" stroke-width="2"/>
+  <text x="220" y="242" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13.5" font-weight="800" fill="#4ADE80" text-anchor="middle">DIY-Friendly</text>
+  <text x="110" y="268" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#F1F5F9">&#8226; Bagged mix, hand or mixer</text>
+  <text x="110" y="288" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#F1F5F9">&#8226; No vehicle load</text>
+  <text x="110" y="308" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#F1F5F9">&#8226; Simple square/rectangle forms</text>
+  <text x="110" y="328" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#F1F5F9">&#8226; Good weather window available</text>
+  <text x="110" y="348" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#F1F5F9">&#8226; No permit or a simple one</text>
+
+  <rect x="450" y="215" width="260" height="150" rx="8" fill="#3f0f0f" stroke="#EF4444" stroke-width="2"/>
+  <text x="580" y="242" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13.5" font-weight="800" fill="#FCA5A5" text-anchor="middle">Call a Contractor</text>
+  <text x="470" y="268" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#F1F5F9">&#8226; Driveway or garage (vehicle load)</text>
+  <text x="470" y="288" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#F1F5F9">&#8226; Ready-mix truck &amp; pump needed</text>
+  <text x="470" y="308" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#F1F5F9">&#8226; Structural / foundation-tied slab</text>
+  <text x="470" y="328" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#F1F5F9">&#8226; Sloped or poor-draining site</text>
+  <text x="470" y="348" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" fill="#F1F5F9">&#8226; Engineering stamp required</text>
+
+  <text x="400" y="400" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#38BDF8" text-anchor="middle">Ready-mix sets in 60&#8211;90 minutes once it leaves the plant &#8212; DIY pours must be sized to what you can place in time</text>
+
+</svg>

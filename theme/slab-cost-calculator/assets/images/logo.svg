@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 64" fill="none" width="100%" height="100%">
+  <defs>
+    <linearGradient id="slabGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="concreteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#64748B" />
+      <stop offset="100%" stop-color="#334155" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Icon: Isometric Concrete Slab with Measuring Grid -->
+  <g transform="translate(6, 6)">
+    <!-- 3D Slab Base -->
+    <path d="M26 4 L48 16 L26 28 L4 16 Z" fill="url(#slabGrad)" />
+    <!-- Slab Left Thickness -->
+    <path d="M4 16 L26 28 L26 42 L4 30 Z" fill="#1E40AF" />
+    <!-- Slab Right Thickness -->
+    <path d="M26 28 L48 16 L48 30 L26 42 Z" fill="#172554" />
+    
+    <!-- Rebar Grid lines on top -->
+    <path d="M15 10 L37 22" stroke="#93C5FD" stroke-width="1.5" stroke-linecap="round" />
+    <path d="M15 22 L37 10" stroke="#93C5FD" stroke-width="1.5" stroke-linecap="round" />
+    
+    <!-- Measuring Caliper / Ruler Indicator -->
+    <path d="M4 30 L4 48 L18 48" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="4" cy="48" r="2" fill="#F59E0B" />
+    <circle cx="18" cy="48" r="2" fill="#F59E0B" />
+    <path d="M34 46 L48 46 L48 30" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="34" cy="46" r="2" fill="#F59E0B" />
+    <circle cx="48" cy="30" r="2" fill="#F59E0B" />
+  </g>
+
+  <!-- Typography -->
+  <g transform="translate(68, 40)">
+    <text x="0" y="0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="22" font-weight="800" fill="#0F172A" letter-spacing="-0.5">SLAB<tspan fill="#2563EB">COST</tspan></text>
+    <text x="0" y="14" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="700" fill="#64748B" letter-spacing="1.8">CALCULATOR &amp; ESTIMATOR</text>
+  </g>
+</svg>
