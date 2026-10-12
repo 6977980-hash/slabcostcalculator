@@ -70,6 +70,6 @@
 
   <!-- Bottom Bar with Technical Badge -->
   <g transform="translate(90, 480)">
-    <text x="0" y="24" font-family="sans-serif" font-size="16" font-weight="700" fill="#E2E8F0">Professional Estimating Suite • 16+ Specialized Calculators • Transparent Formulas</text>
+    <text x="0" y="24" font-family="sans-serif" font-size="16" font-weight="700" fill="#E2E8F0">Free Concrete Calculators • Line-Item Costs • Transparent Formulas</text>
   </g>
 </svg>

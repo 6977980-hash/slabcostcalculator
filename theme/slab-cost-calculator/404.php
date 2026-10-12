@@ -22,7 +22,7 @@ get_header();
 
     <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
       <a href="<?php echo esc_url(home_url('/')); ?>" class="header-cta-btn" style="padding: 0.75rem 1.5rem;">Go to Primary Slab Calculator</a>
-      <a href="<?php echo esc_url(home_url('/calculators/')); ?>" class="calc-action-btn" style="padding: 0.75rem 1.5rem; text-decoration: none;">Browse All 16+ Calculators</a>
+      <a href="<?php echo esc_url(home_url('/calculators/')); ?>" class="calc-action-btn" style="padding: 0.75rem 1.5rem; text-decoration: none;">Browse All Calculators</a>
     </div>
   </div>
 </main>

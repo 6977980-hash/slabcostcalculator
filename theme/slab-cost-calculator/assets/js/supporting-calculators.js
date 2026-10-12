@@ -47,6 +47,14 @@
     // 7. Concrete Labor Cost Calculator
     initLaborCalculator();
 
+    // 9. Single-purpose tools (Phase 5)
+    initYardCalculator();
+    initReadyMixCalculator();
+    initMixCalculator();
+    initWasteCalculator();
+    initMeshCalculator();
+    initFormCalculator();
+
     // 8. General Interactive Sliders / Inputs
     initSupportingInputs();
   });
@@ -268,7 +276,7 @@
     // weight due to bleed-water loss during the ~28-day cure — this is an
     // approximation (typically cited in the 2%-4% range), not a precise
     // mix-specific figure.
-    const DRY_FACTOR = 0.97;
+    const DRY_FACTOR = sd('curedWeightFactor', 0.97);
     const LBS_PER_KG = 0.45359237;
 
     function calc() {
@@ -349,9 +357,9 @@
       const hasRebar = rebar && rebar.checked;
 
       // Base demo rate: $3.00 - $4.00 per sq ft for 4" unreinforced slab
-      let ratePerSqFt = 3.25;
-      if (t > 4) ratePerSqFt += (t - 4) * 0.50;
-      if (hasRebar) ratePerSqFt += 1.00; // harder to break with jackhammer
+      let ratePerSqFt = sd('demoRate', 3.25);
+      if (t > 4) ratePerSqFt += (t - 4) * sd('demoPerInch', 0.50);
+      if (hasRebar) ratePerSqFt += sd('demoRebar', 1.00); // harder to break with jackhammer
 
       const totalCost = area * ratePerSqFt;
       const weightLbs = area * (t / 12) * sd('densityLbFt3', 145);
@@ -409,6 +417,177 @@
       }
     });
     calc();
+  }
+
+  /* ---------------- Single-purpose tools (Phase 5) ----------------
+   * Same maths as Slab_Calculator_Pages in inc/calculator-pages.php, which
+   * prints the starting results before this script runs.
+   */
+  const money0 = (n) => '$' + Math.round(n).toLocaleString('en-US');
+  const moneyRange = (a, b) => money0(a) + ' – ' + money0(b);
+  function bind(inputs, fn) {
+    inputs.forEach(inp => {
+      if (inp) {
+        inp.addEventListener('input', fn);
+        inp.addEventListener('change', fn);
+      }
+    });
+    fn();
+  }
+  function setText(el, text) { if (el) el.textContent = text; }
+  function roundUpStep(x, step) { return Math.ceil(x / step - 1e-9) * step; }
+
+  function initYardCalculator() {
+    const el = document.getElementById('subcalc-yards');
+    if (!el) return;
+    const q = (id) => el.querySelector('#' + id);
+    const inputs = [q('yd-length'), q('yd-width'), q('yd-thick'), q('yd-waste')];
+    bind(inputs, () => {
+      const net = numOr(inputs[0], 0) * numOr(inputs[1], 0) * numOr(inputs[2], 0) / 12 / 27;
+      const withWaste = net * (1 + numOr(inputs[3], 0) / 100);
+      const order = roundUpStep(withWaste, sd('orderStepYd', 0.25));
+      const cap = sd('truckCapacityYd', [8, 10]);
+      setText(q('yd-out-order'), order.toFixed(2) + ' yd³');
+      setText(q('yd-out-waste'), withWaste.toFixed(2) + ' yd³');
+      setText(q('yd-out-net'), 'Net: ' + net.toFixed(2) + ' yd³');
+      setText(q('yd-out-trucks'), String(Math.max(order > 0 ? 1 : 0, Math.ceil(order / cap[0] - 1e-9))));
+      const min = sd('commonMinYd', [5, 6]);
+      setText(q('yd-out-note'), order > 0 && order < min[0] ? 'Under ' + min[0] + ' yd³: many plants add a short-load fee. Compare with bags.' : '');
+    });
+  }
+
+  function initReadyMixCalculator() {
+    const el = document.getElementById('subcalc-readymix');
+    if (!el) return;
+    const q = (id) => el.querySelector('#' + id);
+    const inputs = [q('rm-length'), q('rm-width'), q('rm-thick'), q('rm-psi'), q('rm-waste')];
+    bind(inputs, () => {
+      const net = numOr(inputs[0], 0) * numOr(inputs[1], 0) * numOr(inputs[2], 0) / 12 / 27;
+      const order = roundUpStep(net * (1 + numOr(inputs[4], 0) / 100), sd('orderStepYd', 0.25));
+      const prices = sd('psiPrices', {});
+      const price = prices[inputs[3].value] || [135, 160];
+      const fee = sd('deliveryFee', 120);
+      const min = sd('commonMinYd', [5, 6]);
+      const shortFee = (order > 0 && order < min[0]) ? sd('shortLoadFlat', [80, 200]) : [0, 0];
+      const cap = sd('truckCapacityYd', [8, 10]);
+      const trucks = order > 0 ? Math.ceil(order / cap[0] - 1e-9) : 0;
+      const lo = order > 0 ? order * price[0] + fee + shortFee[0] : 0;
+      const hi = order > 0 ? order * price[1] + fee + shortFee[1] : 0;
+      setText(q('rm-out-total'), moneyRange(lo, hi));
+      setText(q('rm-out-total-note'), 'Concrete + ' + money0(fee) + ' delivery' + (shortFee[1] ? ' + short-load fee' : ''));
+      setText(q('rm-out-yards'), order.toFixed(2) + ' yd³');
+      setText(q('rm-out-trucks'), trucks + (trucks === 1 ? ' truck' : ' trucks'));
+      setText(q('rm-out-price'), moneyRange(price[0], price[1]));
+      setText(q('rm-out-note'), shortFee[1] ? 'Below the usual ' + min[0] + '–' + min[1] + ' yd³ minimum: a short-load fee of ' + moneyRange(shortFee[0], shortFee[1]) + ' is included.' : '');
+    });
+  }
+
+  function initMixCalculator() {
+    const el = document.getElementById('subcalc-mix');
+    if (!el) return;
+    const q = (id) => el.querySelector('#' + id);
+    const inputs = [q('mix-length'), q('mix-width'), q('mix-thick'), q('mix-ratio'), q('mix-waste')];
+    bind(inputs, () => {
+      const parts = inputs[3].value.split(':').map(parseFloat);
+      const sum = parts.reduce((a, b) => a + b, 0) || 1;
+      const wet = numOr(inputs[0], 0) * numOr(inputs[1], 0) * numOr(inputs[2], 0) / 12 * (1 + numOr(inputs[4], 0) / 100);
+      const dry = wet * sd('dryVolumeFactor', 1.54);
+      const cementFt3 = dry * parts[0] / sum;
+      const sandYd = dry * parts[1] / sum / 27;
+      const stoneYd = dry * parts[2] / sum / 27;
+      const bagFt3 = sd('cementBagFt3', 1);
+      const cementLb = cementFt3 / bagFt3 * sd('cementBagLb', 94);
+      setText(q('mix-out-cement'), ceilCount(cementFt3 / bagFt3) + ' bags');
+      setText(q('mix-out-sand'), (sandYd * sd('sandTonsPerYd', 1.35)).toFixed(2) + ' tons');
+      setText(q('mix-out-sand-yd'), sandYd.toFixed(2) + ' yd³');
+      setText(q('mix-out-stone'), (stoneYd * sd('gravelTonsPerYard', 1.4)).toFixed(2) + ' tons');
+      setText(q('mix-out-stone-yd'), stoneYd.toFixed(2) + ' yd³');
+      setText(q('mix-out-water'), Math.round(cementLb * sd('waterCementRatio', 0.5) / 8.34) + ' gallons');
+    });
+  }
+
+  function initWasteCalculator() {
+    const el = document.getElementById('subcalc-waste');
+    if (!el) return;
+    const q = (id) => el.querySelector('#' + id);
+    const inputs = [q('wst-length'), q('wst-width'), q('wst-thick'), q('wst-level'), q('wst-price')];
+    bind(inputs, () => {
+      const netFt3 = numOr(inputs[0], 0) * numOr(inputs[1], 0) * numOr(inputs[2], 0) / 12;
+      const orderFt3 = netFt3 * (1 + numOr(inputs[3], 0) / 100);
+      const extraYd = (orderFt3 - netFt3) / 27;
+      const yields = sd('bagYields', { '80': 0.60 });
+      setText(q('wst-out-order'), (orderFt3 / 27).toFixed(2) + ' yd³');
+      setText(q('wst-out-net'), 'Net: ' + (netFt3 / 27).toFixed(2) + ' yd³');
+      setText(q('wst-out-extra'), extraYd.toFixed(2) + ' yd³');
+      setText(q('wst-out-extra-cost'), 'Costs about ' + money0(extraYd * numOr(inputs[4], sd('readyMixPerYard', 150))));
+      setText(q('wst-out-bags'), ceilCount(orderFt3 / yields['80']) + ' bags');
+    });
+  }
+
+  function initMeshCalculator() {
+    const el = document.getElementById('subcalc-mesh');
+    if (!el) return;
+    const q = (id) => el.querySelector('#' + id);
+    const inputs = [q('mesh-length'), q('mesh-width'), q('mesh-type')];
+    bind(inputs, () => {
+      const l = numOr(inputs[0], 0);
+      const w = numOr(inputs[1], 0);
+      const lap = sd('meshOverlapIn', 6) / 12;
+      const chairFt = sd('chairGridFt', [3, 4])[1];
+      const up = (x) => Math.ceil(x - 1e-9);
+      let count, price, unit;
+      if (inputs[2].value === 'roll') {
+        const roll = sd('meshRollFt', [5, 150]);
+        const lane = roll[0] - lap;
+        const run = Math.min(up(w / lane) * l, up(l / lane) * w);
+        count = up(run / roll[1]);
+        price = sd('meshRollPrice', [180, 300]);
+        unit = count === 1 ? 'roll' : 'rolls';
+      } else {
+        const sh = sd('meshSheetFt', [5, 10]);
+        const a = sh[0] - lap;
+        const b = sh[1] - lap;
+        count = Math.min(up(l / b) * up(w / a), up(l / a) * up(w / b));
+        price = sd('meshSheetPrice', [12, 20]);
+        unit = count === 1 ? 'sheet' : 'sheets';
+      }
+      const chairs = (l > 0 && w > 0) ? (Math.floor(l / chairFt) + 1) * (Math.floor(w / chairFt) + 1) : 0;
+      setText(q('mesh-out-count'), count + ' ' + unit);
+      setText(q('mesh-out-chairs'), chairs + ' chairs');
+      setText(q('mesh-out-cost'), moneyRange(count * price[0], count * price[1]));
+    });
+  }
+
+  function initFormCalculator() {
+    const el = document.getElementById('subcalc-forms');
+    if (!el) return;
+    const q = (id) => el.querySelector('#' + id);
+    const inputs = [q('form-length'), q('form-width'), q('form-thick'), q('form-board-len'), q('form-stake')];
+    bind(inputs, () => {
+      const l = numOr(inputs[0], 0);
+      const w = numOr(inputs[1], 0);
+      const t = numOr(inputs[2], 0);
+      const boardLen = parseFloat(inputs[3].value) || 12;
+      const stakeFt = parseFloat(inputs[4].value) || 3;
+      const depths = sd('formBoardDepthIn', { '2x4': 3.5, '2x6': 5.5, '2x8': 7.25, '2x10': 9.25, '2x12': 11.25 });
+      let board = '2x12';
+      for (const name of Object.keys(depths)) {
+        if (depths[name] >= t - 0.5) { board = name; break; }
+      }
+      let boards = 0, stakes = 0;
+      [l, l, w, w].forEach(side => {
+        if (side <= 0) return;
+        const n = Math.ceil(side / boardLen - 1e-9);
+        boards += n;
+        stakes += Math.ceil(side / stakeFt - 1e-9) + (n - 1);
+      });
+      const perim = 2 * (l + w);
+      setText(q('form-out-boards'), boards + ' × ' + board);
+      setText(q('form-out-perimeter'), Math.round(perim) + ' linear ft of form');
+      setText(q('form-out-stakes'), stakes + ' stakes');
+      setText(q('form-out-screws'), (stakes * 2) + ' screws');
+      setText(q('form-out-cost'), money0(perim * sd('forms', 2.20)));
+    });
   }
 
   function initSupportingInputs() {

@@ -49,9 +49,36 @@ class Slab_Data {
                 'bag_price_default' => 6.50,       // $ per 80-lb bag
                 'bag_price_range' => [6.00, 8.00],
                 'bag_yields' => ['80' => 0.60, '60' => 0.45, '50' => 0.375, '40' => 0.30], // ft³ per bag
+                'bag_price_sizes' => ['60' => 5.25, '50' => 4.75, '40' => 3.95], // $ per bag, typical big-box price for the smaller sizes (80-lb is bag_price_default)
                 'waste_pct' => 10,
+                'waste_pct_range' => [5, 15],      // % extra: laser-flat grade and rigid forms (low) to rough or irregular grade (high)
                 'density_lb_ft3' => 145,
+                'cured_weight_factor' => 0.97,     // cured weight ≈ 97% of wet (bleed-water loss)
                 'air_entrainment_pct' => [5, 7],
+                // Site-mixed concrete (mix ratio calculator): cement : sand : stone by volume.
+                'mix_ratios' => [
+                    '1:1.5:3' => 'Rich mix for thin sections, steps and repairs',
+                    '1:2:3' => 'Standard mix for slabs, driveways and posts',
+                    '1:2:4' => 'General mix for footings and light slabs',
+                    '1:3:6' => 'Lean fill under slabs, not for wearing surfaces',
+                ],
+                'dry_volume_factor' => 1.54,       // dry ingredients shrink ~54% into the wet mix
+                'cement_bag_lb' => 94,             // US portland cement bag
+                'cement_bag_ft3' => 1.0,           // loose volume of one 94-lb bag
+                'cement_bag_price' => [15, 20],    // $ per 94-lb bag, Type I/II
+                'sand_tons_per_yd' => 1.35,        // dry concrete sand, loose
+                'sand_price_yd' => [30, 50],       // $/yd³ delivered in bulk
+                'water_cement_ratio' => 0.5,       // by weight, typical for slabs
+                'waste_levels' => [
+                    5 => 'Rigid forms on a flat, well-compacted base',
+                    10 => 'Typical formed slab (recommended)',
+                    15 => 'Uneven or soft subgrade, curves, many edges',
+                    20 => 'Dug trenches, footings, rough ground',
+                ],
+                'bag_psi' => [3500, 4000],         // 28-day PSI: ASTM C387 normal-strength minimum, and the usual rating on general-purpose bag mix
+                'water_qt_per_80lb' => 3,          // quarts of water per 80-lb bag, typical maker's direction
+                'mixer_rental_day' => [50, 100],   // $ per day, rented electric drum mixer
+                'admixture_yd' => ['fiber' => [8, 15], 'accelerator' => [5, 10], 'hot_water' => [5, 10]], // $/yd³ add-ons: synthetic fiber, non-chloride or calcium accelerator, winter hot water
             ],
             'code' => [
                 // IRC Table R402.2 minimums
@@ -70,20 +97,29 @@ class Slab_Data {
                 'gravel_depth_range' => [4, 6],
                 'gravel_compaction' => 1.15,
                 'gravel_tons_per_yd' => 1.4,
+                'gravel_lift_in' => [4, 6],         // max loose lift per pass with a walk-behind plate compactor
                 'forms_default' => 2.20,
                 'forms_range' => [1.50, 3.00],      // $/lin ft
                 'vapor_default' => 0.35,
                 'vapor_range' => [0.25, 0.45],      // $/sq ft
                 'demo_default' => 3.50,
                 'demo_range' => [3, 4],             // $/sq ft, 4" unreinforced slab
+                'demo_rate' => 3.25,                // removal calculator base $/sq ft, 4" unreinforced
+                'demo_per_inch' => 0.50,            // + $/sq ft per inch over 4"
+                'demo_rebar' => 1.00,               // + $/sq ft when the slab has rebar or mesh
                 'drainage_slope_in_per_ft' => ['1/8', '1/4'],
                 'drainage_slope_preferred' => '1/4',
                 'chute_reach_ft' => [15, 20],
+                'stake_spacing_ft' => [3, 4],
+                'form_board_lengths_ft' => [8, 10, 12, 16],
+                // Actual depth of dimensional lumber used as slab forms.
+                'form_board_depth_in' => ['2x4' => 3.5, '2x6' => 5.5, '2x8' => 7.25, '2x10' => 9.25, '2x12' => 11.25],
             ],
             'reinforcement' => [
                 'rebar_default' => 1.25,            // $/sq ft, #4 @ 18 in with chairs
                 'rebar_range' => [1.00, 1.75],
                 'rebar_base_spacing_in' => 18,
+                'rebar_tight_spacing_in' => 12,     // closer #4 grid for heavy or cold-climate driveways
                 'mesh_default' => 0.50,
                 'mesh_range' => [0.40, 0.70],
                 'lap_bar_diameters' => 40,
@@ -92,12 +128,18 @@ class Slab_Data {
                 'edge_cover_in' => 3,
                 'chair_grid_ft' => [3, 4],
                 'stick_length_ft' => 20,
+                'mesh_sheet_ft' => [5, 10],         // 6x6 W1.4 sheet
+                'mesh_roll_ft' => [5, 150],         // 6x6 W1.4 roll (750 sq ft)
+                'mesh_overlap_in' => 6,             // lap one full grid square at sheet edges
+                'mesh_sheet_price' => [12, 20],     // $ per 5x10 sheet
+                'mesh_roll_price' => [180, 300],    // $ per 5x150 roll
             ],
             'finish' => [
                 'broom' => ['default' => 0.75, 'range' => [0.50, 0.80]],
                 'trowel' => ['default' => 1.25, 'range' => [1.00, 1.50]],
                 'exposed' => ['default' => 3.50, 'range' => [2.50, 4.50]],
                 'stamped' => ['default' => 7.50, 'range' => [6.00, 12.00]],
+                'sealer_psf' => [1.00, 3.00],       // $/sq ft installed, penetrating or acrylic sealer (matches the sealer guide)
             ],
             'labor' => [
                 'sqft_default' => 5.00,
@@ -111,6 +153,7 @@ class Slab_Data {
                 'crew_hours_per_sqft' => 0.035,
                 'crew_hours_per_sqft_stamped' => 0.06,
                 'crew_hours_per_sqft_difficult' => 0.05,
+                'bags_per_hour_mixer' => [20, 30],  // 80-lb bags a 3-person crew with one drum mixer can mix and place per hour
             ],
             'delivery' => [
                 'fee_default' => 120.00,
@@ -123,6 +166,8 @@ class Slab_Data {
                 'unload_min_per_yd' => [5, 8],
                 'bags_win_below_yd' => 1,
                 'ready_mix_wins_above_yd' => 1.5,
+                'order_step_yd' => [0.25, 0.5],     // plants sell in quarter- or half-yard steps
+                'discharge_min' => 90,              // ASTM C94: discharge within 90 minutes of batching unless the buyer waives it
             ],
             'pump' => [
                 'default' => 650.00,
@@ -174,6 +219,18 @@ class Slab_Data {
                 'edge_bars' => 2,
                 'edge_rebar' => [100, 150],         // 2 × #4 around a 24×24 slab
                 'trenching' => ['12' => [150, 400], '18' => [250, 600]],
+                'stem_wall_form_sfca' => [3, 6],    // $/sq ft of form contact area: form, place and strip a short poured stem wall (concrete extra)
+                'frost_trench_lf' => [8, 15],       // $/lin ft to machine-dig a footing trench to frost depth and backfill
+            ],
+            // Calculator quick presets: [length, width, thickness in, label].
+            'presets' => [
+                'patio' => [12, 12, 4, 'Patio (12x12, 4")'],
+                'walkway' => [30, 4, 4, 'Walkway (4x30, 4")'],
+                'driveway' => [40, 20, 5, 'Driveway (20x40, 5")'],
+                'garage' => [24, 24, 5, '2-Car Garage (24x24, 5")'],
+                'shed' => [10, 10, 4, 'Shed Pad (10x10, 4")'],
+                'foundation' => [30, 40, 6, 'Foundation (30x40, 6")'],
+                'pad' => [8, 8, 4, 'Equipment Pad (8x8, 4")'],
             ],
             'freeze_thaw_ft' => [36, 48],
             'asphalt_driveway_psf' => [3, 7],      // installed, 2-3 in asphalt on gravel base
@@ -545,6 +602,31 @@ class Slab_Data {
             'hotF' => $d['weather']['hot_f'],
             'concreteTempLimitF' => $d['weather']['concrete_temp_limit_f'],
             'evapLimitLb' => $d['weather']['evap_limit_lb'],
+            // Figures for the single-purpose tools (supporting-calculators.js).
+            'curedWeightFactor' => $d['concrete']['cured_weight_factor'],
+            'demoRate' => $d['site']['demo_rate'],
+            'demoPerInch' => $d['site']['demo_per_inch'],
+            'demoRebar' => $d['site']['demo_rebar'],
+            'orderStepYd' => $d['delivery']['order_step_yd'][0],
+            'truckCapacityYd' => $d['delivery']['truck_capacity_yd'],
+            'commonMinYd' => $d['delivery']['common_min_yd'],
+            'shortLoadFlat' => $d['delivery']['short_load_flat'],
+            'psiPrices' => array_map([__CLASS__, 'psi_price'], array_combine(array_keys($d['concrete']['psi_grades']), array_keys($d['concrete']['psi_grades']))),
+            'dryVolumeFactor' => $d['concrete']['dry_volume_factor'],
+            'cementBagLb' => $d['concrete']['cement_bag_lb'],
+            'cementBagFt3' => $d['concrete']['cement_bag_ft3'],
+            'sandTonsPerYd' => $d['concrete']['sand_tons_per_yd'],
+            'waterCementRatio' => $d['concrete']['water_cement_ratio'],
+            'meshSheetFt' => $d['reinforcement']['mesh_sheet_ft'],
+            'meshRollFt' => $d['reinforcement']['mesh_roll_ft'],
+            'meshOverlapIn' => $d['reinforcement']['mesh_overlap_in'],
+            'meshSheetPrice' => $d['reinforcement']['mesh_sheet_price'],
+            'meshRollPrice' => $d['reinforcement']['mesh_roll_price'],
+            'chairGridFt' => $d['reinforcement']['chair_grid_ft'],
+            'formBoardDepthIn' => $d['site']['form_board_depth_in'],
+            'presets' => array_map(function ($p) {
+                return ['l' => $p[0], 'w' => $p[1], 't' => $p[2], 'name' => $p[3]];
+            }, $d['presets']),
         ];
     }
 }

@@ -141,8 +141,11 @@ add_action('wp_enqueue_scripts', 'slab_enqueue_assets');
 // 3. Load Modular Includes
 require_once get_template_directory() . '/inc/site-data.php';
 require_once get_template_directory() . '/inc/post-figures.php';
+require_once get_template_directory() . '/inc/post-articles.php';
 require_once get_template_directory() . '/inc/seo-engine.php';
+require_once get_template_directory() . '/inc/calculator-pages.php';
 require_once get_template_directory() . '/inc/calculator-faq.php';
+require_once get_template_directory() . '/inc/applications.php';
 require_once get_template_directory() . '/inc/quote-checker.php';
 require_once get_template_directory() . '/inc/schema-generator.php';
 require_once get_template_directory() . '/inc/sitemap-generator.php';

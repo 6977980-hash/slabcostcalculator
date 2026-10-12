@@ -26,6 +26,14 @@ class Slab_Calculator_FAQ {
      */
     public static function get_faqs_for_slug($slug) {
         $slug = (string) $slug;
+
+        // Pages with their own FAQ in inc/calculator-pages.php (yards, mix,
+        // ready-mix, waste, mesh, forms, cost per sq ft, project cost).
+        $page = class_exists('Slab_Calculator_Pages') ? Slab_Calculator_Pages::get($slug) : null;
+        if ($page && !empty($page['faqs'])) {
+            return $page['faqs'];
+        }
+
         $sd = Slab_Data::all();
         $y = $sd['concrete']['bag_yields'];
         $r = $sd['reinforcement'];

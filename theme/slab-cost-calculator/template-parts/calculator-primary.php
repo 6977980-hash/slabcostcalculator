@@ -26,9 +26,27 @@ $tabs = [
     'weather'   => 'Weather',
 ];
 $default_tab = (isset($args['tab']) && isset($tabs[$args['tab']])) ? $args['tab'] : 'blueprint';
+
+// Project pages open the calculator on their own preset (patio, garage...):
+// get_template_part('template-parts/calculator-primary', null, ['preset' => 'garage']).
+$start_preset = isset($args['preset']) ? sanitize_key($args['preset']) : '';
+if ($start_preset && !isset($sd['presets'][$start_preset])) {
+    $start_preset = '';
+}
+
+// The results are printed for the starting size before any JavaScript
+// runs, so visitors without JS and search crawlers see real numbers.
+// Same line items and defaults as the calculator (Slab_Data::estimate()).
+$dims = $start_preset ? $sd['presets'][$start_preset] : [20, 20, 4];
+$first = Slab_Data::estimate($dims[0], $dims[1], $dims[2]);
+$first_m3 = $first['order_yd'] / 1.30795;
+$first_lbs = $first['order_yd'] * 27 * $sd['concrete']['density_lb_ft3'];
+$fmt = function ($n, $dec = 2) {
+    return number_format((float) $n, $dec);
+};
 ?>
 
-<div id="concrete-slab-calculator" class="calculator-app-wrapper" role="region" aria-label="Concrete Slab Cost Estimator">
+<div id="concrete-slab-calculator" class="calculator-app-wrapper" role="region" aria-label="Concrete Slab Cost Estimator"<?php echo $start_preset ? ' data-start-preset="' . esc_attr($start_preset) . '"' : ''; ?>>
   <!-- Calculator Top Header Bar -->
   <div class="calc-header">
     <div class="calc-header-title">
@@ -75,7 +93,7 @@ $default_tab = (isset($args['tab']) && isset($tabs[$args['tab']])) ? $args['tab'
         <div class="calc-form-group">
           <label for="calc-length" class="calc-label">Length (<span class="unit-len-label">ft</span>)</label>
           <div class="calc-input-wrapper has-addon-right">
-            <input type="number" id="calc-length" class="calc-control" value="20" min="0.1" step="0.5" required>
+            <input type="number" id="calc-length" class="calc-control" value="<?php echo esc_attr($dims[0]); ?>" min="0.1" step="0.5" required>
             <span class="calc-input-addon-right unit-len-label">ft</span>
           </div>
         </div>
@@ -83,7 +101,7 @@ $default_tab = (isset($args['tab']) && isset($tabs[$args['tab']])) ? $args['tab'
         <div class="calc-form-group">
           <label for="calc-width" class="calc-label">Width (<span class="unit-len-label">ft</span>)</label>
           <div class="calc-input-wrapper has-addon-right">
-            <input type="number" id="calc-width" class="calc-control" value="20" min="0.1" step="0.5" required>
+            <input type="number" id="calc-width" class="calc-control" value="<?php echo esc_attr($dims[1]); ?>" min="0.1" step="0.5" required>
             <span class="calc-input-addon-right unit-len-label">ft</span>
           </div>
         </div>
@@ -93,7 +111,7 @@ $default_tab = (isset($args['tab']) && isset($tabs[$args['tab']])) ? $args['tab'
         <div class="calc-form-group">
           <label for="calc-thickness" class="calc-label">Thickness (<span class="unit-thick-label">inches</span>)</label>
           <div class="calc-input-wrapper has-addon-right">
-            <input type="number" id="calc-thickness" class="calc-control" value="4" min="1" max="48" step="0.5" required>
+            <input type="number" id="calc-thickness" class="calc-control" value="<?php echo esc_attr($dims[2]); ?>" min="1" max="48" step="0.5" required>
             <span class="calc-input-addon-right unit-thick-label">in</span>
           </div>
         </div>
@@ -461,10 +479,10 @@ $default_tab = (isset($args['tab']) && isset($tabs[$args['tab']])) ? $args['tab'
         <!-- Total Budget Card -->
         <div class="results-hero-card">
           <div class="results-hero-label">Estimated Total Project Budget</div>
-          <div id="out-total-cost" class="results-hero-total">$0.00</div>
+          <div id="out-total-cost" class="results-hero-total">$<?php echo esc_html($fmt($first['calculator_total'])); ?></div>
           <div class="results-hero-subrates">
-            <div><strong id="out-cost-per-sqft">$0.00</strong> / sq. ft.</div>
-            <div><strong id="out-cost-per-sqm">$0.00</strong> / m²</div>
+            <div><strong id="out-cost-per-sqft">$<?php echo esc_html($fmt($first['calculator_total'] / $first['area'])); ?></strong> / sq. ft.</div>
+            <div><strong id="out-cost-per-sqm">$<?php echo esc_html($fmt($first['calculator_total'] / ($first['area'] * 0.09290304))); ?></strong> / m²</div>
           </div>
           <div id="out-region-tag" class="results-region-tag">Based on U.S. national average rates</div>
         </div>
@@ -473,26 +491,26 @@ $default_tab = (isset($args['tab']) && isset($tabs[$args['tab']])) ? $args['tab'
         <div class="quantities-grid">
           <div class="quantity-card">
             <div class="quantity-card-label">Order Volume (w/ Waste)</div>
-            <div id="out-waste-yards" class="quantity-card-value">0.00 yd³</div>
-            <div id="out-net-yards" class="quantity-card-note">Net: 0.00 yd³</div>
+            <div id="out-waste-yards" class="quantity-card-value"><?php echo esc_html($fmt($first['order_yd'])); ?> yd³</div>
+            <div id="out-net-yards" class="quantity-card-note">Net: <?php echo esc_html($fmt($first['net_yd'])); ?> yd³</div>
           </div>
 
           <div class="quantity-card">
             <div class="quantity-card-label">Or Bagged Equivalent</div>
-            <div id="out-total-bags" class="quantity-card-value">0 bags</div>
+            <div id="out-total-bags" class="quantity-card-value"><?php echo (int) $first['bags80']; ?> bags</div>
             <div id="out-bag-note" class="quantity-card-note">80-lb pre-mix bags</div>
           </div>
 
           <div class="quantity-card">
             <div class="quantity-card-label">Total Surface Area</div>
-            <div id="out-area-sqft" class="quantity-card-value">0 sq ft</div>
-            <div id="out-net-meters" class="quantity-card-note">Order volume: 0.00 m³</div>
+            <div id="out-area-sqft" class="quantity-card-value"><?php echo esc_html($fmt($first['area'], 0) . ' sq ft (' . $fmt($first['area'] * 0.09290304, 1) . ' m²)'); ?></div>
+            <div id="out-net-meters" class="quantity-card-note">Order volume: <?php echo esc_html($fmt($first_m3)); ?> m³</div>
           </div>
 
           <div class="quantity-card">
             <div class="quantity-card-label">Estimated Wet Weight</div>
-            <div id="out-total-weight" class="quantity-card-value">0 lbs</div>
-            <div id="out-perimeter-ft" class="quantity-card-note">Perimeter: 0 ft</div>
+            <div id="out-total-weight" class="quantity-card-value"><?php echo esc_html($fmt($first_lbs, 0)); ?> lbs</div>
+            <div id="out-perimeter-ft" class="quantity-card-note">Perimeter: <?php echo esc_html($fmt($first['perimeter'], 0)); ?> ft</div>
           </div>
         </div>
 
@@ -644,8 +662,8 @@ $default_tab = (isset($args['tab']) && isset($tabs[$args['tab']])) ? $args['tab'
        as a bottom sheet (calculator-tools.js). -->
   <div class="live-bar" id="live-bar" aria-hidden="true">
     <button type="button" class="live-bar-btn" aria-controls="live-estimate" aria-expanded="false" tabindex="-1">
-      <span class="live-bar-total" id="bar-total">$0</span>
-      <span class="live-bar-meta"><span id="bar-yards">0.00 yd³</span> &middot; <span id="bar-bags">0 bags</span></span>
+      <span class="live-bar-total" id="bar-total">$<?php echo esc_html($fmt($first['calculator_total'], 0)); ?></span>
+      <span class="live-bar-meta"><span id="bar-yards"><?php echo esc_html($fmt($first['order_yd'])); ?> yd³</span> &middot; <span id="bar-bags"><?php echo (int) $first['bags80']; ?> bags</span></span>
       <span class="live-bar-cta">Blueprint &amp; breakdown <span aria-hidden="true">&#9650;</span></span>
     </button>
   </div>

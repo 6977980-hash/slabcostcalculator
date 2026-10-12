@@ -120,7 +120,9 @@
   }
 
   // Project Type Presets (Length, Width, Thickness in standard Imperial)
-  const PRESETS = {
+  // Project presets (length, width, thickness in imperial) come from
+  // inc/site-data.php; the list below is only a fallback.
+  const PRESETS = sd('presets', null) || {
     'patio': { l: 12, w: 12, t: 4, name: 'Patio (12x12, 4")' },
     'walkway': { l: 30, w: 4, t: 4, name: 'Walkway (4x30, 4")' },
     'driveway': { l: 40, w: 20, t: 5, name: 'Driveway (20x40, 5")' },
@@ -1053,7 +1055,7 @@
     if (dom.outTotalBags) dom.outTotalBags.textContent = `${result.bags.totalBags} bags`;
     if (dom.outBagNote) dom.outBagNote.textContent = `${result.bags.bagSize}-lb pre-mix bags`;
     if (dom.outAreaSqFt) dom.outAreaSqFt.textContent = `${d.areaSqFt.toFixed(0)} sq ft (${d.areaSqM.toFixed(1)} m²)`;
-    if (dom.outPerimeterFt) dom.outPerimeterFt.textContent = `${d.perimeterFt.toFixed(0)} ft`;
+    if (dom.outPerimeterFt) dom.outPerimeterFt.textContent = `Perimeter: ${d.perimeterFt.toFixed(0)} ft`;
     if (dom.outTotalWeight) dom.outTotalWeight.textContent = isImp ? `${formatNumber(d.weightLbs, 0)} lbs` : `${formatNumber(d.weightKg, 0)} kg`;
 
     // Render BOQ Table
@@ -1260,6 +1262,10 @@
       bindEvents();
       updateUnitLabels();
       recalculate();
+      // Project pages start on their own preset (data-start-preset="garage").
+      const start = dom.root.getAttribute('data-start-preset');
+      const startBtn = start ? dom.root.querySelector('.preset-btn[data-preset="' + start + '"]') : null;
+      if (startBtn) startBtn.click();
     }
   });
 

@@ -139,6 +139,19 @@ class Slab_Schema_Generator {
             if ($faq_schema) {
                 $schemas[] = $faq_schema;
             }
+        } elseif (is_page_template('page-templates/template-hub.php') && class_exists('Slab_Applications')) {
+            // Project pages: the FAQ list in inc/applications.php, shown on the page.
+            $app = Slab_Applications::get(get_post_field('post_name', get_queried_object_id()));
+            if ($app && !empty($app['faqs'])) {
+                $schemas[] = self::faq_page_schema($app['faqs']);
+            }
+        } elseif (is_singular('post') && class_exists('Slab_Post_Articles')) {
+            // Posts shown with a full theme article (inc/post-articles.php):
+            // the same FAQ list the article renders.
+            $faqs = Slab_Post_Articles::faqs(get_queried_object_id());
+            if ($faqs) {
+                $schemas[] = self::faq_page_schema($faqs);
+            }
         }
 
         self::print_schemas($schemas);
@@ -361,6 +374,21 @@ class Slab_Schema_Generator {
             '@context' => 'https://schema.org',
             '@type' => 'FAQPage',
             'mainEntity' => $items,
+        ];
+    }
+
+    /** FAQPage from a list of ['q' => ..., 'a' => ...] shown on the page. */
+    private static function faq_page_schema($faqs) {
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => array_map(function ($faq) {
+                return [
+                    '@type' => 'Question',
+                    'name' => self::plain($faq['q']),
+                    'acceptedAnswer' => ['@type' => 'Answer', 'text' => self::plain($faq['a'])],
+                ];
+            }, array_values($faqs)),
         ];
     }
 

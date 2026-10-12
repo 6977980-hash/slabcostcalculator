@@ -234,6 +234,8 @@ class Slab_LLMS_Generator {
         $o = "\n---\n\n# Full text of all articles\n";
         foreach ($posts as $p) {
             $html = Slab_Post_Figures::fix($p->post_name, strip_shortcodes($p->post_content));
+            // Stub posts are shown with the theme's full article (inc/post-articles.php).
+            $html = class_exists('Slab_Post_Articles') ? Slab_Post_Articles::body($p, $html) : $html;
             // Keep paragraph and list breaks before stripping tags.
             $html = preg_replace('#<(h[1-6])[^>]*>(.*?)</\1>#is', "\n\n## $2\n\n", $html);
             $html = preg_replace('#<li[^>]*>#i', "\n- ", $html);

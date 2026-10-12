@@ -22,6 +22,23 @@ $sd = Slab_Data::all();
 $bags_demo = Slab_Data::estimate(10, 10, 4);
 $grid_demo = Slab_Data::rebar_grid(20, 20, 18);
 $lab = $sd['labor'];
+
+// Which tool this page shows, and its own text (inc/calculator-pages.php).
+$tool = Slab_Calculator_Pages::tool($slug);
+$calc_page = Slab_Calculator_Pages::get($slug);
+if (!$tool) {
+    // Unknown slug (a page added later in wp-admin): guess from the slug.
+    foreach (['volume' => 'volume', 'yard' => 'yards', 'bag' => 'bags', 'mesh' => 'mesh', 'rebar' => 'rebar', 'gravel' => 'gravel', 'footing' => 'footing', 'weight' => 'weight', 'removal' => 'removal', 'labor' => 'labor'] as $needle => $guess) {
+        if (strpos((string) $slug, $needle) !== false) {
+            $tool = $guess;
+            break;
+        }
+    }
+    $tool = $tool ?: 'primary';
+}
+$vol_demo = 400 * 4 / 12;
+$foot_demo = 80 * 1 * 1 * (1 + $sd['concrete']['waste_pct'] / 100);
+$wt_demo = $vol_demo * $sd['concrete']['density_lb_ft3'];
 ?>
 
 <main id="primary" class="site-main">
@@ -31,13 +48,16 @@ $lab = $sd['labor'];
         
         <header class="page-header" style="margin-bottom: 2rem;">
           <h1 class="hero-title"><?php the_title(); ?></h1>
-          <p class="hero-subtitle">
-            Specialized engineering calculation tool for accurate material volume estimating, contractor planning, and building code compliance.
-          </p>
+          <?php if ($calc_page) : ?>
+            <p class="hero-subtitle"><?php echo esc_html($calc_page['subtitle']); ?></p>
+            <p class="hero-answer"><?php echo wp_kses_post($calc_page['answer']); ?></p>
+          <?php else : ?>
+            <p class="hero-subtitle">Concrete estimating tool with the formula and assumptions shown below.</p>
+          <?php endif; ?>
         </header>
 
         <!-- Dynamic Specialized Calculator Component -->
-        <?php if (strpos($slug, 'volume') !== false || strpos($slug, 'yard') !== false) : ?>
+        <?php if ($tool === 'volume') : ?>
           <!-- Subcalc: Volume / Yards -->
           <div id="subcalc-volume" class="subcalc-card" style="border: 2px solid var(--primary-600);">
             <h2 style="font-size: 1.25rem; margin-top: 0; border: none;">Volume &amp; Cubic Yard Calculator</h2>
@@ -59,20 +79,20 @@ $lab = $sd['labor'];
             <div class="quantities-grid" style="margin-top: 1.25rem;">
               <div class="quantity-card" style="background: var(--primary-50); border-color: var(--primary-200);">
                 <div class="quantity-card-label">Volume (Cubic Yards)</div>
-                <div id="vol-out-cuyd" class="quantity-card-value" style="color: var(--primary-800);">4.94 yd³</div>
+                <div id="vol-out-cuyd" class="quantity-card-value" style="color: var(--primary-800);"><?php echo esc_html(number_format($vol_demo / 27, 2)); ?> yd³</div>
               </div>
               <div class="quantity-card">
                 <div class="quantity-card-label">Volume (Cubic Feet)</div>
-                <div id="vol-out-cuft" class="quantity-card-value">133.33 ft³</div>
+                <div id="vol-out-cuft" class="quantity-card-value"><?php echo esc_html(number_format($vol_demo, 2)); ?> ft³</div>
               </div>
               <div class="quantity-card">
                 <div class="quantity-card-label">Volume (Cubic Meters)</div>
-                <div id="vol-out-cum" class="quantity-card-value">3.77 m³</div>
+                <div id="vol-out-cum" class="quantity-card-value"><?php echo esc_html(number_format($vol_demo * 0.0283168, 2)); ?> m³</div>
               </div>
             </div>
           </div>
 
-        <?php elseif (strpos($slug, 'bag') !== false) : ?>
+        <?php elseif ($tool === 'bags') : ?>
           <!-- Subcalc: Bags -->
           <div id="subcalc-bags" class="subcalc-card" style="border: 2px solid var(--primary-600);">
             <h2 style="font-size: 1.25rem; margin-top: 0; border: none;">Concrete Bags Calculator</h2>
@@ -118,7 +138,7 @@ $lab = $sd['labor'];
             </div>
           </div>
 
-        <?php elseif (strpos($slug, 'rebar') !== false || strpos($slug, 'mesh') !== false) : ?>
+        <?php elseif ($tool === 'rebar') : ?>
           <!-- Subcalc: Rebar -->
           <div id="subcalc-rebar" class="subcalc-card" style="border: 2px solid var(--primary-600);">
             <h2 style="font-size: 1.25rem; margin-top: 0; border: none;">Concrete Rebar &amp; Reinforcement Estimator</h2>
@@ -166,7 +186,7 @@ $lab = $sd['labor'];
             </div>
           </div>
 
-        <?php elseif (strpos($slug, 'gravel') !== false) : ?>
+        <?php elseif ($tool === 'gravel') : ?>
           <!-- Subcalc: Gravel -->
           <div id="subcalc-gravel" class="subcalc-card" style="border: 2px solid var(--primary-600);">
             <h2 style="font-size: 1.25rem; margin-top: 0; border: none;">Gravel Base Calculator</h2>
@@ -184,16 +204,16 @@ $lab = $sd['labor'];
             <div class="quantities-grid" style="margin-top: 1.25rem;">
               <div class="quantity-card" style="background: var(--primary-50); border-color: var(--primary-200);">
                 <div class="quantity-card-label">Crushed Gravel Volume (w/ 15% Compaction)</div>
-                <div id="gravel-out-yards" class="quantity-card-value" style="color: var(--primary-800);">5.68 cubic yards</div>
+                <div id="gravel-out-yards" class="quantity-card-value" style="color: var(--primary-800);"><?php echo esc_html(number_format(400 * $sd['site']['gravel_depth_in'] / 12 / 27 * $sd['site']['gravel_compaction'], 2)); ?> cubic yards</div>
               </div>
               <div class="quantity-card">
                 <div class="quantity-card-label">Total Mass (Tons)</div>
-                <div id="gravel-out-tons" class="quantity-card-value">7.95 tons</div>
+                <div id="gravel-out-tons" class="quantity-card-value"><?php echo esc_html(number_format(400 * $sd['site']['gravel_depth_in'] / 12 / 27 * $sd['site']['gravel_compaction'] * $sd['site']['gravel_tons_per_yd'], 2)); ?> tons crushed gravel</div>
               </div>
             </div>
           </div>
 
-        <?php elseif (strpos($slug, 'footing') !== false) : ?>
+        <?php elseif ($tool === 'footing') : ?>
           <!-- Subcalc: Footing & Pier -->
           <div id="subcalc-footing" class="subcalc-card" style="border: 2px solid var(--primary-600);">
             <h2 style="font-size: 1.25rem; margin-top: 0; border: none;">Concrete Footing &amp; Pier Calculator</h2>
@@ -238,16 +258,16 @@ $lab = $sd['labor'];
             <div class="quantities-grid" style="margin-top: 1.25rem;">
               <div class="quantity-card" style="background: var(--primary-50); border-color: var(--primary-200);">
                 <div class="quantity-card-label">Concrete Needed (w/ waste)</div>
-                <div id="footing-out-yards" class="quantity-card-value" style="color: var(--primary-800);">3.26 cu. yds</div>
+                <div id="footing-out-yards" class="quantity-card-value" style="color: var(--primary-800);"><?php echo esc_html(number_format($foot_demo / 27, 2)); ?> cu. yds</div>
               </div>
               <div class="quantity-card">
                 <div class="quantity-card-label">Or Bagged Equivalent</div>
-                <div id="footing-out-bags" class="quantity-card-value">147 bags (80 lb)</div>
+                <div id="footing-out-bags" class="quantity-card-value"><?php echo (int) Slab_Data::bags($foot_demo); ?> bags (80 lb)</div>
               </div>
             </div>
           </div>
 
-        <?php elseif (strpos($slug, 'weight') !== false) : ?>
+        <?php elseif ($tool === 'weight') : ?>
           <!-- Subcalc: Weight -->
           <div id="subcalc-weight" class="subcalc-card" style="border: 2px solid var(--primary-600);">
             <h2 style="font-size: 1.25rem; margin-top: 0; border: none;">Concrete Weight Calculator</h2>
@@ -269,25 +289,25 @@ $lab = $sd['labor'];
             <div class="quantities-grid" style="margin-top: 1.25rem;">
               <div class="quantity-card" style="background: var(--primary-50); border-color: var(--primary-200);">
                 <div class="quantity-card-label">Wet Weight (As Poured)</div>
-                <div id="weight-out-wet-lbs" class="quantity-card-value" style="color: var(--primary-800);">19,333 lbs</div>
-                <div id="weight-out-wet-tons" class="quantity-card-note">9.67 US tons</div>
+                <div id="weight-out-wet-lbs" class="quantity-card-value" style="color: var(--primary-800);"><?php echo esc_html(number_format($wt_demo)); ?> lbs</div>
+                <div id="weight-out-wet-tons" class="quantity-card-note"><?php echo esc_html(number_format($wt_demo / 2000, 2)); ?> US tons</div>
               </div>
               <div class="quantity-card">
                 <div class="quantity-card-label">Cured (Dry) Weight</div>
-                <div id="weight-out-dry-lbs" class="quantity-card-value">18,753 lbs (~cured)</div>
+                <div id="weight-out-dry-lbs" class="quantity-card-value"><?php echo esc_html(number_format($wt_demo * $sd['concrete']['cured_weight_factor'])); ?> lbs (~cured)</div>
               </div>
               <div class="quantity-card">
                 <div class="quantity-card-label">Metric Equivalent</div>
-                <div id="weight-out-kg" class="quantity-card-value">8,769 kg</div>
-                <div id="weight-out-tonnes" class="quantity-card-note">8.77 metric tonnes</div>
+                <div id="weight-out-kg" class="quantity-card-value"><?php echo esc_html(number_format($wt_demo * 0.45359237)); ?> kg</div>
+                <div id="weight-out-tonnes" class="quantity-card-note"><?php echo esc_html(number_format($wt_demo * 0.45359237 / 1000, 2)); ?> metric tonnes</div>
               </div>
             </div>
             <p style="font-size: 0.8125rem; color: var(--slate-500); margin-top: 0.75rem;">
-              Based on normal-weight concrete at ~145 lb/cu ft. Cured (dry) weight is an approximation reflecting typical bleed-water loss during the 28-day cure, not a mix-specific lab figure.
+              Based on normal-weight concrete at ~<?php echo (int) $sd['concrete']['density_lb_ft3']; ?> lb/cu ft. Cured (dry) weight is an approximation reflecting typical bleed-water loss during the 28-day cure, not a mix-specific lab figure.
             </p>
           </div>
 
-        <?php elseif (strpos($slug, 'removal') !== false) : ?>
+        <?php elseif ($tool === 'removal') : ?>
           <!-- Subcalc: Demolition / Removal -->
           <div id="subcalc-removal" class="subcalc-card" style="border: 2px solid var(--primary-600);">
             <h2 style="font-size: 1.25rem; margin-top: 0; border: none;">Concrete Removal &amp; Demolition Calculator</h2>
@@ -317,7 +337,7 @@ $lab = $sd['labor'];
             </div>
           </div>
 
-        <?php elseif (strpos($slug, 'labor') !== false) : ?>
+        <?php elseif ($tool === 'labor') : ?>
           <!-- Subcalc: Labor -->
           <div id="subcalc-labor" class="subcalc-card" style="border: 2px solid var(--primary-600);">
             <h2 style="font-size: 1.25rem; margin-top: 0; border: none;">Concrete Labor Cost Calculator</h2>
@@ -348,35 +368,32 @@ $lab = $sd['labor'];
             </div>
           </div>
 
+        <?php elseif (in_array($tool, ['yards', 'mix', 'readymix', 'waste', 'mesh', 'forms'], true)) : ?>
+          <?php get_template_part('template-parts/tools/' . $tool); ?>
+
         <?php else : ?>
           <!-- Default to Embedded Primary Calculator -->
           <?php get_template_part('template-parts/calculator-primary'); ?>
         <?php endif; ?>
 
-        <!-- Detailed Technical Explanatory Content -->
-        <h2>How This Calculation Works (Engineering Principles)</h2>
-        <p>
-          Accurate flatwork estimates prevent expensive concrete shortages ("cold joints") and avoid over-ordering charges. All volume calculations utilize standard civil engineering formulas:
-        </p>
+        <?php if ($calc_page) : ?>
+          <?php foreach ($calc_page['sections'] as $section) : ?>
+            <h2><?php echo esc_html($section[0]); ?></h2>
+            <?php echo wp_kses_post($section[1]); ?>
+          <?php endforeach; ?>
+        <?php endif; ?>
 
-        <div class="formula-box">
-          <div class="formula-label">Core Formula</div>
-          <div class="formula-math">Volume = Length × Width × (Thickness ÷ 12) ÷ 27</div>
-          <div class="formula-explanation">
-            Result in cubic yards (yd³). Always apply a 10% safety buffer to account for subgrade ground fluctuations and form deflection.
+        <?php if ($tool !== 'primary') : ?>
+          <h2>Need a Full Project Cost Estimate?</h2>
+          <p>
+            This tool works out one part of the job. Our <a href="<?php echo esc_url(home_url('/')); ?>"><strong>Concrete Slab Cost Calculator</strong></a> prices the whole slab: concrete, gravel base, forms, vapor barrier, reinforcement, finish, labor and delivery.
+          </p>
+          <div style="margin: 2rem 0; text-align: center;">
+            <a href="<?php echo esc_url(home_url('/')); ?>#concrete-slab-calculator" class="header-cta-btn" style="padding: 0.85rem 1.75rem; font-size: 1rem;">
+              Open the Slab Cost Calculator &rarr;
+            </a>
           </div>
-        </div>
-
-        <h2>Need a Full Project Cost Estimate?</h2>
-        <p>
-          While this tool calculates individual material quantities, our <a href="<?php echo esc_url(home_url('/')); ?>"><strong>Concrete Slab Cost Calculator</strong></a> provides a full budget breakdown including ready-mix concrete, gravel base, formwork lumber, vapor retarders, rebar grid, finishing labor, truck delivery, and contractor overhead.
-        </p>
-
-        <div style="margin: 2rem 0; text-align: center;">
-          <a href="<?php echo esc_url(home_url('/')); ?>#concrete-slab-calculator" class="header-cta-btn" style="padding: 0.85rem 1.75rem; font-size: 1rem;">
-            Launch Full Concrete Slab Project Estimator &rarr;
-          </a>
-        </div>
+        <?php endif; ?>
 
         <?php get_template_part('template-parts/calculator-faq'); ?>
 
@@ -389,16 +406,10 @@ $lab = $sd['labor'];
         <div class="sidebar-widget">
           <div class="widget-title">Other Calculators</div>
           <ul class="calculator-nav-list">
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/')); ?>">Primary Slab Cost Calculator</a></li>
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/concrete-volume-calculator/')); ?>">Volume Calculator</a></li>
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/concrete-bags-calculator/')); ?>">Bags Calculator</a></li>
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/concrete-weight-calculator/')); ?>">Weight Calculator</a></li>
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/concrete-cost-per-square-foot-calculator/')); ?>">Cost Per Sq Ft Calculator</a></li>
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/concrete-rebar-calculator/')); ?>">Rebar Calculator</a></li>
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/gravel-base-calculator/')); ?>">Gravel Base Calculator</a></li>
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/concrete-footing-calculator/')); ?>">Footing &amp; Pier Calculator</a></li>
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/concrete-labor-cost-calculator/')); ?>">Labor Cost Calculator</a></li>
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/concrete-removal-cost-calculator/')); ?>">Demolition Calculator</a></li>
+            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/')); ?>">Slab Cost Calculator</a></li>
+            <?php foreach (Slab_Calculator_Pages::directory() as $calc_slug => $calc_info) : if ($calc_slug === $slug) continue; ?>
+              <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/' . $calc_slug . '/')); ?>"><?php echo esc_html($calc_info[1]); ?></a></li>
+            <?php endforeach; ?>
           </ul>
         </div>
       </aside>

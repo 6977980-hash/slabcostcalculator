@@ -334,6 +334,10 @@ class Slab_SEO_Engine {
         $slug = $post->post_name;
 
         if (is_page_template('page-templates/template-calculator-single.php')) {
+            $calc_page = class_exists('Slab_Calculator_Pages') ? Slab_Calculator_Pages::get($slug) : null;
+            if ($calc_page && !empty($calc_page['meta'])) {
+                return $calc_page['meta'];
+            }
             if (strpos($slug, 'volume') !== false || strpos($slug, 'yard') !== false) {
                 $detail = 'calculate exact volume in cubic feet, yards & meters for slabs, footings, and pours';
             } elseif (strpos($slug, 'bag') !== false) {
@@ -363,6 +367,10 @@ class Slab_SEO_Engine {
         }
 
         if (is_page_template('page-templates/template-hub.php')) {
+            $app = class_exists('Slab_Applications') ? Slab_Applications::get($post->post_name) : null;
+            if ($app && !empty($app['meta'])) {
+                return $app['meta'];
+            }
             return "{$title} — recommended slab thickness, PSI strength, sub-base depth, reinforcement specs, and DIY vs. installed cost.";
         }
 
