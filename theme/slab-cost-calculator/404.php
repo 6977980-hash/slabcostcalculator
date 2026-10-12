@@ -5,6 +5,10 @@
  * @package SlabCostCalculator
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 get_header();
 ?>
 

@@ -9,6 +9,21 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Date the site's prices and homepage content were last reviewed. Shown as
+// "Last Updated" instead of the current month, so the date only moves when
+// someone actually changes the content. Update it when prices are revised.
+define('SLAB_CONTENT_UPDATED', '2026-10-12');
+
+/**
+ * True only on the real homepage. On the virtual hub routes (/calculators/,
+ * /cost-guides/, /how-to/, /knowledgebase/) WordPress also reports
+ * is_front_page() as true (see inc/seo-engine.php), so anything meant for
+ * the homepage alone must use this instead.
+ */
+function slab_is_home_page() {
+    return is_front_page() && !get_query_var('slab_route');
+}
+
 // 1. Theme Support Setup
 function slab_theme_setup() {
     add_theme_support('title-tag');
@@ -74,7 +89,7 @@ function slab_enqueue_assets() {
     // the calculator's HTML with none of its JS, so every input silently
     // did nothing (no live totals, no BOQ table, no PDF button) on those
     // pages specifically.
-    if (is_front_page() || is_page_template('page-templates/template-calculator-single.php') || is_page_template('page-templates/template-calculator-hub.php') || is_page_template('page-templates/template-hub.php')) {
+    if (slab_is_home_page() || is_page_template('page-templates/template-calculator-single.php') || is_page_template('page-templates/template-hub.php')) {
         // PDF REPORT ENGINE: the "Print Estimate" button used to call
         // window.print() against print.css -- effectively printing/
         // screenshotting the live calculator page. It now builds a real,
@@ -140,6 +155,45 @@ function slab_render_breadcrumbs() {
     get_template_part('template-parts/breadcrumbs');
 }
 
+/**
+ * The breadcrumb steps after "Home", each ['name' => text, 'item' => url].
+ * The last step is the current page. Shared by the visible trail
+ * (template-parts/breadcrumbs.php) and the BreadcrumbList JSON-LD
+ * (inc/schema-generator.php) so the two always match.
+ */
+function slab_get_breadcrumb_trail() {
+    $hub = Slab_SEO_Engine::get_slab_hub_info();
+    if ($hub) {
+        return [['name' => $hub['name'], 'item' => home_url($hub['path'])]];
+    }
+
+    $trail = [];
+    if (is_page()) {
+        $page_id = get_queried_object_id();
+        foreach (array_reverse(get_post_ancestors($page_id)) as $ancestor_id) {
+            $trail[] = ['name' => get_the_title($ancestor_id), 'item' => get_permalink($ancestor_id)];
+        }
+        $trail[] = ['name' => get_the_title($page_id), 'item' => get_permalink($page_id)];
+    } elseif (is_single()) {
+        $post_id = get_queried_object_id();
+        $categories = get_the_category($post_id);
+        if (!empty($categories)) {
+            $trail[] = ['name' => $categories[0]->name, 'item' => get_category_link($categories[0]->term_id)];
+        }
+        $trail[] = ['name' => get_the_title($post_id), 'item' => get_permalink($post_id)];
+    } elseif (is_category() || is_tag() || is_tax()) {
+        $term = get_queried_object();
+        $trail[] = ['name' => $term->name, 'item' => get_term_link($term)];
+    } elseif (is_search()) {
+        $trail[] = ['name' => 'Search results', 'item' => ''];
+    } elseif (is_404()) {
+        $trail[] = ['name' => 'Page not found', 'item' => ''];
+    } elseif (is_archive()) {
+        $trail[] = ['name' => wp_strip_all_tags(get_the_archive_title()), 'item' => ''];
+    }
+    return $trail;
+}
+
 // 6. Author Identity Hardening
 //
 // The site has a single admin account whose login slug ("6977980") was
@@ -169,3 +223,67 @@ add_action('template_redirect', function () {
         exit;
     }
 });
+
+// 6d. oEmbed responses named the WordPress login and linked /author/<slug>/.
+// Credit the editorial team page instead, the same as the visible bylines.
+add_filter('oembed_response_data', function ($data) {
+    $data['author_name'] = 'Slab Cost Calculator Editorial Team';
+    $data['author_url'] = home_url('/authors/');
+    return $data;
+});
+
+// 7. Head cleanup and hardening
+//
+// - Generator tag and emoji scripts: the version number helps attackers
+//   and the emoji script/CSS (about 5 KB) loads on every page for nothing.
+// - Per-post and category comment feeds: comments are off, so these are
+//   empty feeds linked from every page.
+// - XML-RPC: unused here, and its multicall/pingback methods are a
+//   brute-force and pingback-abuse target.
+remove_action('wp_head', 'wp_generator');
+remove_action('wp_head', 'print_emoji_detection_script', 7);
+remove_action('wp_print_styles', 'print_emoji_styles');
+remove_action('admin_print_scripts', 'print_emoji_detection_script');
+remove_action('admin_print_styles', 'print_emoji_styles');
+remove_action('wp_head', 'feed_links_extra', 3);
+remove_action('wp_head', 'rsd_link');
+add_filter('the_generator', '__return_empty_string');
+add_filter('xmlrpc_enabled', '__return_false');
+add_filter('xmlrpc_methods', '__return_empty_array');
+add_filter('pings_open', '__return_false');
+// The filters above still leave system.multicall answering, so refuse
+// XML-RPC requests outright.
+add_action('init', function () {
+    if (defined('XMLRPC_REQUEST') && XMLRPC_REQUEST) {
+        status_header(403);
+        header('Content-Type: text/plain; charset=utf-8');
+        echo 'XML-RPC is disabled on this site.';
+        exit;
+    }
+}, 0);
+add_filter('wp_headers', function ($headers) {
+    unset($headers['X-Pingback']);
+    return $headers;
+});
+
+// Security headers on every front-end response.
+add_action('send_headers', function () {
+    if (is_admin() || headers_sent()) {
+        return;
+    }
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('Permissions-Policy: camera=(), microphone=(), payment=(), usb=()');
+    if (is_ssl()) {
+        header('Strict-Transport-Security: max-age=31536000');
+    }
+});
+
+// Feeds are for feed readers, not search results. Comment feeds and the
+// per-category feeds carry no content of their own.
+add_action('template_redirect', function () {
+    if (is_feed() && !headers_sent()) {
+        header('X-Robots-Tag: noindex, follow', true);
+    }
+}, 0);

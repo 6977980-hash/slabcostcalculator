@@ -19,7 +19,7 @@
 
     <nav class="primary-nav" role="navigation" aria-label="Main Navigation">
       <ul class="nav-links">
-        <li class="nav-item <?php echo is_front_page() ? 'active' : ''; ?>">
+        <li class="nav-item <?php echo slab_is_home_page() ? 'active' : ''; ?>">
           <a href="<?php echo esc_url(home_url('/')); ?>" class="nav-link">Home</a>
         </li>
         

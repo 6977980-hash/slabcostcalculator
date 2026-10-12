@@ -23,8 +23,40 @@ class Slab_Schema_Generator {
         $schemas[] = self::get_website_schema();
         $schemas[] = self::get_organization_schema();
 
+        // Search and 404 pages are noindexed; they get nothing beyond the
+        // site-wide entities.
+        if (is_search() || is_404()) {
+            self::print_schemas($schemas);
+            return;
+        }
+
+        // The hub routes (/calculators/, /cost-guides/, /how-to/,
+        // /knowledgebase/) report is_front_page() as true, so they used to
+        // get the homepage's FAQPage and SoftwareApplication. They are
+        // listing pages: a breadcrumb and a CollectionPage, nothing more.
+        $hub = Slab_SEO_Engine::get_slab_hub_info();
+        if ($hub) {
+            $schemas[] = self::build_breadcrumb_list([
+                ['name' => $hub['name'], 'item' => home_url($hub['path'])],
+            ]);
+            $schemas[] = [
+                '@context' => 'https://schema.org',
+                '@type' => 'CollectionPage',
+                '@id' => home_url($hub['path']) . '#webpage',
+                'url' => home_url($hub['path']),
+                'name' => $hub['title'],
+                'description' => $hub['description'],
+                'isPartOf' => ['@id' => home_url('/#website')],
+                'inLanguage' => 'en-US',
+            ];
+            self::print_schemas($schemas);
+            return;
+        }
+
+        $is_home = slab_is_home_page();
+
         // 2. BreadcrumbList Schema (All pages except front page)
-        if (!is_front_page()) {
+        if (!$is_home) {
             $breadcrumb_schema = self::get_breadcrumb_schema();
             if ($breadcrumb_schema) {
                 $schemas[] = $breadcrumb_schema;
@@ -32,7 +64,7 @@ class Slab_Schema_Generator {
         }
 
         // 3. SoftwareApplication Schema (For Homepage & Calculator Pages)
-        if (is_front_page() || is_page_template('page-templates/template-calculator-single.php') || is_page_template('page-templates/template-calculator-hub.php')) {
+        if ($is_home || is_page_template('page-templates/template-calculator-single.php')) {
             $schemas[] = self::get_calculator_software_schema();
         }
 
@@ -48,9 +80,10 @@ class Slab_Schema_Generator {
         //   Slab_Calculator_FAQ source that renders the visible accordion
         //   via template-parts/calculator-faq.php, so schema can never drift
         //   out of sync with what's actually on the page.
-        // - Any other page: still supports the manual _enable_faq_schema
-        //   opt-in for a hand-authored FAQ block, unchanged.
-        if (is_front_page()) {
+        // The old _enable_faq_schema opt-in printed the homepage's FAQ on
+        // whatever page had it set, which never matched that page's own
+        // visible content, so it is gone.
+        if ($is_home && !is_paged()) {
             $faq_schema = self::get_faq_schema();
             if ($faq_schema) {
                 $schemas[] = $faq_schema;
@@ -62,13 +95,12 @@ class Slab_Schema_Generator {
             if ($faq_schema) {
                 $schemas[] = $faq_schema;
             }
-        } elseif (get_post_meta(get_the_ID(), '_enable_faq_schema', true)) {
-            $faq_schema = self::get_faq_schema();
-            if ($faq_schema) {
-                $schemas[] = $faq_schema;
-            }
         }
 
+        self::print_schemas($schemas);
+    }
+
+    private static function print_schemas($schemas) {
         // Output JSON-LD Block
         if (!empty($schemas)) {
             echo "\n<!-- Schema.org JSON-LD -->\n";
@@ -107,6 +139,13 @@ class Slab_Schema_Generator {
                 '@type' => 'ImageObject',
                 'url' => get_template_directory_uri() . '/assets/images/logo.svg'
             ],
+            'email' => 'contact@slabcostcalculator.com',
+            'contactPoint' => [
+                '@type' => 'ContactPoint',
+                'contactType' => 'customer support',
+                'email' => 'contact@slabcostcalculator.com',
+                'url' => home_url('/contact/'),
+            ],
             'publishingPrinciples' => home_url('/editorial-policy/'),
             'knowsAbout' => [
                 'Concrete Estimating',
@@ -121,7 +160,8 @@ class Slab_Schema_Generator {
     }
 
     private static function get_calculator_software_schema() {
-        $title = is_front_page() ? 'Concrete Slab Cost Calculator' : get_the_title();
+        $is_home = slab_is_home_page();
+        $title = $is_home ? 'Concrete Slab Cost Calculator' : self::plain(get_post_field('post_title', get_queried_object_id()));
         // Was: wp_strip_all_tags(get_the_excerpt()) — get_the_excerpt() falls
         // back to trimming raw post_content when no manual excerpt is set,
         // which is the exact same root cause as the placeholder meta
@@ -134,7 +174,7 @@ class Slab_Schema_Generator {
         // normal <meta> tag context; decode that back here since this value
         // goes into JSON-LD instead, where wp_json_encode() does its own
         // correct escaping (avoids a literal "&amp;" appearing in rich results).
-        $desc = is_front_page()
+        $desc = $is_home
             ? 'Interactive concrete slab estimating software calculating volume in cubic yards and meters, bag requirements, sub-base gravel, rebar reinforcement, labor, and total project budget.'
             : html_entity_decode(Slab_SEO_Engine::get_meta_description(), ENT_QUOTES);
 
@@ -165,75 +205,70 @@ class Slab_Schema_Generator {
         ];
     }
 
+    /**
+     * JSON-LD is the only breadcrumb markup on the page (the visible trail in
+     * template-parts/breadcrumbs.php no longer carries microdata), so there
+     * is exactly one BreadcrumbList. Both are built from
+     * slab_get_breadcrumb_trail(), so they always list the same steps.
+     */
     private static function get_breadcrumb_schema() {
-        $items = [];
-        $position = 1;
+        $trail = slab_get_breadcrumb_trail();
+        if (empty($trail)) {
+            return null;
+        }
+        return self::build_breadcrumb_list($trail);
+    }
 
-        $items[] = [
+    /**
+     * @param array $trail Steps after "Home": each ['name' => ..., 'item' => url].
+     */
+    private static function build_breadcrumb_list($trail) {
+        $items = [[
             '@type' => 'ListItem',
-            'position' => $position++,
+            'position' => 1,
             'name' => 'Home',
-            'item' => home_url('/')
-        ];
-
-        if (is_page()) {
-            global $post;
-            $ancestors = get_post_ancestors($post->ID);
-            if (!empty($ancestors)) {
-                $ancestors = array_reverse($ancestors);
-                foreach ($ancestors as $ancestor_id) {
-                    $items[] = [
-                        '@type' => 'ListItem',
-                        'position' => $position++,
-                        'name' => get_the_title($ancestor_id),
-                        'item' => get_permalink($ancestor_id)
-                    ];
-                }
-            }
+            'item' => home_url('/'),
+        ]];
+        $position = 2;
+        foreach ($trail as $step) {
             $items[] = [
                 '@type' => 'ListItem',
-                'position' => $position,
-                'name' => get_the_title($post->ID),
-                'item' => get_permalink($post->ID)
-            ];
-        } elseif (is_single()) {
-            $categories = get_the_category();
-            if (!empty($categories)) {
-                $items[] = [
-                    '@type' => 'ListItem',
-                    'position' => $position++,
-                    'name' => $categories[0]->name,
-                    'item' => get_category_link($categories[0]->term_id)
-                ];
-            }
-            $items[] = [
-                '@type' => 'ListItem',
-                'position' => $position,
-                'name' => get_the_title(),
-                'item' => get_permalink()
+                'position' => $position++,
+                'name' => self::plain($step['name']),
+                'item' => $step['item'],
             ];
         }
 
         return [
             '@context' => 'https://schema.org',
             '@type' => 'BreadcrumbList',
-            'itemListElement' => $items
+            'itemListElement' => $items,
         ];
     }
 
+    /**
+     * Titles and descriptions from WordPress come HTML-escaped and
+     * texturized ("10&#215;10", "&#038;", "you&#039;ll"). JSON-LD needs the
+     * plain characters; wp_json_encode() does its own escaping.
+     */
+    private static function plain($text) {
+        return trim(html_entity_decode(wp_strip_all_tags((string) $text), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+    }
+
     private static function get_article_schema() {
-        global $post;
+        $post_id = get_queried_object_id();
         return [
             '@context' => 'https://schema.org',
             '@type' => 'Article',
-            'headline' => get_the_title(),
-            'description' => Slab_SEO_Engine::get_meta_description(),
+            'headline' => self::plain(get_post_field('post_title', $post_id)),
+            'description' => self::plain(Slab_SEO_Engine::get_meta_description()),
+            'image' => ['@type' => 'ImageObject'] + Slab_SEO_Engine::get_share_image($post_id),
             'mainEntityOfPage' => [
                 '@type' => 'WebPage',
-                '@id' => get_permalink()
+                '@id' => get_permalink($post_id)
             ],
-            'datePublished' => get_the_date('c'),
-            'dateModified' => get_the_modified_date('c'),
+            'datePublished' => get_the_date('c', $post_id),
+            'dateModified' => get_the_modified_date('c', $post_id),
             // Articles are written by the site's editorial team, not a named
             // individual, so credit the team as an Organization instead of a
             // Person named after the WordPress login ("Team-SlabCostCalculator").
@@ -244,8 +279,8 @@ class Slab_Schema_Generator {
                 'parentOrganization' => ['@id' => home_url('/#organization')]
             ],
             'citation' => [
-                ['@type' => 'CreativeWork', 'name' => 'ACI 302.1R: Guide for Concrete Floor and Slab Construction', 'publisher' => 'American Concrete Institute'],
-                ['@type' => 'CreativeWork', 'name' => 'ASTM C94: Standard Specification for Ready-Mixed Concrete', 'publisher' => 'ASTM International']
+                ['@type' => 'CreativeWork', 'name' => 'ACI 302.1R: Guide for Concrete Floor and Slab Construction', 'publisher' => ['@type' => 'Organization', 'name' => 'American Concrete Institute']],
+                ['@type' => 'CreativeWork', 'name' => 'ASTM C94: Standard Specification for Ready-Mixed Concrete', 'publisher' => ['@type' => 'Organization', 'name' => 'ASTM International']]
             ],
             'publisher' => [
                 '@id' => home_url('/#organization')

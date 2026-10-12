@@ -263,7 +263,9 @@ img, svg {
   color: var(--primary-600);
 }
 
-.breadcrumb-separator {
+.breadcrumb-item + .breadcrumb-item::before {
+  content: "\203A";
+  margin-right: 0.5rem;
   color: var(--slate-400);
 }
 

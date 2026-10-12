@@ -2,6 +2,12 @@
 /**
  * BREADCRUMB NAVIGATION TEMPLATE PART
  *
+ * Visible trail only. The BreadcrumbList structured data is printed once,
+ * as JSON-LD, by inc/schema-generator.php from the same
+ * slab_get_breadcrumb_trail() steps; microdata here made it two.
+ * Separators come from CSS (.breadcrumb-item + .breadcrumb-item::before),
+ * since an <ol> may only contain <li> elements.
+ *
  * @package SlabCostCalculator
  */
 
@@ -9,55 +15,28 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-if (is_front_page()) {
+if (slab_is_home_page()) {
     return;
 }
+
+$slab_trail = slab_get_breadcrumb_trail();
+if (empty($slab_trail)) {
+    return;
+}
+$slab_last = count($slab_trail) - 1;
 ?>
 
 <nav class="breadcrumb-nav" aria-label="Breadcrumbs">
   <div class="container">
-    <ol class="breadcrumb-list" itemscope itemtype="https://schema.org/BreadcrumbList">
-      <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-        <a href="<?php echo esc_url(home_url('/')); ?>" itemprop="item"><span itemprop="name">Home</span></a>
-        <meta itemprop="position" content="1" />
-      </li>
-      <span class="breadcrumb-separator" aria-hidden="true">&rsaquo;</span>
-
-      <?php
-      $position = 2;
-
-      if (is_page()) {
-          global $post;
-          $ancestors = get_post_ancestors($post->ID);
-          if (!empty($ancestors)) {
-              $ancestors = array_reverse($ancestors);
-              foreach ($ancestors as $ancestor_id) {
-                  echo '<li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">';
-                  echo '<a href="' . esc_url(get_permalink($ancestor_id)) . '" itemprop="item"><span itemprop="name">' . esc_html(get_the_title($ancestor_id)) . '</span></a>';
-                  echo '<meta itemprop="position" content="' . $position++ . '" />';
-                  echo '</li>';
-                  echo '<span class="breadcrumb-separator" aria-hidden="true">&rsaquo;</span>';
-              }
-          }
-          echo '<li class="breadcrumb-item breadcrumb-current" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">';
-          echo '<span itemprop="name">' . esc_html(get_the_title($post->ID)) . '</span>';
-          echo '<meta itemprop="position" content="' . $position . '" />';
-          echo '</li>';
-      } elseif (is_single()) {
-          $categories = get_the_category();
-          if (!empty($categories)) {
-              echo '<li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">';
-              echo '<a href="' . esc_url(get_category_link($categories[0]->term_id)) . '" itemprop="item"><span itemprop="name">' . esc_html($categories[0]->name) . '</span></a>';
-              echo '<meta itemprop="position" content="' . $position++ . '" />';
-              echo '</li>';
-              echo '<span class="breadcrumb-separator" aria-hidden="true">&rsaquo;</span>';
-          }
-          echo '<li class="breadcrumb-item breadcrumb-current" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">';
-          echo '<span itemprop="name">' . esc_html(get_the_title()) . '</span>';
-          echo '<meta itemprop="position" content="' . $position . '" />';
-          echo '</li>';
-      }
-      ?>
+    <ol class="breadcrumb-list">
+      <li class="breadcrumb-item"><a href="<?php echo esc_url(home_url('/')); ?>">Home</a></li>
+      <?php foreach ($slab_trail as $slab_i => $slab_step) : ?>
+        <?php if ($slab_i === $slab_last || empty($slab_step['item'])) : ?>
+          <li class="breadcrumb-item breadcrumb-current"<?php echo $slab_i === $slab_last ? ' aria-current="page"' : ''; ?>><?php echo esc_html(wp_strip_all_tags($slab_step['name'])); ?></li>
+        <?php else : ?>
+          <li class="breadcrumb-item"><a href="<?php echo esc_url($slab_step['item']); ?>"><?php echo esc_html(wp_strip_all_tags($slab_step['name'])); ?></a></li>
+        <?php endif; ?>
+      <?php endforeach; ?>
     </ol>
   </div>
 </nav>

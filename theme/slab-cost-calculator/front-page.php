@@ -5,6 +5,10 @@
  * @package SlabCostCalculator
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 get_header();
 ?>
 
@@ -42,7 +46,7 @@ get_header();
         <span class="trust-badge">&#10003; ACI 302.1R Compliant</span>
       </div>
       <div class="trust-item">
-        <strong>Last Updated:</strong> <span><?php echo date('F Y'); ?></span>
+        <strong>Last Updated:</strong> <time datetime="<?php echo esc_attr(SLAB_CONTENT_UPDATED); ?>"><?php echo esc_html(wp_date('F j, Y', strtotime(SLAB_CONTENT_UPDATED . ' 12:00:00'))); ?></time>
       </div>
       <div class="trust-item">
         <strong>Review Board:</strong> <span>Civil Estimating &amp; Materials Engineering</span>

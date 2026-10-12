@@ -34,6 +34,38 @@ class Slab_SEO_Engine {
         // earlier version of this call (with no priority) silently failed
         // to match and the duplicate tag stayed live. Must pass 1 here.
         remove_action('wp_head', 'wp_robots', 1);
+
+        // Core prints its own <link rel="canonical"> after ours, so every
+        // singular page had two. render_meta_tags() owns it now.
+        remove_action('wp_head', 'rel_canonical');
+
+        // /llms.txt and /llms-full.txt are files, not pages: without this,
+        // WordPress 301s them to "/llms.txt/" and some AI fetchers don't
+        // follow redirects.
+        add_filter('redirect_canonical', [__CLASS__, 'keep_file_urls_unslashed']);
+    }
+
+    public static function keep_file_urls_unslashed($redirect_url) {
+        if (get_query_var('slab_llms') || get_query_var('slab_sitemap')) {
+            return false;
+        }
+        return $redirect_url;
+    }
+
+    /**
+     * Pages that should stay out of search results: internal search, 404,
+     * date archives and page 2+ of listings (thin or duplicate), plus the
+     * whole site when Settings > Reading > "Discourage search engines" is
+     * on. Links on them are still followed.
+     */
+    public static function is_noindex() {
+        if (!get_option('blog_public')) {
+            return true;
+        }
+        if (self::get_slab_hub_info()) {
+            return false;
+        }
+        return is_search() || is_404() || is_date() || is_paged();
     }
 
     public static function custom_title_separator($sep) {
@@ -57,26 +89,30 @@ class Slab_SEO_Engine {
      * nav. Checking get_query_var('slab_route') first (before any of the
      * is_*() conditionals) fixes this for all three metadata methods.
      */
-    private static function get_slab_hub_info() {
+    public static function get_slab_hub_info() {
         $route = get_query_var('slab_route');
         $hubs = [
             'calc_hub' => [
                 'path'        => '/calculators/',
+                'name'        => 'Calculators',
                 'title'       => 'Concrete Calculators — Volume, Bags, Rebar & Cost Tools',
                 'description' => 'Browse our full suite of concrete and flatwork calculators — volume, bags, rebar, gravel, labor, and total project cost — for contractors and DIY builders.',
             ],
             'cost_guide_hub' => [
                 'path'        => '/cost-guides/',
+                'name'        => 'Cost Guides',
                 'title'       => 'Concrete Slab Cost Guides — 2026 Pricing by Project Size',
                 'description' => 'Concrete slab cost guides by size and project type — per-square-foot pricing, common slab dimensions, and cubic-yard rates, with real 2026 material and labor numbers.',
             ],
             'how_to_hub' => [
                 'path'        => '/how-to/',
+                'name'        => 'How-To Guides',
                 'title'       => 'How to Pour, Cure & Repair a Concrete Slab — Guides',
                 'description' => 'Step-by-step concrete how-to guides covering pouring, curing, crack prevention, sealing, and repair, aligned with ACI 302.1R standards for a durable slab.',
             ],
             'knowledgebase_hub' => [
                 'path'        => '/knowledgebase/',
+                'name'        => 'Knowledgebase',
                 'title'       => 'Concrete Knowledgebase — All Slab Cost Guides & Articles',
                 'description' => 'The full Slab Cost Calculator knowledgebase — 30 in-depth articles on concrete costs, construction, estimating, materials, and maintenance, organized by topic.',
             ],
@@ -197,7 +233,42 @@ class Slab_SEO_Engine {
             return esc_attr(self::generate_template_description($post));
         }
 
+        if (is_category()) {
+            return esc_attr(self::get_category_description(get_queried_object()));
+        }
+
         return 'Accurate concrete slab calculations, volume estimating, bagged vs ready-mix comparisons, and cost guides for contractors and homeowners.';
+    }
+
+    /**
+     * Every category archive used to share the generic site description.
+     * A description written in wp-admin (Posts > Categories) wins; otherwise
+     * each category gets its own line.
+     */
+    private static function get_category_description($term) {
+        if (!$term || empty($term->term_id)) {
+            return '';
+        }
+        $custom = trim(wp_strip_all_tags(term_description($term->term_id)));
+        if ($custom !== '') {
+            return $custom;
+        }
+
+        $by_slug = [
+            'concrete-construction'       => 'Concrete construction guides: slab thickness, gravel base, rebar vs wire mesh, yard prep, curing time and the best season to pour, plus garage, shed and foundation slabs.',
+            'concrete-costs'              => 'Concrete cost articles: what a slab costs in 2026, a price-per-square-foot matrix, concrete driveway costs, and concrete vs asphalt for a new driveway.',
+            'concrete-estimating'         => 'Concrete estimating guides: how to work out cubic yards, bags, waste allowance and labor cost for a slab, with worked examples and the formulas behind our calculator.',
+            'concrete-maintenance-repair' => 'Concrete maintenance and repair: why slabs crack and how to prevent it, whether you need a sealer, and resurfacing vs extending an existing slab.',
+            'concrete-materials'          => 'Concrete materials explained: ready-mix vs bagged concrete and what a cubic yard of concrete costs, with prices and when each option makes sense.',
+            'cost-guides'                 => 'Concrete slab cost guides by size: 10x10, 12x12, 20x20 and 24x24 slab prices plus patio slab costs, with material, labor and per-square-foot breakdowns.',
+            'planning-decisions'          => 'Planning a concrete project: slab permits and their costs, and what you can safely do yourself on a DIY slab versus what to leave to a contractor.',
+        ];
+        if (isset($by_slug[$term->slug])) {
+            return $by_slug[$term->slug];
+        }
+
+        $name = html_entity_decode($term->name, ENT_QUOTES);
+        return sprintf('%s: %d %s on concrete slab costs, estimating and construction from the Slab Cost Calculator editorial team.', $name, (int) $term->count, _n('article', 'articles', (int) $term->count));
     }
 
     /**
@@ -266,6 +337,17 @@ class Slab_SEO_Engine {
             return home_url($hub['path']);
         }
 
+        // Search and 404 pages are noindexed and have no URL worth
+        // consolidating to, so they get no canonical at all.
+        if (is_search() || is_404()) {
+            return '';
+        }
+
+        if (is_paged()) {
+            // Page 2+ points to itself, not page 1: it lists different posts.
+            return get_pagenum_link(max(1, (int) get_query_var('paged')));
+        }
+
         if (is_front_page()) {
             return home_url('/');
         }
@@ -273,12 +355,50 @@ class Slab_SEO_Engine {
             return get_permalink();
         }
         if (is_category() || is_tag() || is_tax()) {
-            return get_term_link(get_queried_object());
+            $link = get_term_link(get_queried_object());
+            return is_wp_error($link) ? '' : $link;
         }
         if (is_post_type_archive()) {
             return get_post_type_archive_link(get_query_var('post_type'));
         }
-        return home_url(add_query_arg([], $GLOBALS['wp']->request));
+        return trailingslashit(home_url($GLOBALS['wp']->request));
+    }
+
+    /**
+     * The image that represents a post: its featured image, else the first
+     * article diagram embedded in its content (the imported articles embed
+     * a 1200x675 PNG instead of setting a featured image), else the site's
+     * 1200x630 share image. Used for og:image and the Article schema.
+     */
+    public static function get_share_image($post_id = 0) {
+        $fallback = [
+            'url'    => get_template_directory_uri() . '/assets/images/og-image.png',
+            'width'  => 1200,
+            'height' => 630,
+        ];
+        if (!$post_id) {
+            return $fallback;
+        }
+
+        $thumb_id = get_post_thumbnail_id($post_id);
+        if ($thumb_id) {
+            $src = wp_get_attachment_image_src($thumb_id, 'full');
+            if ($src) {
+                return ['url' => $src[0], 'width' => (int) $src[1], 'height' => (int) $src[2]];
+            }
+        }
+
+        $content = (string) get_post_field('post_content', $post_id);
+        if (preg_match('/<img[^>]+src="([^"]+\.(?:png|jpe?g|webp))"[^>]*>/i', $content, $m)) {
+            $tag = $m[0];
+            $w = preg_match('/width="(\d+)"/', $tag, $wm) ? (int) $wm[1] : 0;
+            $h = preg_match('/height="(\d+)"/', $tag, $hm) ? (int) $hm[1] : 0;
+            if ($w && $h) {
+                return ['url' => $m[1], 'width' => $w, 'height' => $h];
+            }
+        }
+
+        return $fallback;
     }
 
     public static function render_meta_tags() {
@@ -290,26 +410,32 @@ class Slab_SEO_Engine {
         // link-preview images, so shared links could show no preview image
         // at all. Rasterized to a 1200x630 PNG (assets/images/og-image.png)
         // from the same source artwork.
-        $og_image = get_template_directory_uri() . '/assets/images/og-image.png';
+        $image = self::get_share_image(is_singular() ? get_queried_object_id() : 0);
+        $og_image = $image['url'];
 
         echo "\n<!-- Technical SEO & Meta Architecture -->\n";
         echo '<meta name="description" content="' . esc_attr($description) . '">' . "\n";
-        echo '<link rel="canonical" href="' . esc_url($canonical) . '">' . "\n";
-        // Verified (fix report item 6): this already emits an explicit
-        // "index, follow" alongside the max-* directives on every page — not
-        // a misconfiguration, no change needed.
-        echo '<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">' . "\n";
+        if ($canonical) {
+            echo '<link rel="canonical" href="' . esc_url($canonical) . '">' . "\n";
+        }
+        if (self::is_noindex()) {
+            echo '<meta name="robots" content="noindex, follow">' . "\n";
+        } else {
+            echo '<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">' . "\n";
+        }
 
         // Open Graph
         echo '<meta property="og:locale" content="' . esc_attr(get_locale()) . '">' . "\n";
         echo '<meta property="og:type" content="' . (is_singular('post') ? 'article' : 'website') . '">' . "\n";
         echo '<meta property="og:title" content="' . esc_attr($title) . '">' . "\n";
         echo '<meta property="og:description" content="' . esc_attr($description) . '">' . "\n";
-        echo '<meta property="og:url" content="' . esc_url($canonical) . '">' . "\n";
+        if ($canonical) {
+            echo '<meta property="og:url" content="' . esc_url($canonical) . '">' . "\n";
+        }
         echo '<meta property="og:site_name" content="Slab Cost Calculator">' . "\n";
         echo '<meta property="og:image" content="' . esc_url($og_image) . '">' . "\n";
-        echo '<meta property="og:image:width" content="1200">' . "\n";
-        echo '<meta property="og:image:height" content="630">' . "\n";
+        echo '<meta property="og:image:width" content="' . (int) $image['width'] . '">' . "\n";
+        echo '<meta property="og:image:height" content="' . (int) $image['height'] . '">' . "\n";
 
         // Twitter Cards
         echo '<meta name="twitter:card" content="summary_large_image">' . "\n";

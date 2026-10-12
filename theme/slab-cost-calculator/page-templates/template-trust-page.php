@@ -5,6 +5,10 @@
  * @package SlabCostCalculator
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 get_header();
 slab_render_breadcrumbs();
 ?>
@@ -16,7 +20,7 @@ slab_render_breadcrumbs();
         <h1 class="hero-title"><?php the_title(); ?></h1>
         <div class="trust-bar">
           <div class="trust-item"><strong>Document Type:</strong> <span>Institutional Policy &amp; Standards</span></div>
-          <div class="trust-item"><strong>Last Revised:</strong> <span><?php echo date('F Y'); ?></span></div>
+          <div class="trust-item"><strong>Last Revised:</strong> <time datetime="<?php echo esc_attr(get_the_modified_date('Y-m-d')); ?>"><?php echo esc_html(get_the_modified_date('F j, Y')); ?></time></div>
         </div>
       </header>
 

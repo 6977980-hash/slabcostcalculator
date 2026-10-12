@@ -5,6 +5,10 @@
  * @package SlabCostCalculator
  */
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 get_header();
 slab_render_breadcrumbs();
 ?>
@@ -17,7 +21,7 @@ slab_render_breadcrumbs();
           <h1 class="hero-title"><?php the_title(); ?></h1>
           <div class="trust-bar" style="margin: 1rem 0;">
             <div class="trust-item"><strong>Category:</strong> <span>Concrete Flatwork Pricing</span></div>
-            <div class="trust-item"><strong>Market Data:</strong> <span><?php echo date('F Y'); ?> Benchmark</span></div>
+            <div class="trust-item"><strong>Market Data:</strong> <span><?php echo esc_html(wp_date('F Y', strtotime(SLAB_CONTENT_UPDATED . ' 12:00:00'))); ?> Benchmark</span></div>
             <div class="trust-item"><strong>Review:</strong> <span>Verified Estimating Team</span></div>
           </div>
         </header>
