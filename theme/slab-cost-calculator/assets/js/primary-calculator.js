@@ -302,10 +302,11 @@
       });
     }
 
-    // All form input changes trigger recalculate. Scoped to the main form so
-    // the tool panels below it (bid checker, weather check) don't reset the
-    // preset label every time someone types in them.
-    const inputs = dom.root.querySelectorAll('.calc-body-grid input, .calc-body-grid select');
+    // All form input changes trigger recalculate. Scoped to the inputs
+    // column so the tool panels in the Live Estimate panel (bid checker,
+    // weather check) don't reset the preset label every time someone types
+    // in them.
+    const inputs = dom.root.querySelectorAll('.calc-inputs-col input, .calc-inputs-col select');
     inputs.forEach(input => {
       input.addEventListener('input', () => {
         syncStateFromDOM();

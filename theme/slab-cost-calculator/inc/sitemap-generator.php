@@ -104,7 +104,11 @@ if (class_exists('WP_Sitemaps_Provider')) {
             if ($last) {
                 $entry['lastmod'] = gmdate('c', strtotime($last . ' UTC'));
             }
-            return [$entry];
+            $quote = [
+                'loc'     => home_url('/concrete-quote-checker/'),
+                'lastmod' => gmdate('c', strtotime(SLAB_CONTENT_UPDATED . ' 12:00:00 UTC')),
+            ];
+            return [$entry, $quote];
         }
 
         public function get_max_num_pages($object_subtype = '') {

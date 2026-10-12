@@ -19,7 +19,7 @@
 
     <nav class="primary-nav" role="navigation" aria-label="Main Navigation">
       <ul class="nav-links">
-        <li class="nav-item <?php echo slab_is_home_page() ? 'active' : ''; ?>">
+        <li class="nav-item nav-item-home <?php echo slab_is_home_page() ? 'active' : ''; ?>">
           <a href="<?php echo esc_url(home_url('/')); ?>" class="nav-link">Home</a>
         </li>
         
@@ -83,8 +83,14 @@
         <li class="nav-item">
           <a href="<?php echo esc_url(home_url('/methodology/')); ?>" class="nav-link">Methodology</a>
         </li>
+
+        <!-- Shown in the phone menu; wide screens get the button below. -->
+        <li class="nav-item nav-item-quote <?php echo get_query_var('slab_route') === 'quote_checker' ? 'active' : ''; ?>">
+          <a href="<?php echo esc_url(home_url('/concrete-quote-checker/')); ?>" class="nav-link">Check a Quote</a>
+        </li>
       </ul>
 
+      <a href="<?php echo esc_url(home_url('/concrete-quote-checker/')); ?>" class="header-cta-btn header-cta-quote">Check a Quote</a>
       <a href="<?php echo esc_url(home_url('/')); ?>#concrete-slab-calculator" class="header-cta-btn">Calculate Slab</a>
 
       <button class="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">

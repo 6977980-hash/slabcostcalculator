@@ -28,6 +28,17 @@ $f = $sd['finish'];
     <p class="hero-subtitle">
       Calculate exact concrete volume in cubic yards and bags, compare ready-mix vs. bagged pricing, and estimate full project costs including site prep, gravel base, rebar reinforcement, and finishing labor.
     </p>
+    <p class="hero-answer">
+      <strong>Quick answer:</strong> a 4-inch concrete slab costs about <strong><?php echo esc_html(Slab_Data::money_range($psf, 0, ' to ')); ?> per sq ft installed</strong>, so a 20 × 20 ft slab runs <?php echo esc_html(Slab_Data::money_range($s20['installed'], 0, ' to ')); ?>. Materials alone for DIY are <?php echo esc_html(Slab_Data::money_range($diy_psf, 2, ' to ')); ?> per sq ft.
+    </p>
+
+    <div class="hero-cta-row">
+      <a href="#concrete-slab-calculator" class="hero-cta hero-cta-primary">Estimate my slab</a>
+      <a href="<?php echo esc_url(home_url('/concrete-quote-checker/')); ?>" class="hero-cta hero-cta-quote" data-open-tab="bid">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Got a quote? Check if it's fair
+      </a>
+    </div>
 
     <!-- Key Engineering Metrics Bar -->
     <div class="hero-key-takeaways">
@@ -67,8 +78,33 @@ $f = $sd['finish'];
 
     <!-- Primary Interactive Project Calculator -->
     <?php get_template_part('template-parts/calculator-primary'); ?>
+
+    <!-- Tools strip: each card opens its tab in the Live Estimate panel -->
+    <div class="tools-strip" aria-label="Free slab planning tools">
+      <a class="tool-card tool-card-bid" href="<?php echo esc_url(home_url('/concrete-quote-checker/')); ?>">
+        <span class="tool-card-title">Contractor Quote Checker</span>
+        <span class="tool-card-text">Compare a bid with a scope-matched benchmark for your slab.</span>
+      </a>
+      <a class="tool-card" href="#live-estimate" data-open-tab="blueprint">
+        <span class="tool-card-title">Slab &amp; Rebar Blueprint</span>
+        <span class="tool-card-text">Scaled plan with rebar grid, chairs and saw cuts. Download as PNG.</span>
+      </a>
+      <a class="tool-card" href="#live-estimate" data-open-tab="weather">
+        <span class="tool-card-title">Pour-Day Weather Check</span>
+        <span class="tool-card-text">Hot, cold and evaporation-rate checks from ACI 305R and 306R.</span>
+      </a>
+      <a class="tool-card" href="#live-estimate" data-open-tab="breakdown">
+        <span class="tool-card-title">Line-Item Estimate &amp; PDF</span>
+        <span class="tool-card-text">Every cost line, then download a PDF report to share.</span>
+      </a>
+    </div>
   </div>
 </section>
+
+<!-- Topic clusters (replaces the latest-posts grid) -->
+<div class="container">
+  <?php get_template_part('template-parts/topic-clusters'); ?>
+</div>
 
 <!-- Deep Authoritative Content Architecture -->
 <main id="primary" class="site-main">
@@ -77,7 +113,7 @@ $f = $sd['finish'];
       <!-- Main Content Column -->
       <article class="article-content">
         
-        <h2>How Much Does a Concrete Slab Cost in 2026?</h2>
+        <h2 id="slab-cost-2026">How Much Does a Concrete Slab Cost in 2026?</h2>
         <p>
           On average, pouring a residential concrete slab costs between <strong><?php echo esc_html(Slab_Data::money($psf[0], 2) . ' and ' . Slab_Data::money($psf[1], 2)); ?> per square foot</strong> for professional installation. For a standard 4-inch thick slab measuring 400 square feet (20×20 ft), the total installed cost typically ranges from <strong><?php echo esc_html(Slab_Data::money_range($s20['installed'], 0, ' to ')); ?></strong>. Small slabs cost more per square foot because delivery, forms and setup are spread over less area (a 10×10 ft slab runs <?php echo esc_html($f10['installed']); ?>). If you choose to self-perform the work (DIY mode) and purchase only the raw materials, concrete slab costs typically range between <strong><?php echo esc_html(Slab_Data::money($diy_psf[0], 2) . ' and ' . Slab_Data::money($diy_psf[1], 2)); ?> per square foot</strong>.
         </p>
@@ -100,7 +136,7 @@ $f = $sd['finish'];
           </figcaption>
         </figure>
 
-        <h2>What Goes Into a Concrete Slab Cost? (Comprehensive Line Items)</h2>
+        <h2 id="cost-line-items">What Goes Into a Concrete Slab Cost? (Comprehensive Line Items)</h2>
         <p>
           A realistic concrete slab estimate requires breaking down all physical components and labor stages. Below is a detailed inspection of each scope element:
         </p>
@@ -156,14 +192,14 @@ $f = $sd['finish'];
           Transit mixer suppliers often add a short-load fee of <strong><?php echo esc_html(Slab_Data::mr('delivery.short_load_flat', 0, ' to ')); ?></strong> on orders below their minimum, which ranges from <?php echo esc_html(Slab_Data::r('delivery.min_load_yd')); ?> cubic yards and is commonly <?php echo esc_html(Slab_Data::r('delivery.common_min_yd')); ?> cubic yards (<a href="#ready-mix-short-load-fee">fee breakdown</a>). If the concrete truck cannot park within <?php echo esc_html(Slab_Data::r('site.chute_reach_ft')); ?> feet of the forms due to fences, landscaping, or steep terrain, a trailer line pump or boom pump truck must be rented for <strong><?php echo esc_html(Slab_Data::mr('pump.typical', 0, ' to ')); ?> per pour</strong> (<a href="#concrete-pump-cost">line vs. boom pump</a>).
         </p>
 
-        <h2>Concrete Slab Cost by Size (Reference Matrix)</h2>
+        <h2 id="slab-cost-by-size">Concrete Slab Cost by Size (Reference Matrix)</h2>
         <p>
           Below are typical installed and DIY budget benchmarks across popular residential slab footprint dimensions at a standard 4-inch depth:
         </p>
 
         <?php get_template_part('template-parts/cost-tables'); ?>
 
-        <h2>Concrete Slab Thickness Guide: 4" vs. 5" vs. 6"</h2>
+        <h2 id="slab-thickness">Concrete Slab Thickness Guide: 4" vs. 5" vs. 6"</h2>
         <p>
           Choosing the correct thickness is critical for structural load capacity and longevity. The chart below illustrates standard depth ratings:
         </p>
@@ -178,7 +214,7 @@ $f = $sd['finish'];
           <li><strong>6-Inch Slab:</strong> Recommended for RV parking pads, heavy-duty workshops, commercial loading docks, and heavy multi-axle vehicle storage (4,000+ PSI with #4 rebar grid).</li>
         </ul>
 
-        <h2>How to Calculate Concrete for a Slab (Mathematical Formulas)</h2>
+        <h2 id="concrete-formulas">How to Calculate Concrete for a Slab (Mathematical Formulas)</h2>
         <p>
           Calculating concrete volume is straightforward when using consistent units. All volume calculations follow three fundamental steps:
         </p>
@@ -207,7 +243,7 @@ $f = $sd['finish'];
           <li><strong>Apply <?php echo esc_html($sd['concrete']['waste_pct']); ?>% Waste Factor:</strong> <?php echo esc_html($f20['net_yd']); ?> × <?php echo esc_html(number_format(1 + $sd['concrete']['waste_pct'] / 100, 2)); ?> = <strong><?php echo esc_html($f20['order_yd']); ?> cubic yards</strong> (Order <?php echo esc_html(Slab_Data::num(ceil($s20['est']['order_yd'] * 2 - 1e-9) / 2)); ?> yards from your ready-mix supplier).</li>
         </ol>
 
-        <h2>Ready-Mix vs. Bagged Concrete: Which is Better for Your Slab?</h2>
+        <h2 id="ready-mix-vs-bagged">Ready-Mix vs. Bagged Concrete: Which is Better for Your Slab?</h2>
         <div class="table-responsive">
           <table class="data-table">
             <thead>
@@ -248,7 +284,7 @@ $f = $sd['finish'];
           </table>
         </div>
 
-        <h2>Concrete Slab Reinforcement: Rebar Grid vs. Welded Wire Mesh</h2>
+        <h2 id="rebar-vs-mesh">Concrete Slab Reinforcement: Rebar Grid vs. Welded Wire Mesh</h2>
         <figure style="margin: 2rem 0; text-align: center;">
           <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/images/reinforcement-diagram.svg'); ?>" alt="Rebar grid vs welded wire mesh comparison for concrete slab reinforcement" style="border-radius: 12px; box-shadow: var(--shadow-md);" width="800" height="400">
         </figure>
@@ -260,7 +296,7 @@ $f = $sd['finish'];
           <li><strong>Welded Wire Mesh (6×6 W1.4/W2.9):</strong> Adequate for light foot-traffic slabs (patios, walkways, shed floors). Controls drying shrinkage micro-cracking.</li>
         </ul>
 
-        <h2>Factors That Increase Concrete Slab Costs</h2>
+        <h2 id="cost-increase-factors">Factors That Increase Concrete Slab Costs</h2>
         <p>
           When requesting contractor quotes, several jobsite variables can increase unit prices:
         </p>
@@ -273,61 +309,9 @@ $f = $sd['finish'];
 
         <?php get_template_part('template-parts/cost-factor-guides'); ?>
 
-        <!-- Latest Estimating Guides & Cost Articles Section -->
-        <section style="margin: 3.5rem 0;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; border-bottom: 2px solid var(--slate-200); padding-bottom: 0.75rem;">
-            <div>
-              <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary-600);">Knowledgebase &amp; Articles</span>
-              <h2 style="font-size: 1.875rem; font-weight: 800; margin: 0.25rem 0 0 0; border: none; padding: 0;">Concrete Estimating &amp; Cost Guides</h2>
-            </div>
-            <a href="<?php echo esc_url(home_url('/knowledgebase/')); ?>" style="font-weight: 700;">View All Guides &rarr;</a>
-          </div>
-
-          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
-            <?php
-            $homepage_posts = new WP_Query([
-                'post_type' => 'post',
-                'posts_per_page' => 20,
-                'post_status' => 'publish'
-            ]);
-
-            if ($homepage_posts->have_posts()) :
-                while ($homepage_posts->have_posts()) : $homepage_posts->the_post();
-            ?>
-                <article class="subcalc-card" style="margin-bottom: 0; display: flex; flex-direction: column;">
-                  <div style="font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; color: var(--primary-600); margin-bottom: 0.4rem;">
-                    <?php
-                    $categories = get_the_category();
-                    if (!empty($categories)) {
-                        echo esc_html($categories[0]->name);
-                    } else {
-                        echo 'Concrete Guide';
-                    }
-                    ?>
-                  </div>
-                  <h3 style="font-size: 1.0625rem; font-weight: 800; line-height: 1.35; margin: 0 0 0.5rem 0;">
-                    <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-                  </h3>
-                  <div style="font-size: 0.8125rem; color: var(--slate-600); line-height: 1.5; margin-bottom: 1rem; flex-grow: 1;">
-                    <?php echo wp_trim_words(get_the_excerpt() ? get_the_excerpt() : get_the_content(), 16, '...'); ?>
-                  </div>
-                  <a href="<?php the_permalink(); ?>" style="font-weight: 700; font-size: 0.8125rem; margin-top: auto; display: inline-flex; align-items: center; gap: 0.3rem;">
-                    Read Guide &rarr;
-                  </a>
-                </article>
-            <?php
-                endwhile;
-                wp_reset_postdata();
-            else :
-            ?>
-              <p>No articles published yet.</p>
-            <?php endif; ?>
-          </div>
-        </section>
-
         <!-- FAQ Section with Schema Accordion -->
         <section class="faq-section" aria-label="Frequently Asked Questions">
-          <h2>Frequently Asked Questions About Concrete Slab Costs</h2>
+          <h2 id="faq">Frequently Asked Questions About Concrete Slab Costs</h2>
 
           <?php foreach (Slab_Schema_Generator::get_home_faqs() as $faq) : ?>
           <div class="faq-item">
@@ -475,6 +459,22 @@ $f = $sd['finish'];
             <?php endforeach; ?>
           </ul>
         </div>
+        <!-- Sticky contents list for the long guide -->
+        <nav class="sidebar-widget sidebar-toc" aria-label="On this page">
+          <div class="widget-title">On This Page</div>
+          <ul class="calculator-nav-list">
+            <li class="calculator-nav-item"><a href="#slab-cost-2026">Slab cost in 2026</a></li>
+            <li class="calculator-nav-item"><a href="#cost-line-items">What goes into the cost</a></li>
+            <li class="calculator-nav-item"><a href="#slab-cost-by-size">Cost by slab size</a></li>
+            <li class="calculator-nav-item"><a href="#slab-thickness">Thickness guide</a></li>
+            <li class="calculator-nav-item"><a href="#concrete-formulas">Volume formulas</a></li>
+            <li class="calculator-nav-item"><a href="#ready-mix-vs-bagged">Ready-mix vs. bagged</a></li>
+            <li class="calculator-nav-item"><a href="#rebar-vs-mesh">Rebar vs. mesh</a></li>
+            <li class="calculator-nav-item"><a href="#cost-increase-factors">What raises the cost</a></li>
+            <li class="calculator-nav-item"><a href="#concrete-cost-by-psi">Cost factor guides</a></li>
+            <li class="calculator-nav-item"><a href="#faq">FAQ</a></li>
+          </ul>
+        </nav>
       </aside>
     </div>
   </div>

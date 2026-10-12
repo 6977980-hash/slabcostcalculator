@@ -116,6 +116,15 @@ class Slab_SEO_Engine {
                 'title'       => 'Concrete Knowledgebase — All Slab Cost Guides & Articles',
                 'description' => 'The full Slab Cost Calculator knowledgebase — 30 in-depth articles on concrete costs, construction, estimating, materials, and maintenance, organized by topic.',
             ],
+            // Not a listing page: a tool page (schema-generator.php gives it
+            // WebPage + SoftwareApplication + FAQPage instead of CollectionPage).
+            'quote_checker' => [
+                'path'        => '/concrete-quote-checker/',
+                'name'        => 'Concrete Quote Checker',
+                'title'       => 'Concrete Quote Checker: Is Your Contractor Bid Fair?',
+                'description' => 'Check a concrete contractor quote against a scope-matched benchmark for your slab size, location and specs. Free: see if the bid is fair, high or too low.',
+                'type'        => 'tool',
+            ],
         ];
         return isset($hubs[$route]) ? $hubs[$route] : null;
     }

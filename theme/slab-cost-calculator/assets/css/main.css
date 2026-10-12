@@ -382,6 +382,12 @@ img, svg {
   gap: 2.5rem;
 }
 
+/* Without this a wide image or table sets the column's minimum width and
+   the whole page scrolls sideways on phones. */
+.content-grid > * {
+  min-width: 0;
+}
+
 .content-full {
   display: block;
 }
@@ -845,12 +851,6 @@ img, svg {
   .hero-title {
     font-size: 2rem;
   }
-  .primary-nav .nav-links {
-    display: none;
-  }
-  .mobile-menu-toggle {
-    display: block;
-  }
   .footer-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
@@ -859,5 +859,346 @@ img, svg {
     flex-direction: column;
     gap: 1rem;
     text-align: center;
+  }
+}
+
+/* ==========================================================================
+   HEADER: QUOTE CHECKER LINK + MENU BREAKPOINT (Phase 4)
+   The full menu plus two buttons needs ~1100px; below that the menu
+   collapses behind the toggle (it used to wrap onto two lines).
+   ========================================================================== */
+
+.nav-link,
+.site-header .header-cta-btn {
+  white-space: nowrap;
+}
+
+.primary-nav {
+  gap: 0.5rem;
+}
+
+.header-cta-btn.header-cta-quote {
+  background-color: #ffffff;
+  color: var(--primary-700) !important;
+  border: 1.5px solid var(--primary-600);
+  padding: 0.5rem 0.95rem;
+}
+
+.header-cta-btn.header-cta-quote:hover {
+  background-color: var(--primary-50);
+}
+
+.nav-item-quote {
+  display: none;
+}
+
+@media (min-width: 1101px) {
+  .nav-links {
+    gap: 0.15rem;
+  }
+  .nav-link {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.6rem;
+  }
+}
+
+@media (min-width: 1101px) and (max-width: 1299px) {
+  .nav-item-home {
+    display: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  .primary-nav .nav-links {
+    display: none;
+  }
+  .mobile-menu-toggle {
+    display: block;
+  }
+  .header-cta-btn.header-cta-quote {
+    display: none;
+  }
+  .nav-item-quote {
+    display: block;
+  }
+  .nav-item-quote .nav-link {
+    color: var(--primary-700);
+    font-weight: 700;
+  }
+}
+
+@media (max-width: 420px) {
+  .site-header .header-cta-btn {
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.75rem;
+  }
+  .site-logo {
+    height: 38px;
+  }
+}
+
+/* ==========================================================================
+   HOMEPAGE: QUICK ANSWER, CTA ROW, TOOLS STRIP, TOPIC CLUSTERS (Phase 4)
+   ========================================================================== */
+
+.hero-answer {
+  max-width: 840px;
+  margin-top: 0.75rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--slate-700);
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-left: 4px solid #10b981;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+}
+
+.hero-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  text-decoration: none !important;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.hero-cta:hover {
+  transform: translateY(-1px);
+}
+
+.hero-cta-primary {
+  background: var(--primary-600);
+  color: #ffffff !important;
+}
+
+.hero-cta-primary:hover {
+  background: var(--primary-700);
+}
+
+.hero-cta-quote {
+  background: #fef3c7;
+  color: #92400e !important;
+  border: 1.5px solid #f59e0b;
+}
+
+.hero-cta-quote:hover {
+  background: #fde68a;
+}
+
+.tools-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0 0 1rem;
+}
+
+.tool-card {
+  display: block;
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-top: 3px solid var(--primary-600);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1rem;
+  text-decoration: none !important;
+  transition: box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.tool-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.tool-card-bid {
+  border-top-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.tool-card-title {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--slate-900);
+  margin-bottom: 0.25rem;
+}
+
+.tool-card-text {
+  display: block;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--slate-600);
+}
+
+.topic-clusters {
+  margin: 2.5rem 0 0;
+}
+
+.topic-clusters-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 2px solid var(--slate-200);
+  padding-bottom: 0.75rem;
+}
+
+.topic-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primary-600);
+}
+
+.topic-clusters-head h2 {
+  font-size: 1.875rem;
+  font-weight: 800;
+  margin: 0.25rem 0 0;
+  color: var(--slate-900);
+}
+
+.topic-all-link {
+  font-weight: 700;
+}
+
+.topic-cluster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.topic-cluster {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.1rem;
+}
+
+.topic-cluster.topic-plan {
+  border-color: #fcd34d;
+  background: #fffdf5;
+}
+
+.topic-cluster-title {
+  font-size: 1.0625rem;
+  font-weight: 800;
+  color: var(--slate-900);
+  margin: 0 0 0.3rem;
+}
+
+.topic-cluster-desc {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--slate-600);
+  margin: 0 0 0.65rem;
+}
+
+.topic-cluster-links {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  flex: 1;
+}
+
+.topic-cluster-links li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px dashed var(--slate-200);
+  font-size: 0.875rem;
+}
+
+.topic-cluster-links li:last-child {
+  border-bottom: none;
+}
+
+.topic-cluster-links a {
+  font-weight: 600;
+}
+
+.topic-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--slate-500);
+  white-space: nowrap;
+}
+
+.topic-cluster-hub {
+  font-size: 0.8125rem;
+  font-weight: 800;
+}
+
+.table-sub {
+  font-size: 0.75rem;
+  color: var(--slate-500);
+}
+
+@media (min-width: 1025px) {
+  .sidebar-toc {
+    position: sticky;
+    top: 88px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .tools-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Phones: the calculator comes right after the answer; the key figures
+   and trust bar follow it. */
+@media (max-width: 700px) {
+  .hero-section > .container {
+    display: flex;
+    flex-direction: column;
+  }
+  .hero-section .hero-key-takeaways,
+  .hero-section .trust-bar {
+    order: 2;
+  }
+  .hero-section .tools-strip {
+    order: 3;
+  }
+  .hero-section .hero-subtitle {
+    font-size: 1rem;
+  }
+  .hero-section {
+    padding-top: 1.5rem;
+  }
+  .hero-cta {
+    flex: 1 1 100%;
+    justify-content: center;
+    padding: 0.65rem 1rem;
+  }
+  .hero-cta-row {
+    margin-top: 0.9rem;
+  }
+  /* The calculator is right below on phones. */
+  .hero-cta-primary {
+    display: none;
+  }
+  .hero-answer {
+    font-size: 0.9375rem;
+  }
+  .tools-strip {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
   }
 }

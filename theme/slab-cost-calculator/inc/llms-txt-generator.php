@@ -162,6 +162,7 @@ class Slab_LLMS_Generator {
 
         $o .= "## Main calculator\n\n";
         $o .= self::line('Concrete Slab Cost Calculator', $home, 'Full slab estimate: volume, bags or ready-mix, site prep, gravel, reinforcement, forms, finish, labor, delivery and pump, with a regional price index, slab blueprint, contractor bid checker and pour-day weather check.');
+        $o .= self::line('Concrete Quote Checker', home_url('/concrete-quote-checker/'), 'Compare a contractor\'s concrete quote with a scope-matched benchmark (materials at your prices plus standard regional labor) and see whether it is below cost, fair, premium or overpriced.');
         $o .= "\n";
 
         $calcs = self::pages_with_template('page-templates/template-calculator-single.php');

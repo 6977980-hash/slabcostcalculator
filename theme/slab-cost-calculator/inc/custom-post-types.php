@@ -33,7 +33,7 @@ class Slab_Architecture_Router {
      * manual step required.
      */
     public static function maybe_flush_rewrite_rules() {
-        $marker = 'knowledgebase-hub-v1';
+        $marker = 'quote-checker-v1';
         if (get_option('slab_rewrite_rules_version') !== $marker) {
             flush_rewrite_rules();
             update_option('slab_rewrite_rules_version', $marker);
@@ -65,6 +65,11 @@ class Slab_Architecture_Router {
         // option is unset — a fragile, easy-to-misconfigure dependency for a
         // link that appears in the primary navigation on every page.
         add_rewrite_rule('^knowledgebase/?$', 'index.php?slab_route=knowledgebase_hub', 'top');
+
+        // 6. Contractor quote checker: /concrete-quote-checker/
+        // The calculator with its Bid Check tab open, plus a guide to
+        // judging a concrete quote.
+        add_rewrite_rule('^concrete-quote-checker/?$', 'index.php?slab_route=quote_checker', 'top');
 
         // Register Query Vars
         add_rewrite_tag('%slab_route%', '([^&]+)');
@@ -165,6 +170,11 @@ class Slab_Architecture_Router {
             // pre-filtered to the categories that belong under each nav
             // label (see template-knowledgebase.php's route-aware filter).
             $new_template = locate_template(['page-templates/template-knowledgebase.php', 'page.php']);
+            if ($new_template) return $new_template;
+        }
+
+        if ($route === 'quote_checker') {
+            $new_template = locate_template(['page-templates/template-quote-checker.php', 'page.php']);
             if ($new_template) return $new_template;
         }
 

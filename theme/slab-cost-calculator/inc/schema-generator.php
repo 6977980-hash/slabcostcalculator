@@ -35,6 +35,50 @@ class Slab_Schema_Generator {
         // get the homepage's FAQPage and SoftwareApplication. They are
         // listing pages: a breadcrumb and a CollectionPage, nothing more.
         $hub = Slab_SEO_Engine::get_slab_hub_info();
+        if ($hub && isset($hub['type']) && $hub['type'] === 'tool') {
+            $url = home_url($hub['path']);
+            $schemas[] = self::build_breadcrumb_list([
+                ['name' => $hub['name'], 'item' => $url],
+            ]);
+            $schemas[] = [
+                '@context' => 'https://schema.org',
+                '@type' => 'WebPage',
+                '@id' => $url . '#webpage',
+                'url' => $url,
+                'name' => $hub['title'],
+                'description' => $hub['description'],
+                'isPartOf' => ['@id' => home_url('/#website')],
+                'inLanguage' => 'en-US',
+                'dateModified' => SLAB_CONTENT_UPDATED,
+            ];
+            $schemas[] = [
+                '@context' => 'https://schema.org',
+                '@type' => 'SoftwareApplication',
+                'name' => $hub['name'],
+                'applicationCategory' => 'BusinessApplication',
+                'operatingSystem' => 'All (Web Browser)',
+                'browserRequirements' => 'Requires JavaScript',
+                'url' => $url,
+                'description' => $hub['description'],
+                'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'USD'],
+            ];
+            // Same Q&As the page shows (page-templates/template-quote-checker.php).
+            if (function_exists('slab_quote_checker_faqs')) {
+                $schemas[] = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'FAQPage',
+                    'mainEntity' => array_map(function ($f) {
+                        return [
+                            '@type' => 'Question',
+                            'name' => $f['q'],
+                            'acceptedAnswer' => ['@type' => 'Answer', 'text' => $f['a']],
+                        ];
+                    }, slab_quote_checker_faqs()),
+                ];
+            }
+            self::print_schemas($schemas);
+            return;
+        }
         if ($hub) {
             $schemas[] = self::build_breadcrumb_list([
                 ['name' => $hub['name'], 'item' => home_url($hub['path'])],

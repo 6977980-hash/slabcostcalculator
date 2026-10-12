@@ -572,6 +572,183 @@
     root.setAttribute('data-wx-unit', unitNow);
   }
 
+  /* ========================= LIVE ESTIMATE PANEL ========================= */
+  // The results column is a sticky panel beside the inputs (desktop) and a
+  // bottom sheet opened from a fixed estimate bar (phones). Everything here
+  // only displays figures from the engine's result object.
+
+  const SHEET_MAX = 900; // px; matches the single-column breakpoint in calculator.css
+  let prevRows = null;
+  let prevScope = null;
+  let prevTotal = null;
+  let calcInView = false;
+  let panelInView = false;
+
+  function isPhoneLayout() { return window.innerWidth <= SHEET_MAX; }
+
+  function flash(el) {
+    if (!el) return;
+    el.classList.remove('is-flash');
+    void el.offsetWidth; // restart the animation
+    el.classList.add('is-flash');
+  }
+
+  function scopeCosts(r) {
+    const d = r.detail;
+    return {
+      site: d.excavation.cost + d.gravel.cost,
+      forms: d.forms.cost + d.vaporBarrier.cost,
+      reinforce: d.reinforcement.cost,
+      finish: d.finishing.cost,
+      labor: d.labor.cost,
+      delivery: d.delivery.cost + d.pump.cost + d.equipment.cost,
+      demo: d.demolition.cost
+    };
+  }
+
+  // Line items are matched by category + the label before its "(qty)" part,
+  // so a row flashes when its own cost moves.
+  function rowKey(it) { return it.category + '|' + String(it.name).split(' (')[0]; }
+
+  function renderLivePanel() {
+    const r = lastResult;
+    if (!r) return;
+    const total = r.costs.totalEstimatedCost;
+
+    const costs = scopeCosts(r);
+    root.querySelectorAll('[data-scope-cost]').forEach(el => {
+      const key = el.getAttribute('data-scope-cost');
+      const v = costs[key] || 0;
+      el.textContent = v > 0 ? money(v) : 'Not included';
+      el.classList.toggle('is-zero', !(v > 0));
+      if (prevScope && Math.abs((prevScope[key] || 0) - v) > 0.005) flash(el);
+    });
+
+    const rows = {};
+    r.items.forEach(it => { rows[rowKey(it)] = (rows[rowKey(it)] || 0) + it.cost; });
+    const body = $('#boq-table-body');
+    if (body && prevRows) {
+      const trs = body.querySelectorAll('tr');
+      r.items.forEach((it, i) => {
+        const k = rowKey(it);
+        if (!(k in prevRows) || Math.abs(prevRows[k] - rows[k]) > 0.005) flash(trs[i]);
+      });
+    }
+
+    const bt = $('#bar-total');
+    const by = $('#bar-yards');
+    const bb = $('#bar-bags');
+    if (bt) bt.textContent = r.valid ? money(total) : '$0';
+    if (by) by.textContent = r.isImperial ? `${r.dimensions.orderCubicYds.toFixed(2)} yd³` : `${r.dimensions.orderCubicM.toFixed(2)} m³`;
+    if (bb) bb.textContent = `${r.bags.totalBags} bags`;
+    if (prevTotal !== null && Math.abs(prevTotal - total) > 0.005) {
+      flash($('#out-total-cost'));
+      flash(bt);
+    }
+
+    prevRows = rows;
+    prevScope = costs;
+    prevTotal = total;
+  }
+
+  function selectTab(key) {
+    const tab = $('#tab-' + key);
+    if (tab) tab.click();
+  }
+
+  function setBarVisible() {
+    const bar = $('#live-bar');
+    if (!bar) return;
+    const show = isPhoneLayout() && calcInView && !panelInView && !root.classList.contains('sheet-open');
+    bar.classList.toggle('is-visible', show);
+    bar.setAttribute('aria-hidden', show ? 'false' : 'true');
+    const btn = bar.querySelector('.live-bar-btn');
+    if (btn) btn.tabIndex = show ? 0 : -1;
+    document.body.classList.toggle('has-live-bar', show);
+  }
+
+  function openSheet(tabKey) {
+    if (tabKey) selectTab(tabKey);
+    if (!isPhoneLayout()) {
+      const panel = $('#live-estimate');
+      if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    root.classList.add('sheet-open');
+    document.documentElement.classList.add('slab-sheet-lock');
+    const bd = $('.live-sheet-backdrop');
+    if (bd) bd.hidden = false;
+    const btn = $('.live-bar-btn');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    setBarVisible();
+    const close = $('.live-sheet-close');
+    if (close) close.focus({ preventScroll: true });
+  }
+
+  function closeSheet() {
+    if (!root.classList.contains('sheet-open')) return;
+    root.classList.remove('sheet-open');
+    document.documentElement.classList.remove('slab-sheet-lock');
+    const bd = $('.live-sheet-backdrop');
+    if (bd) bd.hidden = true;
+    const btn = $('.live-bar-btn');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+    setBarVisible();
+  }
+
+  // Opens one Live Estimate tab from links such as the homepage's "Got a
+  // quote?" button and tools strip (data-open-tab="bid|blueprint|...") or a
+  // #check-quote URL. Phones get the bottom sheet.
+  function openTab(key) {
+    if (isPhoneLayout()) {
+      openSheet(key);
+    } else {
+      selectTab(key);
+      const panel = $('#live-estimate');
+      if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    if (key === 'bid') {
+      const input = $('#bid-total');
+      if (input) setTimeout(() => input.focus({ preventScroll: true }), 350);
+    }
+  }
+
+  function bindLivePanel() {
+    const barBtn = $('.live-bar-btn');
+    if (barBtn) barBtn.addEventListener('click', () => openSheet());
+    const close = $('.live-sheet-close');
+    if (close) close.addEventListener('click', closeSheet);
+    const bd = $('.live-sheet-backdrop');
+    if (bd) bd.addEventListener('click', closeSheet);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSheet(); });
+    window.addEventListener('resize', () => {
+      if (!isPhoneLayout()) closeSheet();
+      setBarVisible();
+    });
+
+    document.querySelectorAll('[data-open-tab]').forEach(a => a.addEventListener('click', (ev) => {
+      const key = a.getAttribute('data-open-tab');
+      if (!$('#tab-' + key)) return;
+      ev.preventDefault();
+      openTab(key);
+    }));
+    if (window.location.hash === '#check-quote') setTimeout(() => openTab('bid'), 300);
+
+    if ('IntersectionObserver' in window) {
+      const panel = $('#live-estimate');
+      new IntersectionObserver((entries) => {
+        entries.forEach(en => { calcInView = en.isIntersecting; });
+        setBarVisible();
+      }).observe(root.querySelector('.calc-inputs-col') || root);
+      if (panel) {
+        new IntersectionObserver((entries) => {
+          entries.forEach(en => { panelInView = en.isIntersecting && !root.classList.contains('sheet-open'); });
+          setBarVisible();
+        }, { threshold: 0.15 }).observe(panel.querySelector('.live-summary') || panel);
+      }
+    }
+  }
+
   /* ============================== TABS ================================= */
 
   function bindTabs() {
@@ -607,6 +784,7 @@
     renderBlueprint();
     renderBid();
     renderWeather();
+    renderLivePanel();
   }
 
   // Register before DOMContentLoaded so the engine's first result is caught.
@@ -621,6 +799,7 @@
     buildRegionSelect();
     bindTabs();
     bindWeather();
+    bindLivePanel();
     ['#bid-total', '#bid-item-material', '#bid-item-labor', '#bid-item-base', '#bid-item-other'].forEach(id => {
       const el = $(id);
       if (el) el.addEventListener('input', renderBid);

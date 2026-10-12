@@ -16,6 +16,16 @@ $v = function ($n, $dec = 2) {
     return esc_attr(number_format((float) $n, $dec, '.', ''));
 };
 $fin = $sd['finish'];
+
+// Which Live Estimate tab is open first. The quote checker page opens on
+// the bid check: get_template_part('template-parts/calculator-primary', null, ['tab' => 'bid']).
+$tabs = [
+    'blueprint' => 'Blueprint',
+    'breakdown' => 'Breakdown',
+    'bid'       => 'Bid Check',
+    'weather'   => 'Weather',
+];
+$default_tab = (isset($args['tab']) && isset($tabs[$args['tab']])) ? $args['tab'] : 'blueprint';
 ?>
 
 <div id="concrete-slab-calculator" class="calculator-app-wrapper" role="region" aria-label="Concrete Slab Cost Estimator">
@@ -159,6 +169,7 @@ $fin = $sd['finish'];
           <button type="button" class="scope-header" aria-expanded="false" aria-controls="body-site-prep">
             <span class="scope-title-group">
               <span class="scope-title">Site Prep, Excavation &amp; Gravel Base</span>
+              <span class="scope-cost" data-scope-cost="site"></span>
             </span>
             <span class="scope-chevron" aria-hidden="true">&#9662;</span>
           </button>
@@ -195,10 +206,11 @@ $fin = $sd['finish'];
       </div>
 
       <!-- Accordion: Forms & Vapor Barrier -->
-      <div class="scope-accordion open">
-        <button type="button" class="scope-header" aria-expanded="true">
+      <div class="scope-accordion">
+        <button type="button" class="scope-header" aria-expanded="false">
           <span class="scope-title-group">
             <span class="scope-title">Formwork &amp; Moisture Protection</span>
+            <span class="scope-cost" data-scope-cost="forms"></span>
           </span>
           <span class="scope-chevron" aria-hidden="true">&#9662;</span>
         </button>
@@ -230,10 +242,11 @@ $fin = $sd['finish'];
       </div>
 
       <!-- Accordion: Steel Reinforcement -->
-      <div class="scope-accordion open">
-        <button type="button" class="scope-header" aria-expanded="true">
+      <div class="scope-accordion">
+        <button type="button" class="scope-header" aria-expanded="false">
           <span class="scope-title-group">
             <span class="scope-title">Reinforcement Specification</span>
+            <span class="scope-cost" data-scope-cost="reinforce"></span>
           </span>
           <span class="scope-chevron" aria-hidden="true">&#9662;</span>
         </button>
@@ -274,6 +287,7 @@ $fin = $sd['finish'];
         <button type="button" class="scope-header" aria-expanded="false">
           <span class="scope-title-group">
             <span class="scope-title">Surface Finishing Technique</span>
+            <span class="scope-cost" data-scope-cost="finish"></span>
           </span>
           <span class="scope-chevron" aria-hidden="true">&#9662;</span>
         </button>
@@ -303,10 +317,11 @@ $fin = $sd['finish'];
       </div>
 
       <!-- Accordion: Labor -->
-      <div class="scope-accordion open">
-        <button type="button" class="scope-header" aria-expanded="true">
+      <div class="scope-accordion">
+        <button type="button" class="scope-header" aria-expanded="false">
           <span class="scope-title-group">
             <span class="scope-title">Labor &amp; Contractor Installation</span>
+            <span class="scope-cost" data-scope-cost="labor"></span>
           </span>
           <span class="scope-chevron" aria-hidden="true">&#9662;</span>
         </button>
@@ -360,6 +375,7 @@ $fin = $sd['finish'];
         <button type="button" class="scope-header" aria-expanded="false">
           <span class="scope-title-group">
             <span class="scope-title">Delivery, Pumping &amp; Rentals</span>
+            <span class="scope-cost" data-scope-cost="delivery"></span>
           </span>
           <span class="scope-chevron" aria-hidden="true">&#9662;</span>
         </button>
@@ -398,6 +414,7 @@ $fin = $sd['finish'];
           <button type="button" class="scope-header" aria-expanded="false" aria-controls="body-demo-removal">
             <span class="scope-title-group">
               <span class="scope-title">Old Slab Demolition &amp; Removal</span>
+              <span class="scope-cost" data-scope-cost="demo"></span>
             </span>
             <span class="scope-chevron" aria-hidden="true">&#9662;</span>
           </button>
@@ -433,79 +450,173 @@ $fin = $sd['finish'];
       </div>
     </div>
 
-    <!-- Right Column: Results & Bill of Quantities Dashboard -->
-    <div class="calc-results-col">
-      <!-- Total Budget Card -->
-      <div class="results-hero-card">
-        <div class="results-hero-label">Estimated Total Project Budget</div>
-        <div id="out-total-cost" class="results-hero-total">$0.00</div>
-        <div class="results-hero-subrates">
-          <div><strong id="out-cost-per-sqft">$0.00</strong> / sq. ft.</div>
-          <div><strong id="out-cost-per-sqm">$0.00</strong> / m²</div>
+    <!-- Right Column: Live Estimate panel. Sticky beside the inputs on
+         desktop; on phones it opens as a bottom sheet from the estimate bar. -->
+    <div class="calc-results-col" id="live-estimate" aria-label="Live estimate">
+      <div class="live-panel-head">
+        <span class="live-panel-title"><span class="live-dot" aria-hidden="true"></span> Live Estimate</span>
+        <button type="button" class="live-sheet-close" aria-label="Close estimate details">&times;</button>
+      </div>
+      <div class="live-summary">
+        <!-- Total Budget Card -->
+        <div class="results-hero-card">
+          <div class="results-hero-label">Estimated Total Project Budget</div>
+          <div id="out-total-cost" class="results-hero-total">$0.00</div>
+          <div class="results-hero-subrates">
+            <div><strong id="out-cost-per-sqft">$0.00</strong> / sq. ft.</div>
+            <div><strong id="out-cost-per-sqm">$0.00</strong> / m²</div>
+          </div>
+          <div id="out-region-tag" class="results-region-tag">Based on U.S. national average rates</div>
         </div>
-        <div id="out-region-tag" class="results-region-tag">Based on U.S. national average rates</div>
+
+        <!-- Required Materials & Quantities Matrix -->
+        <div class="quantities-grid">
+          <div class="quantity-card">
+            <div class="quantity-card-label">Order Volume (w/ Waste)</div>
+            <div id="out-waste-yards" class="quantity-card-value">0.00 yd³</div>
+            <div id="out-net-yards" class="quantity-card-note">Net: 0.00 yd³</div>
+          </div>
+
+          <div class="quantity-card">
+            <div class="quantity-card-label">Or Bagged Equivalent</div>
+            <div id="out-total-bags" class="quantity-card-value">0 bags</div>
+            <div id="out-bag-note" class="quantity-card-note">80-lb pre-mix bags</div>
+          </div>
+
+          <div class="quantity-card">
+            <div class="quantity-card-label">Total Surface Area</div>
+            <div id="out-area-sqft" class="quantity-card-value">0 sq ft</div>
+            <div id="out-net-meters" class="quantity-card-note">Order volume: 0.00 m³</div>
+          </div>
+
+          <div class="quantity-card">
+            <div class="quantity-card-label">Estimated Wet Weight</div>
+            <div id="out-total-weight" class="quantity-card-value">0 lbs</div>
+            <div id="out-perimeter-ft" class="quantity-card-note">Perimeter: 0 ft</div>
+          </div>
+        </div>
+
+        <!-- Visual Cost Breakdown Bar -->
+        <div class="visual-cost-bar-wrapper">
+          <div class="calc-section-label">Cost Distribution Breakdown</div>
+          <div class="cost-bar-container">
+            <div id="seg-material" class="cost-bar-seg seg-material" title="Concrete Material" style="width: 35%;"></div>
+            <div id="seg-labor" class="cost-bar-seg seg-labor" title="Labor" style="width: 35%;"></div>
+            <div id="seg-base" class="cost-bar-seg seg-base" title="Base & Prep" style="width: 10%;"></div>
+            <div id="seg-reinforce" class="cost-bar-seg seg-reinforce" title="Reinforcement" style="width: 10%;"></div>
+            <div id="seg-forms" class="cost-bar-seg seg-forms" title="Forms" style="width: 5%;"></div>
+            <div id="seg-other" class="cost-bar-seg seg-other" title="Delivery & Misc" style="width: 5%;"></div>
+          </div>
+          <div class="cost-legend">
+            <div class="legend-item"><span class="legend-dot" style="background:#2563eb;"></span> Concrete</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span> Labor</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span> Prep/Base</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#8b5cf6;"></span> Rebar</div>
+            <div class="legend-item"><span class="legend-dot" style="background:#ec4899;"></span> Forms</div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Required Materials & Quantities Matrix -->
-      <div class="quantities-grid">
-        <div class="quantity-card">
-          <div class="quantity-card-label">Order Volume (w/ Waste)</div>
-          <div id="out-waste-yards" class="quantity-card-value">0.00 yd³</div>
-          <div id="out-net-yards" class="quantity-card-note">Net: 0.00 yd³</div>
+      <!-- Planning tools: blueprint, breakdown, bid checker, weather check (assets/js/calculator-tools.js) -->
+      <div id="calc-tools" class="calc-tools">
+        <div class="calc-tools-tabs" role="tablist" aria-label="Slab planning tools">
+          <?php foreach ($tabs as $key => $label) : $on = ($key === $default_tab); ?>
+          <button type="button" class="calc-tools-tab<?php echo $on ? ' active' : ''; ?>" role="tab" id="tab-<?php echo esc_attr($key); ?>" aria-controls="tool-<?php echo esc_attr($key); ?>" aria-selected="<?php echo $on ? 'true' : 'false'; ?>"<?php echo $on ? '' : ' tabindex="-1"'; ?>><?php echo esc_html($label); ?></button>
+          <?php endforeach; ?>
         </div>
 
-        <div class="quantity-card">
-          <div class="quantity-card-label">Or Bagged Equivalent</div>
-          <div id="out-total-bags" class="quantity-card-value">0 bags</div>
-          <div id="out-bag-note" class="quantity-card-note">80-lb pre-mix bags</div>
+        <!-- Blueprint -->
+        <div id="tool-blueprint" class="calc-tool-panel" role="tabpanel" aria-labelledby="tab-blueprint"<?php echo $default_tab === 'blueprint' ? '' : ' hidden'; ?>>
+          <p class="calc-tool-intro">A scaled plan of your slab: rebar grid at the spacing you chose, support chairs about every 3 to 4 ft, and the recommended control-joint saw cuts (2.5 times the thickness in inches, in feet, capped at 15 ft). It redraws as you change the inputs.</p>
+          <div id="blueprint-wrap" class="blueprint-wrap" aria-live="polite"></div>
+          <div id="blueprint-summary" class="tool-summary-grid"></div>
+          <div class="calc-actions-bar tool-actions">
+            <button type="button" id="btn-blueprint-png" class="calc-action-btn btn-primary">Download Blueprint (PNG)</button>
+          </div>
         </div>
 
-        <div class="quantity-card">
-          <div class="quantity-card-label">Total Surface Area</div>
-          <div id="out-area-sqft" class="quantity-card-value">0 sq ft</div>
-          <div id="out-net-meters" class="quantity-card-note">Order volume: 0.00 m³</div>
+
+        <!-- Breakdown -->
+        <div id="tool-breakdown" class="calc-tool-panel" role="tabpanel" aria-labelledby="tab-breakdown"<?php echo $default_tab === 'breakdown' ? '' : ' hidden'; ?>>
+          <!-- Line-Item Bill of Quantities Table -->
+          <div class="boq-table-card">
+            <table class="boq-table">
+              <thead>
+                <tr>
+                  <th>Scope Item / Material Description</th>
+                  <th style="text-align: right;">Amount</th>
+                </tr>
+              </thead>
+              <tbody id="boq-table-body">
+                <!-- Dynamically injected rows -->
+              </tbody>
+            </table>
+          </div>
+
         </div>
 
-        <div class="quantity-card">
-          <div class="quantity-card-label">Estimated Wet Weight</div>
-          <div id="out-total-weight" class="quantity-card-value">0 lbs</div>
-          <div id="out-perimeter-ft" class="quantity-card-note">Perimeter: 0 ft</div>
+        <!-- Bid checker -->
+        <div id="tool-bid" class="calc-tool-panel" role="tabpanel" aria-labelledby="tab-bid"<?php echo $default_tab === 'bid' ? '' : ' hidden'; ?>>
+          <p class="calc-tool-intro">Enter the total your contractor quoted. We compare it with a benchmark for the same slab and scope you set in the calculator: materials at your entered prices plus labor at the regional standard rate, before any overhead or profit. Make sure the calculator scope (base, rebar, finish, pump, demolition) matches what the bid includes.</p>
+          <div id="bid-scope-line" class="bid-scope-line"></div>
+          <div class="input-grid-2">
+            <div class="calc-form-group">
+              <label for="bid-total" class="calc-label">Total Contractor Quote</label>
+              <div class="calc-input-wrapper has-addon-left">
+                <span class="calc-input-addon-left">$</span>
+                <input type="number" id="bid-total" class="calc-control" min="0" step="50" placeholder="e.g. 5200">
+              </div>
+            </div>
+          </div>
+          <details class="bid-itemized">
+            <summary>Optional: enter the bid's line items to see where the markup sits</summary>
+            <div class="input-grid-2">
+              <div class="calc-form-group">
+                <label for="bid-item-material" class="calc-label">Concrete &amp; reinforcement</label>
+                <div class="calc-input-wrapper has-addon-left"><span class="calc-input-addon-left">$</span><input type="number" id="bid-item-material" class="calc-control" min="0" step="25"></div>
+              </div>
+              <div class="calc-form-group">
+                <label for="bid-item-labor" class="calc-label">Labor (place &amp; finish)</label>
+                <div class="calc-input-wrapper has-addon-left"><span class="calc-input-addon-left">$</span><input type="number" id="bid-item-labor" class="calc-control" min="0" step="25"></div>
+              </div>
+              <div class="calc-form-group">
+                <label for="bid-item-base" class="calc-label">Site prep, base, forms &amp; vapor barrier</label>
+                <div class="calc-input-wrapper has-addon-left"><span class="calc-input-addon-left">$</span><input type="number" id="bid-item-base" class="calc-control" min="0" step="25"></div>
+              </div>
+              <div class="calc-form-group">
+                <label for="bid-item-other" class="calc-label">Other (finish, delivery, pump, demo)</label>
+                <div class="calc-input-wrapper has-addon-left"><span class="calc-input-addon-left">$</span><input type="number" id="bid-item-other" class="calc-control" min="0" step="25"></div>
+              </div>
+            </div>
+          </details>
+          <div id="bid-result" class="bid-result" aria-live="polite"></div>
         </div>
-      </div>
 
-      <!-- Visual Cost Breakdown Bar -->
-      <div class="visual-cost-bar-wrapper">
-        <div class="calc-section-label">Cost Distribution Breakdown</div>
-        <div class="cost-bar-container">
-          <div id="seg-material" class="cost-bar-seg seg-material" title="Concrete Material" style="width: 35%;"></div>
-          <div id="seg-labor" class="cost-bar-seg seg-labor" title="Labor" style="width: 35%;"></div>
-          <div id="seg-base" class="cost-bar-seg seg-base" title="Base & Prep" style="width: 10%;"></div>
-          <div id="seg-reinforce" class="cost-bar-seg seg-reinforce" title="Reinforcement" style="width: 10%;"></div>
-          <div id="seg-forms" class="cost-bar-seg seg-forms" title="Forms" style="width: 5%;"></div>
-          <div id="seg-other" class="cost-bar-seg seg-other" title="Delivery & Misc" style="width: 5%;"></div>
+        <!-- Weather -->
+        <div id="tool-weather" class="calc-tool-panel" role="tabpanel" aria-labelledby="tab-weather"<?php echo $default_tab === 'weather' ? '' : ' hidden'; ?>>
+          <p class="calc-tool-intro">Enter the forecast for pour day. The check follows ACI 306R (cold weather) and ACI 305R (hot weather) and estimates the surface evaporation rate that drives plastic shrinkage cracking.</p>
+          <div class="input-grid-3">
+            <div class="calc-form-group">
+              <label for="wx-temp" class="calc-label">Air Temperature (<span class="wx-temp-unit">°F</span>)</label>
+              <input type="number" id="wx-temp" class="calc-control" value="70" step="1">
+            </div>
+            <div class="calc-form-group">
+              <label for="wx-rh" class="calc-label">Relative Humidity (%)</label>
+              <input type="number" id="wx-rh" class="calc-control" value="50" min="0" max="100" step="5">
+            </div>
+            <div class="calc-form-group">
+              <label for="wx-wind" class="calc-label">Wind Speed (<span class="wx-wind-unit">mph</span>)</label>
+              <input type="number" id="wx-wind" class="calc-control" value="10" min="0" step="1">
+            </div>
+          </div>
+          <div class="wx-quick" role="group" aria-label="Quick temperature presets">
+            <button type="button" class="preset-btn wx-btn" data-wx="cold">Cold day</button>
+            <button type="button" class="preset-btn wx-btn" data-wx="mild">Mild day</button>
+            <button type="button" class="preset-btn wx-btn" data-wx="hot">Hot day</button>
+          </div>
+          <div id="wx-result" class="wx-result" aria-live="polite"></div>
         </div>
-        <div class="cost-legend">
-          <div class="legend-item"><span class="legend-dot" style="background:#2563eb;"></span> Concrete</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span> Labor</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#f59e0b;"></span> Prep/Base</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#8b5cf6;"></span> Rebar</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#ec4899;"></span> Forms</div>
-        </div>
-      </div>
-
-      <!-- Line-Item Bill of Quantities Table -->
-      <div class="boq-table-card">
-        <table class="boq-table">
-          <thead>
-            <tr>
-              <th>Scope Item / Material Description</th>
-              <th style="text-align: right;">Amount</th>
-            </tr>
-          </thead>
-          <tbody id="boq-table-body">
-            <!-- Dynamically injected rows -->
-          </tbody>
-        </table>
       </div>
 
       <!-- Action Toolbar -->
@@ -528,84 +639,15 @@ $fin = $sd['finish'];
       </div>
     </div>
   </div>
-  <!-- Planning tools: blueprint, bid checker, weather check (assets/js/calculator-tools.js) -->
-  <div id="calc-tools" class="calc-tools">
-    <div class="calc-tools-tabs" role="tablist" aria-label="Slab planning tools">
-      <button type="button" class="calc-tools-tab active" role="tab" id="tab-blueprint" aria-controls="tool-blueprint" aria-selected="true">Slab &amp; Rebar Blueprint</button>
-      <button type="button" class="calc-tools-tab" role="tab" id="tab-bid" aria-controls="tool-bid" aria-selected="false" tabindex="-1">Check My Contractor's Bid</button>
-      <button type="button" class="calc-tools-tab" role="tab" id="tab-weather" aria-controls="tool-weather" aria-selected="false" tabindex="-1">Pour-Day Weather Check</button>
-    </div>
-
-    <!-- Blueprint -->
-    <div id="tool-blueprint" class="calc-tool-panel" role="tabpanel" aria-labelledby="tab-blueprint">
-      <p class="calc-tool-intro">A scaled plan of the slab above: rebar grid at the spacing you chose, support chairs about every 3 to 4 ft, and the recommended control-joint saw cuts (2.5 times the thickness in inches, in feet, capped at 15 ft). It redraws as you change the inputs.</p>
-      <div id="blueprint-wrap" class="blueprint-wrap" aria-live="polite"></div>
-      <div id="blueprint-summary" class="tool-summary-grid"></div>
-      <div class="calc-actions-bar tool-actions">
-        <button type="button" id="btn-blueprint-png" class="calc-action-btn btn-primary">Download Blueprint (PNG)</button>
-      </div>
-    </div>
-
-    <!-- Bid checker -->
-    <div id="tool-bid" class="calc-tool-panel" role="tabpanel" aria-labelledby="tab-bid" hidden>
-      <p class="calc-tool-intro">Enter the total your contractor quoted. We compare it with a benchmark for the same slab and scope you set above: materials at your entered prices plus labor at the regional standard rate, before any overhead or profit. Make sure the scope above (base, rebar, finish, pump, demolition) matches what the bid includes.</p>
-      <div id="bid-scope-line" class="bid-scope-line"></div>
-      <div class="input-grid-2">
-        <div class="calc-form-group">
-          <label for="bid-total" class="calc-label">Total Contractor Quote</label>
-          <div class="calc-input-wrapper has-addon-left">
-            <span class="calc-input-addon-left">$</span>
-            <input type="number" id="bid-total" class="calc-control" min="0" step="50" placeholder="e.g. 5200">
-          </div>
-        </div>
-      </div>
-      <details class="bid-itemized">
-        <summary>Optional: enter the bid's line items to see where the markup sits</summary>
-        <div class="input-grid-2">
-          <div class="calc-form-group">
-            <label for="bid-item-material" class="calc-label">Concrete &amp; reinforcement</label>
-            <div class="calc-input-wrapper has-addon-left"><span class="calc-input-addon-left">$</span><input type="number" id="bid-item-material" class="calc-control" min="0" step="25"></div>
-          </div>
-          <div class="calc-form-group">
-            <label for="bid-item-labor" class="calc-label">Labor (place &amp; finish)</label>
-            <div class="calc-input-wrapper has-addon-left"><span class="calc-input-addon-left">$</span><input type="number" id="bid-item-labor" class="calc-control" min="0" step="25"></div>
-          </div>
-          <div class="calc-form-group">
-            <label for="bid-item-base" class="calc-label">Site prep, base, forms &amp; vapor barrier</label>
-            <div class="calc-input-wrapper has-addon-left"><span class="calc-input-addon-left">$</span><input type="number" id="bid-item-base" class="calc-control" min="0" step="25"></div>
-          </div>
-          <div class="calc-form-group">
-            <label for="bid-item-other" class="calc-label">Other (finish, delivery, pump, demo)</label>
-            <div class="calc-input-wrapper has-addon-left"><span class="calc-input-addon-left">$</span><input type="number" id="bid-item-other" class="calc-control" min="0" step="25"></div>
-          </div>
-        </div>
-      </details>
-      <div id="bid-result" class="bid-result" aria-live="polite"></div>
-    </div>
-
-    <!-- Weather -->
-    <div id="tool-weather" class="calc-tool-panel" role="tabpanel" aria-labelledby="tab-weather" hidden>
-      <p class="calc-tool-intro">Enter the forecast for pour day. The check follows ACI 306R (cold weather) and ACI 305R (hot weather) and estimates the surface evaporation rate that drives plastic shrinkage cracking.</p>
-      <div class="input-grid-3">
-        <div class="calc-form-group">
-          <label for="wx-temp" class="calc-label">Air Temperature (<span class="wx-temp-unit">°F</span>)</label>
-          <input type="number" id="wx-temp" class="calc-control" value="70" step="1">
-        </div>
-        <div class="calc-form-group">
-          <label for="wx-rh" class="calc-label">Relative Humidity (%)</label>
-          <input type="number" id="wx-rh" class="calc-control" value="50" min="0" max="100" step="5">
-        </div>
-        <div class="calc-form-group">
-          <label for="wx-wind" class="calc-label">Wind Speed (<span class="wx-wind-unit">mph</span>)</label>
-          <input type="number" id="wx-wind" class="calc-control" value="10" min="0" step="1">
-        </div>
-      </div>
-      <div class="wx-quick" role="group" aria-label="Quick temperature presets">
-        <button type="button" class="preset-btn wx-btn" data-wx="cold">Cold day</button>
-        <button type="button" class="preset-btn wx-btn" data-wx="mild">Mild day</button>
-        <button type="button" class="preset-btn wx-btn" data-wx="hot">Hot day</button>
-      </div>
-      <div id="wx-result" class="wx-result" aria-live="polite"></div>
-    </div>
+  <!-- Phone / tablet: estimate bar fixed to the bottom of the screen while the
+       calculator is on screen. Tapping it opens the Live Estimate panel above
+       as a bottom sheet (calculator-tools.js). -->
+  <div class="live-bar" id="live-bar" aria-hidden="true">
+    <button type="button" class="live-bar-btn" aria-controls="live-estimate" aria-expanded="false" tabindex="-1">
+      <span class="live-bar-total" id="bar-total">$0</span>
+      <span class="live-bar-meta"><span id="bar-yards">0.00 yd³</span> &middot; <span id="bar-bags">0 bags</span></span>
+      <span class="live-bar-cta">Blueprint &amp; breakdown <span aria-hidden="true">&#9650;</span></span>
+    </button>
   </div>
+  <div class="live-sheet-backdrop" hidden></div>
 </div>

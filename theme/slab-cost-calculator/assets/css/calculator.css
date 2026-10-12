@@ -9,6 +9,9 @@
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
+  /* clip (unlike hidden) keeps the rounded corners without breaking the
+     sticky Live Estimate panel inside. */
+  overflow: clip;
   margin: 2rem 0;
 }
 
@@ -876,5 +879,469 @@ select.calc-control {
   }
   .calc-header {
     padding: 1rem 1.25rem;
+  }
+  .calc-header-title h2 {
+    font-size: 1.125rem;
+  }
+  .calc-header-title p {
+    font-size: 0.75rem;
+  }
+  .calculator-app-wrapper {
+    margin: 1.25rem 0;
+  }
+}
+
+
+/* ==========================================================================
+   LIVE ESTIMATE PANEL (Phase 4 redesign)
+   Desktop: the results column sticks under the header beside the inputs,
+   summary on top, tools (blueprint / breakdown / bid / weather) scroll
+   inside it. Phones: a fixed estimate bar opens the same panel as a
+   bottom sheet.
+   ========================================================================== */
+
+.calc-results-col > * {
+  flex-shrink: 0;
+}
+
+.live-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.live-panel-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--slate-600);
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.live-sheet-close {
+  display: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--slate-300);
+  background: #ffffff;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--slate-700);
+  cursor: pointer;
+}
+
+/* Compact summary so it and a tool fit one screen. */
+.calc-results-col .results-hero-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.calc-results-col .results-hero-total {
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+
+.calc-results-col .results-hero-subrates {
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.calc-results-col .results-region-tag {
+  margin-top: 0.4rem;
+}
+
+.calc-results-col .quantities-grid {
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.calc-results-col .quantity-card {
+  padding: 0.5rem 0.75rem;
+}
+
+.calc-results-col .quantity-card-value {
+  font-size: 1rem;
+}
+
+.calc-results-col .visual-cost-bar-wrapper {
+  padding: 0.6rem 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.calc-results-col .visual-cost-bar-wrapper .calc-section-label {
+  margin-bottom: 0.4rem;
+}
+
+.calc-results-col .cost-bar-container {
+  height: 10px;
+  margin-bottom: 0.5rem;
+}
+
+.calc-results-col .cost-legend {
+  gap: 0.6rem;
+  font-size: 0.6875rem;
+}
+
+.calc-results-col .calc-tools {
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.calc-results-col .calc-tools-tabs {
+  flex: none;
+  padding: 0.4rem 0.4rem 0;
+  gap: 0.15rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.calc-results-col .calc-tools-tab {
+  flex: 1;
+  padding: 0.55rem 0.5rem;
+  text-align: center;
+}
+
+.calc-results-col .calc-tool-panel {
+  padding: 0.85rem;
+}
+
+.calc-results-col .calc-tool-intro {
+  font-size: 0.8125rem;
+  margin-bottom: 0.75rem;
+}
+
+.calc-results-col .tool-summary-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.calc-results-col .boq-table-card {
+  margin-bottom: 0;
+}
+
+.calc-results-col .calc-tool-panel .input-grid-2,
+.calc-results-col .calc-tool-panel .input-grid-3 {
+  gap: 0.6rem;
+}
+
+.calc-results-col .calc-actions-bar {
+  margin-top: 0;
+}
+
+.calc-results-col .calc-action-btn {
+  padding: 0.5rem 0.6rem;
+  min-width: 0;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.calc-results-col .calc-tool-panel .calc-action-btn {
+  flex: none;
+}
+
+.calc-results-col > .calc-actions-bar .calc-action-btn.btn-primary {
+  flex: 1.6;
+}
+
+/* The panel's width depends on where the calculator sits (full width on
+   the homepage, beside a sidebar on calculator pages), so its inner layout
+   follows the panel width, not the screen width. */
+.calc-results-col {
+  container-type: inline-size;
+}
+
+.calc-results-col > .calc-actions-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+@container (min-width: 470px) {
+  .calc-results-col .quantities-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .calc-results-col .quantity-card {
+    padding: 0.45rem 0.55rem;
+  }
+
+  .calc-results-col .quantity-card-label {
+    font-size: 0.5625rem;
+    letter-spacing: 0.02em;
+  }
+
+  .calc-results-col .quantity-card-value {
+    font-size: 0.875rem;
+    line-height: 1.3;
+  }
+
+  .calc-results-col .quantity-card-note {
+    font-size: 0.625rem;
+  }
+
+  .calc-results-col > .calc-actions-bar {
+    display: flex;
+    flex-wrap: nowrap;
+  }
+}
+
+/* Current cost of each scope section, on its collapsed row. */
+.scope-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.scope-cost {
+  margin-left: auto;
+  padding: 0 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: var(--primary-700);
+  white-space: nowrap;
+  border-radius: var(--radius-sm);
+}
+
+.scope-cost.is-zero {
+  font-weight: 600;
+  color: var(--slate-400);
+}
+
+/* What-changed highlight */
+@keyframes slab-flash {
+  0% { background-color: #fde68a; }
+  100% { background-color: transparent; }
+}
+
+@keyframes slab-flash-dark {
+  0% { color: #fde68a; }
+  100% { color: #38bdf8; }
+}
+
+.boq-table tr.is-flash td,
+.scope-cost.is-flash {
+  animation: slab-flash 1.2s ease-out;
+}
+
+.results-hero-total.is-flash {
+  animation: slab-flash-dark 1.2s ease-out;
+}
+
+.live-bar-total.is-flash {
+  animation: slab-flash 1.2s ease-out;
+}
+
+/* Desktop: sticky panel */
+@media (min-width: 901px) {
+  .calc-body-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  /* The panel scrolls on its own when it is taller than the window, with
+     the total pinned at its top. */
+  .calc-results-col {
+    position: sticky;
+    top: 84px; /* 72px header + gap */
+    max-height: calc(100vh - 96px);
+    padding: 1rem 1.25rem 1.25rem;
+    border-bottom-left-radius: var(--radius-md);
+    overflow-y: auto;
+  }
+
+  .calc-results-col .results-hero-card {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    box-shadow: 0 -1rem 0 0.5rem var(--slate-50), var(--shadow-md);
+  }
+
+  /* Full-width calculator (homepage, quote checker): the summary stays put
+     and only the open tool scrolls, so total, quantities and cost bar are
+     always in view. */
+  .hero-section .calc-results-col {
+    overflow: hidden;
+  }
+
+  .hero-section .calc-results-col .results-hero-card {
+    position: static;
+    box-shadow: var(--shadow-md);
+  }
+
+  .hero-section .calc-results-col .calc-tools {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-section .calc-results-col .calc-tool-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .live-bar,
+  .live-sheet-backdrop {
+    display: none !important;
+  }
+}
+
+/* Short desktop windows: let the whole panel scroll instead. */
+@media (min-width: 901px) and (max-height: 700px) {
+  .hero-section .calc-results-col {
+    overflow-y: auto;
+  }
+  .hero-section .calc-results-col .calc-tools {
+    flex: none;
+  }
+  .hero-section .calc-results-col .calc-tool-panel {
+    overflow: visible;
+  }
+}
+
+/* Phones and small tablets: estimate bar + bottom sheet */
+.live-bar {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .live-bar {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1050;
+    padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    background: var(--slate-900);
+    box-shadow: 0 -6px 20px rgba(15, 23, 42, 0.25);
+    transform: translateY(110%);
+    transition: transform 0.2s ease;
+    visibility: hidden;
+  }
+
+  .live-bar.is-visible {
+    transform: translateY(0);
+    visibility: visible;
+  }
+
+  .live-bar-btn {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 0.75rem;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    text-align: left;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .live-bar-total {
+    grid-row: 1 / span 2;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #38bdf8;
+    border-radius: var(--radius-sm);
+    padding: 0 0.15rem;
+  }
+
+  .live-bar-meta {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #e2e8f0;
+  }
+
+  .live-bar-cta {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #93c5fd;
+  }
+
+  body.has-live-bar {
+    padding-bottom: 64px;
+  }
+
+  .live-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgba(15, 23, 42, 0.55);
+  }
+
+  .calculator-app-wrapper.sheet-open .calc-results-col {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1101;
+    max-height: 88vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.3);
+    padding: 0.75rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .calculator-app-wrapper.sheet-open .live-panel-head {
+    position: sticky;
+    top: -0.75rem;
+    z-index: 2;
+    background: var(--slate-50);
+    padding: 0.6rem 0 0.4rem;
+    margin-top: -0.75rem;
+  }
+
+  .calculator-app-wrapper.sheet-open .live-sheet-close {
+    display: inline-block;
+  }
+
+  .calc-results-col .quantities-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .calc-results-col .quantity-card-label {
+    font-size: 0.625rem;
+  }
+
+  .calc-results-col .quantity-card-value {
+    font-size: 0.9375rem;
+  }
+
+  .calc-results-col .results-hero-total {
+    font-size: 1.75rem;
+  }
+
+
+  html.slab-sheet-lock,
+  html.slab-sheet-lock body {
+    overflow: hidden;
+  }
+}
+
+@media print {
+  .live-bar,
+  .live-sheet-backdrop,
+  .live-panel-head,
+  .scope-cost {
+    display: none !important;
   }
 }
