@@ -156,6 +156,10 @@ class Slab_Post_Figures {
                     $L('uses the same ' . $m0($drive['installed']) . ' for the 5-inch, rebar-reinforced slab we recommend for vehicle loads')],
                 ['most codes require a minimum 5-inch slab with reinforcement', $L('a 5-inch slab with reinforcement is the standard recommendation (local codes vary)')],
                 ['\$8' . $D . '\$20/sq ft', $L($m0($drive_psf, '–') . '/sq ft (broom), to ' . Slab_Data::money($drive_stamped[1], 0) . ' stamped')],
+                ['Upfront Cost: Asphalt Wins, But Not By as Much as You(\'|’|&#8217;|&#039;)d Think', 'Upfront Cost: Asphalt Wins, Concrete Wins Over Time'],
+                ['asphalt driveways typically run about \$7 to \$15 per square foot', $L('asphalt driveways typically run about ' . $m0($sd['asphalt_driveway_psf']) . ' per square foot')],
+                ['roughly \$5,600 to \$12,000 for asphalt', $L('roughly ' . $m0([800 * $sd['asphalt_driveway_psf'][0], 800 * $sd['asphalt_driveway_psf'][1]]) . ' for asphalt')],
+                ['\$7' . $D . '\$15/sq ft', $L($m0($sd['asphalt_driveway_psf'], '–') . '/sq ft')],
             ],
             'concrete-slab-permits-and-costs' => [
                 ['\$50 ' . $D . ' \$300', $L(Slab_Data::money_range($sd['permit']['flatwork'], 0, ' – '))],

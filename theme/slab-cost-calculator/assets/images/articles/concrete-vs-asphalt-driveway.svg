@@ -22,8 +22,8 @@
   <text x="130" y="245" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#F1F5F9">Installed Cost / sq. ft.</text>
   <rect x="130" y="255" width="150" height="18" rx="3" fill="#64748B"/>
   <text x="290" y="269" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#F8FAFC">$7 &#8211; $13 broom, to $22 stamped (concrete)</text>
-  <rect x="130" y="280" width="112" height="18" rx="3" fill="#334155"/>
-  <text x="252" y="294" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#F8FAFC">$7 &#8211; $15 (asphalt)</text>
+  <rect x="130" y="280" width="48" height="18" rx="3" fill="#334155"/>
+  <text x="188" y="294" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" fill="#F8FAFC">$3 &#8211; $7 (asphalt)</text>
 
   <!-- Comparison bars: lifespan -->
   <text x="130" y="330" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#F1F5F9">Typical Service Life</text>

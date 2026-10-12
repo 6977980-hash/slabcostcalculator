@@ -176,6 +176,7 @@ class Slab_Data {
                 'trenching' => ['12' => [150, 400], '18' => [250, 600]],
             ],
             'freeze_thaw_ft' => [36, 48],
+            'asphalt_driveway_psf' => [3, 7],      // installed, 2-3 in asphalt on gravel base
         ];
 
         return self::$cache;
