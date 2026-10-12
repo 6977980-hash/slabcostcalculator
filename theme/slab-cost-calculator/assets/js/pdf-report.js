@@ -11,9 +11,10 @@
  * is one calculation engine; this file only formats its output as a PDF.
  *
  * Requires assets/js/vendor/jspdf.umd.min.js and
- * assets/js/vendor/jspdf.plugin.autotable.min.js to be loaded first (see
- * functions.php's enqueue order) so that window.jspdf.jsPDF and the
- * doc.autoTable() plugin method are available.
+ * assets/js/vendor/jspdf.plugin.autotable.min.js, which are loaded on
+ * demand by load() (URLs from window.SlabPDFConfig, set in functions.php)
+ * so that window.jspdf.jsPDF and the doc.autoTable() plugin method are
+ * available before generate() runs.
  */
 
 (function () {
@@ -947,6 +948,29 @@
     return { reportId: reportId, filename: filename, pageCount: doc.internal.getNumberOfPages() };
   }
 
-  window.SlabPDFReport = { generate: generate };
+  // Injects the jsPDF scripts in order, once. Resolves when both have run.
+  let libsPromise = null;
+  function load() {
+    if (window.jspdf && window.jspdf.jsPDF) return Promise.resolve();
+    if (libsPromise) return libsPromise;
+    const libs = (window.SlabPDFConfig && window.SlabPDFConfig.libs) || [];
+    libsPromise = libs.reduce(function (chain, src) {
+      return chain.then(function () {
+        return new Promise(function (resolve, reject) {
+          const s = document.createElement('script');
+          s.src = src;
+          s.onload = resolve;
+          s.onerror = function () { reject(new Error('Failed to load ' + src)); };
+          document.head.appendChild(s);
+        });
+      });
+    }, Promise.resolve()).catch(function (err) {
+      libsPromise = null; // allow a retry on the next click
+      throw err;
+    });
+    return libsPromise;
+  }
+
+  window.SlabPDFReport = { load: load, generate: generate };
 
 })();

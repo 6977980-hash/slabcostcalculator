@@ -157,7 +157,7 @@ if (!defined('ABSPATH')) {
               <label for="calc-gravel-depth" class="calc-label">Gravel Sub-Base Depth</label>
               <div class="calc-input-wrapper has-addon-right">
                 <input type="number" id="calc-gravel-depth" class="calc-control" value="4" step="1">
-                <span class="calc-input-addon-right">inches</span>
+                <span class="calc-input-addon-right unit-thick-label">inches</span>
               </div>
             </div>
           </div>

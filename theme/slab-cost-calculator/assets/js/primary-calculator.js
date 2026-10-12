@@ -295,11 +295,15 @@
     // window.print() behavior rather than doing nothing.
     if (dom.btnPrint) {
       dom.btnPrint.addEventListener('click', function () {
-        if (window.SlabPDFReport && typeof window.SlabPDFReport.generate === 'function') {
-          window.SlabPDFReport.generate(lastResult || computeEstimate());
-        } else {
+        const report = window.SlabPDFReport;
+        if (!report || typeof report.load !== 'function') {
           window.print();
+          return;
         }
+        // jsPDF is fetched on the first click only (see pdf-report.js).
+        report.load()
+          .then(function () { report.generate(lastResult || computeEstimate()); })
+          .catch(function () { window.print(); });
       });
     }
     if (dom.btnCopy) dom.btnCopy.addEventListener('click', copySummaryToClipboard);
@@ -376,14 +380,26 @@
 
     // Materials
     state.materialType = dom.selectMaterialType ? dom.selectMaterialType.value : 'readymix';
-    if (dom.inputReadyMixPrice) state.readyMixPricePerYard = parseFloat(dom.inputReadyMixPrice.value) || 0;
+    // The price box is labelled /yd³ or /m³ by the unit toggle, so store it
+    // in the matching field: computeEstimate() prices metric pours with
+    // readyMixPricePerM3, which used to never receive the typed value.
+    if (dom.inputReadyMixPrice) {
+      const price = parseFloat(dom.inputReadyMixPrice.value) || 0;
+      if (state.unitSystem === 'imperial') state.readyMixPricePerYard = price;
+      else state.readyMixPricePerM3 = price;
+    }
     if (dom.selectBagSize) state.bagSize = dom.selectBagSize.value;
     if (dom.inputBagPrice) state.bagPrice = parseFloat(dom.inputBagPrice.value) || 0;
 
     // Site Prep
     if (dom.chkSitePrep) state.enableSitePrep = dom.chkSitePrep.checked;
     if (dom.inputExcavationCost) state.excavationCostPerSqFt = parseFloat(dom.inputExcavationCost.value) || 0;
-    if (dom.inputGravelDepth) state.gravelDepthInches = parseFloat(dom.inputGravelDepth.value) || 0;
+    // Gravel depth is shown in inches or cm with the unit toggle but kept
+    // in inches in state, which is what computeEstimate() and the PDF use.
+    if (dom.inputGravelDepth) {
+      const depth = parseFloat(dom.inputGravelDepth.value) || 0;
+      state.gravelDepthInches = state.unitSystem === 'imperial' ? depth : parseFloat((depth / 2.54).toFixed(2));
+    }
     if (dom.inputGravelPrice) state.gravelPricePerYard = parseFloat(dom.inputGravelPrice.value) || 0;
     if (dom.chkForms) state.enableForms = dom.chkForms.checked;
     if (dom.inputFormCost) state.formCostPerLinearFt = parseFloat(dom.inputFormCost.value) || 0;
@@ -426,6 +442,9 @@
     if (dom.inputThickness) dom.inputThickness.value = state.thickness;
     if (dom.inputQuantity) dom.inputQuantity.value = state.quantity;
     if (dom.inputWaste) dom.inputWaste.value = state.wastePercent;
+    const isImp = state.unitSystem === 'imperial';
+    if (dom.inputReadyMixPrice) dom.inputReadyMixPrice.value = (isImp ? state.readyMixPricePerYard : state.readyMixPricePerM3).toFixed(2);
+    if (dom.inputGravelDepth) dom.inputGravelDepth.value = isImp ? state.gravelDepthInches : parseFloat((state.gravelDepthInches * 2.54).toFixed(1));
   }
 
   /**
@@ -592,7 +611,9 @@
         gravelCost = gravelYards * state.gravelPricePerYard;
         items.push({
           category: 'base',
-          name: `Compacted Gravel Sub-Base (${state.gravelDepthInches}" depth, ${gravelYards.toFixed(1)} yd³)`,
+          name: isImp
+            ? `Compacted Gravel Sub-Base (${state.gravelDepthInches}" depth, ${gravelYards.toFixed(1)} yd³)`
+            : `Compacted Gravel Sub-Base (${(state.gravelDepthInches * 2.54).toFixed(1)} cm depth, ${(gravelYards * 27 * CUBIC_FEET_TO_CUBIC_METERS).toFixed(1)} m³)`,
           cost: gravelCost,
           qty: gravelYards,
           unit: 'yd³',

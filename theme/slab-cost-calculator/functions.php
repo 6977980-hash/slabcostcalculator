@@ -35,7 +35,11 @@ add_action('after_setup_theme', 'slab_theme_setup');
 
 // 2. Enqueue Styles & Scripts
 function slab_enqueue_assets() {
-    $theme_version = wp_get_theme()->get('Version');
+    // Read the version from the style.css actually being served.
+    // wp_get_theme() always reads wp-content/themes/, which is not the
+    // copy this site runs from (see the Slab Cost Calculator Fixes
+    // plugin), so bumping Version there would never bust asset caches.
+    $theme_version = get_file_data(get_template_directory() . '/style.css', ['Version' => 'Version'])['Version'];
 
     // CSS
     wp_enqueue_style('slab-main-style', get_template_directory_uri() . '/assets/css/main.css', [], $theme_version);
@@ -83,18 +87,21 @@ function slab_enqueue_assets() {
         // runs its DOMContentLoaded handler -- enqueue dependencies below
         // enforce that exact order regardless of each script's own position
         // in the page.
-        wp_enqueue_script('slab-pdf-lib', get_template_directory_uri() . '/assets/js/vendor/jspdf.umd.min.js', [], $theme_version, [
+        //
+        // LAZY PDF LIBRARIES: jsPDF + autoTable (~400KB) are no longer
+        // enqueued on page load. Only their URLs are handed to
+        // pdf-report.js, which injects them the first time the visitor
+        // clicks "Print Estimate" (see SlabPDFReport.load()).
+        wp_enqueue_script('slab-pdf-report', get_template_directory_uri() . '/assets/js/pdf-report.js', [], $theme_version, [
             'in_footer' => true,
             'strategy' => 'defer',
         ]);
-        wp_enqueue_script('slab-pdf-lib-autotable', get_template_directory_uri() . '/assets/js/vendor/jspdf.plugin.autotable.min.js', ['slab-pdf-lib'], $theme_version, [
-            'in_footer' => true,
-            'strategy' => 'defer',
-        ]);
-        wp_enqueue_script('slab-pdf-report', get_template_directory_uri() . '/assets/js/pdf-report.js', ['slab-pdf-lib-autotable'], $theme_version, [
-            'in_footer' => true,
-            'strategy' => 'defer',
-        ]);
+        wp_add_inline_script('slab-pdf-report', 'window.SlabPDFConfig = ' . wp_json_encode([
+            'libs' => [
+                get_template_directory_uri() . '/assets/js/vendor/jspdf.umd.min.js?ver=' . $theme_version,
+                get_template_directory_uri() . '/assets/js/vendor/jspdf.plugin.autotable.min.js?ver=' . $theme_version,
+            ],
+        ]) . ';', 'before');
         wp_enqueue_script('slab-primary-calc', get_template_directory_uri() . '/assets/js/primary-calculator.js', ['slab-pdf-report'], $theme_version, [
             'in_footer' => true,
             'strategy' => 'defer',
@@ -126,3 +133,33 @@ add_filter('excerpt_length', 'slab_custom_excerpt_length', 999);
 function slab_render_breadcrumbs() {
     get_template_part('template-parts/breadcrumbs');
 }
+
+// 6. Author Identity Hardening
+//
+// The site has a single admin account whose login slug ("6977980") was
+// exposed in three places: the public REST users endpoint, core's
+// /wp-sitemap-users-1.xml, and the /author/<slug>/ archive. None of these
+// serve readers (all content is credited to the team via /authors/), so
+// they are closed off here.
+
+// 6a. Drop the users provider from WordPress core's /wp-sitemap.xml.
+add_filter('wp_sitemaps_add_provider', function ($provider, $name) {
+    return $name === 'users' ? false : $provider;
+}, 10, 2);
+
+// 6b. Hide the REST users endpoints from logged-out visitors. Logged-in
+// editors keep them, since the block editor relies on them.
+add_filter('rest_endpoints', function ($endpoints) {
+    if (!is_user_logged_in()) {
+        unset($endpoints['/wp/v2/users'], $endpoints['/wp/v2/users/(?P<id>[\d]+)']);
+    }
+    return $endpoints;
+});
+
+// 6c. 301 author archives (and ?author=N enumeration) to the team page.
+add_action('template_redirect', function () {
+    if (is_author() || (isset($_GET['author']) && !is_admin())) {
+        wp_safe_redirect(home_url('/authors/'), 301);
+        exit;
+    }
+});
