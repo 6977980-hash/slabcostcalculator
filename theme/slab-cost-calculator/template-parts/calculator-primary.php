@@ -41,6 +41,15 @@ if (!defined('ABSPATH')) {
         </div>
       </div>
 
+      <!-- Regional Price Index -->
+      <div class="calc-form-group region-selector-group">
+        <label for="calc-region" class="calc-label">Project Location (Regional Price Index)</label>
+        <select id="calc-region" class="calc-control">
+          <option value="us" selected>U.S. National Average (1.00)</option>
+        </select>
+        <p id="calc-region-note" class="calc-field-note">Picking a location sets the ready-mix, excavation and labor rates below to that area's typical level. You can still type your own local prices afterwards.</p>
+      </div>
+
       <!-- Basic Dimensions Section -->
       <div class="calc-section-label">1. Slab Dimensions &amp; Quantity</div>
       
@@ -229,6 +238,15 @@ if (!defined('ABSPATH')) {
               </select>
             </div>
             <div class="calc-form-group">
+              <label for="calc-rebar-spacing" class="calc-label">Rebar Grid Spacing (on center)</label>
+              <select id="calc-rebar-spacing" class="calc-control">
+                <option value="12">12 in (30 cm)</option>
+                <option value="16">16 in (40 cm)</option>
+                <option value="18" selected>18 in (45 cm)</option>
+                <option value="24">24 in (60 cm)</option>
+              </select>
+            </div>
+            <div class="calc-form-group">
               <label for="calc-reinforce-cost" class="calc-label">Custom Cost Override</label>
               <div class="calc-input-wrapper has-addon-left">
                 <span class="calc-input-addon-left">$</span>
@@ -410,6 +428,7 @@ if (!defined('ABSPATH')) {
           <div><strong id="out-cost-per-sqft">$0.00</strong> / sq. ft.</div>
           <div><strong id="out-cost-per-sqm">$0.00</strong> / m²</div>
         </div>
+        <div id="out-region-tag" class="results-region-tag">Based on U.S. national average rates</div>
       </div>
 
       <!-- Required Materials & Quantities Matrix -->
@@ -492,6 +511,86 @@ if (!defined('ABSPATH')) {
           Reset
         </button>
       </div>
+    </div>
+  </div>
+  <!-- Planning tools: blueprint, bid checker, weather check (assets/js/calculator-tools.js) -->
+  <div id="calc-tools" class="calc-tools">
+    <div class="calc-tools-tabs" role="tablist" aria-label="Slab planning tools">
+      <button type="button" class="calc-tools-tab active" role="tab" id="tab-blueprint" aria-controls="tool-blueprint" aria-selected="true">Slab &amp; Rebar Blueprint</button>
+      <button type="button" class="calc-tools-tab" role="tab" id="tab-bid" aria-controls="tool-bid" aria-selected="false" tabindex="-1">Check My Contractor's Bid</button>
+      <button type="button" class="calc-tools-tab" role="tab" id="tab-weather" aria-controls="tool-weather" aria-selected="false" tabindex="-1">Pour-Day Weather Check</button>
+    </div>
+
+    <!-- Blueprint -->
+    <div id="tool-blueprint" class="calc-tool-panel" role="tabpanel" aria-labelledby="tab-blueprint">
+      <p class="calc-tool-intro">A scaled plan of the slab above: rebar grid at the spacing you chose, support chairs about every 3 to 4 ft, and the recommended control-joint saw cuts (2.5 times the thickness in inches, in feet, capped at 15 ft). It redraws as you change the inputs.</p>
+      <div id="blueprint-wrap" class="blueprint-wrap" aria-live="polite"></div>
+      <div id="blueprint-summary" class="tool-summary-grid"></div>
+      <div class="calc-actions-bar tool-actions">
+        <button type="button" id="btn-blueprint-png" class="calc-action-btn btn-primary">Download Blueprint (PNG)</button>
+      </div>
+    </div>
+
+    <!-- Bid checker -->
+    <div id="tool-bid" class="calc-tool-panel" role="tabpanel" aria-labelledby="tab-bid" hidden>
+      <p class="calc-tool-intro">Enter the total your contractor quoted. We compare it with a benchmark for the same slab and scope you set above: materials at your entered prices plus labor at the regional standard rate, before any overhead or profit. Make sure the scope above (base, rebar, finish, pump, demolition) matches what the bid includes.</p>
+      <div id="bid-scope-line" class="bid-scope-line"></div>
+      <div class="input-grid-2">
+        <div class="calc-form-group">
+          <label for="bid-total" class="calc-label">Total Contractor Quote</label>
+          <div class="calc-input-wrapper has-addon-left">
+            <span class="calc-input-addon-left">$</span>
+            <input type="number" id="bid-total" class="calc-control" min="0" step="50" placeholder="e.g. 5200">
+          </div>
+        </div>
+      </div>
+      <details class="bid-itemized">
+        <summary>Optional: enter the bid's line items to see where the markup sits</summary>
+        <div class="input-grid-2">
+          <div class="calc-form-group">
+            <label for="bid-item-material" class="calc-label">Concrete &amp; reinforcement</label>
+            <div class="calc-input-wrapper has-addon-left"><span class="calc-input-addon-left">$</span><input type="number" id="bid-item-material" class="calc-control" min="0" step="25"></div>
+          </div>
+          <div class="calc-form-group">
+            <label for="bid-item-labor" class="calc-label">Labor (place &amp; finish)</label>
+            <div class="calc-input-wrapper has-addon-left"><span class="calc-input-addon-left">$</span><input type="number" id="bid-item-labor" class="calc-control" min="0" step="25"></div>
+          </div>
+          <div class="calc-form-group">
+            <label for="bid-item-base" class="calc-label">Site prep, base, forms &amp; vapor barrier</label>
+            <div class="calc-input-wrapper has-addon-left"><span class="calc-input-addon-left">$</span><input type="number" id="bid-item-base" class="calc-control" min="0" step="25"></div>
+          </div>
+          <div class="calc-form-group">
+            <label for="bid-item-other" class="calc-label">Other (finish, delivery, pump, demo)</label>
+            <div class="calc-input-wrapper has-addon-left"><span class="calc-input-addon-left">$</span><input type="number" id="bid-item-other" class="calc-control" min="0" step="25"></div>
+          </div>
+        </div>
+      </details>
+      <div id="bid-result" class="bid-result" aria-live="polite"></div>
+    </div>
+
+    <!-- Weather -->
+    <div id="tool-weather" class="calc-tool-panel" role="tabpanel" aria-labelledby="tab-weather" hidden>
+      <p class="calc-tool-intro">Enter the forecast for pour day. The check follows ACI 306R (cold weather) and ACI 305R (hot weather) and estimates the surface evaporation rate that drives plastic shrinkage cracking.</p>
+      <div class="input-grid-3">
+        <div class="calc-form-group">
+          <label for="wx-temp" class="calc-label">Air Temperature (<span class="wx-temp-unit">°F</span>)</label>
+          <input type="number" id="wx-temp" class="calc-control" value="70" step="1">
+        </div>
+        <div class="calc-form-group">
+          <label for="wx-rh" class="calc-label">Relative Humidity (%)</label>
+          <input type="number" id="wx-rh" class="calc-control" value="50" min="0" max="100" step="5">
+        </div>
+        <div class="calc-form-group">
+          <label for="wx-wind" class="calc-label">Wind Speed (<span class="wx-wind-unit">mph</span>)</label>
+          <input type="number" id="wx-wind" class="calc-control" value="10" min="0" step="1">
+        </div>
+      </div>
+      <div class="wx-quick" role="group" aria-label="Quick temperature presets">
+        <button type="button" class="preset-btn" data-wx="cold">Cold day</button>
+        <button type="button" class="preset-btn" data-wx="mild">Mild day</button>
+        <button type="button" class="preset-btn" data-wx="hot">Hot day</button>
+      </div>
+      <div id="wx-result" class="wx-result" aria-live="polite"></div>
     </div>
   </div>
 </div>

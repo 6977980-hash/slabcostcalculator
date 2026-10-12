@@ -37,7 +37,7 @@
     bagSize: '80',
     bagPrice: 6.50,
     readyMixPricePerYard: 150.00,
-    readyMixPricePerM3: 160.00,
+    readyMixPricePerM3: 196.19, // $150/yd³ x 1.30795 yd³ per m³, so both unit modes price the same pour alike
 
     // Site Preparation
     enableSitePrep: false,
@@ -268,8 +268,10 @@
       });
     }
 
-    // All form input changes trigger recalculate
-    const inputs = dom.root.querySelectorAll('input, select');
+    // All form input changes trigger recalculate. Scoped to the main form so
+    // the tool panels below it (bid checker, weather check) don't reset the
+    // preset label every time someone types in them.
+    const inputs = dom.root.querySelectorAll('.calc-body-grid input, .calc-body-grid select');
     inputs.forEach(input => {
       input.addEventListener('input', () => {
         syncStateFromDOM();
@@ -316,12 +318,15 @@
       state.length = parseFloat((state.length * FEET_TO_METERS).toFixed(2));
       state.width = parseFloat((state.width * FEET_TO_METERS).toFixed(2));
       state.thickness = parseFloat((state.thickness * 2.54).toFixed(1)); // in -> cm
+      state.readyMixPricePerM3 = parseFloat((state.readyMixPricePerYard * CUBIC_METERS_TO_CUBIC_YARDS).toFixed(2));
       state.unitSystem = 'metric';
     } else {
-      // Convert Metric to Imperial
-      state.length = parseFloat((state.length / FEET_TO_METERS).toFixed(2));
-      state.width = parseFloat((state.width / FEET_TO_METERS).toFixed(2));
+      // Convert Metric to Imperial. One decimal, so a round trip brings
+      // 20 ft back as 20 ft instead of 20.01 ft (6.10 m / 0.3048).
+      state.length = parseFloat((state.length / FEET_TO_METERS).toFixed(1));
+      state.width = parseFloat((state.width / FEET_TO_METERS).toFixed(1));
       state.thickness = parseFloat((state.thickness / 2.54).toFixed(1)); // cm -> in
+      state.readyMixPricePerYard = parseFloat((state.readyMixPricePerM3 / CUBIC_METERS_TO_CUBIC_YARDS).toFixed(2));
       state.unitSystem = 'imperial';
     }
 
@@ -858,7 +863,9 @@
         generatedAt: new Date(),
         unitSystem: state.unitSystem,
         presetKey: activePresetKey,
-        presetName: activePresetName
+        presetName: activePresetName,
+        // Set by assets/js/calculator-tools.js when a region is picked.
+        region: window.SlabCalculatorRegion || null
       },
       inputsSnapshot: JSON.parse(JSON.stringify(state)),
       isImperial: isImp,
@@ -981,6 +988,9 @@
     const result = computeEstimate();
     lastResult = result;
     updateDOM(result);
+    // Lets calculator-tools.js redraw the blueprint and re-grade the bid
+    // from the same result object the dashboard just painted.
+    document.dispatchEvent(new CustomEvent('slabcalc:updated', { detail: result }));
   }
 
   function updateCostDistributionBar(items, total) {

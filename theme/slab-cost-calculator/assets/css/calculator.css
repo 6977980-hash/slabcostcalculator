@@ -556,6 +556,267 @@ select.calc-control {
   margin-bottom: 1.25rem;
 }
 
+/* ==========================================================================
+   PLANNING TOOLS: region index, blueprint, bid checker, weather check
+   ========================================================================== */
+
+.calc-field-note {
+  font-size: 0.78rem;
+  color: var(--slate-500);
+  margin: 0.35rem 0 0;
+  line-height: 1.45;
+}
+
+.region-selector-group {
+  margin-bottom: 1.5rem;
+}
+
+/* Long region names must not widen the grid column on phones. */
+.calc-body-grid > * {
+  min-width: 0;
+}
+
+#calc-region {
+  max-width: 100%;
+  text-overflow: ellipsis;
+}
+
+.results-region-tag {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--slate-400);
+}
+
+.results-region-tag.is-adjusted {
+  color: #fbbf24;
+}
+
+.calc-tools {
+  border-top: 1px solid var(--slate-200);
+  background: #ffffff;
+}
+
+.calc-tools-tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.75rem 2rem 0;
+  background: var(--slate-50);
+  border-bottom: 1px solid var(--slate-200);
+  flex-wrap: wrap;
+}
+
+.calc-tools-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  padding: 0.65rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--slate-500);
+  cursor: pointer;
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+
+.calc-tools-tab:hover {
+  color: var(--slate-900);
+}
+
+.calc-tools-tab.active {
+  background: #ffffff;
+  border-color: var(--slate-200);
+  color: var(--primary-700);
+}
+
+.calc-tool-panel {
+  padding: 1.5rem 2rem 2rem;
+}
+
+.calc-tool-intro {
+  font-size: 0.875rem;
+  color: var(--slate-600);
+  margin: 0 0 1.25rem;
+  line-height: 1.55;
+}
+
+.blueprint-wrap {
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  padding: 0.5rem;
+  overflow: hidden;
+}
+
+.blueprint-wrap svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.tool-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.tool-card-value {
+  font-size: 1.05rem;
+}
+
+.tool-actions {
+  margin-top: 0.5rem;
+}
+
+.tool-actions .calc-action-btn {
+  flex: 0 1 auto;
+}
+
+/* Bid checker */
+.bid-scope-line {
+  font-size: 0.8125rem;
+  color: var(--slate-600);
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.bid-itemized {
+  margin-bottom: 1rem;
+}
+
+.bid-itemized summary {
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--primary-700);
+  margin-bottom: 0.75rem;
+}
+
+.bid-grade {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius-full);
+  margin-bottom: 1rem;
+}
+
+.bid-grade-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.bid-grade.tier-low { background: #e0f2fe; color: #0369a1; }
+.bid-grade.tier-great { background: #dcfce7; color: #15803d; }
+.bid-grade.tier-fair { background: #fef9c3; color: #a16207; }
+.bid-grade.tier-premium { background: #ffedd5; color: #c2410c; }
+.bid-grade.tier-over { background: #fee2e2; color: #b91c1c; }
+
+.bid-meter {
+  position: relative;
+  display: flex;
+  height: 14px;
+  border-radius: var(--radius-full);
+  overflow: visible;
+}
+
+.bid-zone { flex: 1; }
+.bid-zone:first-child { border-radius: 9999px 0 0 9999px; }
+.bid-zone:nth-child(5) { border-radius: 0 9999px 9999px 0; }
+.bid-zone.tier-low { background: #7dd3fc; }
+.bid-zone.tier-great { background: #4ade80; }
+.bid-zone.tier-fair { background: #facc15; }
+.bid-zone.tier-premium { background: #fb923c; }
+.bid-zone.tier-over { background: #f87171; }
+
+.bid-marker {
+  position: absolute;
+  top: -5px;
+  width: 4px;
+  height: 24px;
+  margin-left: -2px;
+  background: var(--slate-900);
+  border-radius: 2px;
+  box-shadow: 0 0 0 2px #ffffff;
+}
+
+.bid-meter-labels {
+  position: relative;
+  height: 2.4rem;
+  font-size: 0.7rem;
+  color: var(--slate-500);
+  margin: 0.35rem 0 0.75rem;
+}
+
+.bid-meter-labels span {
+  position: absolute;
+  transform: translateX(-50%);
+  text-align: center;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.bid-verdict {
+  font-size: 0.9rem;
+  color: var(--slate-700);
+  line-height: 1.55;
+  margin: 0.5rem 0 1rem;
+}
+
+.bid-table {
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--slate-200);
+}
+
+.bid-table .bid-flag {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+/* Weather check */
+.wx-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.wx-notice {
+  border-left: 4px solid var(--slate-400);
+  background: var(--slate-50);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.wx-notice strong {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--slate-900);
+  margin-bottom: 0.25rem;
+}
+
+.wx-notice p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--slate-700);
+  line-height: 1.55;
+}
+
+.wx-notice.wx-good { border-color: #16a34a; background: #f0fdf4; }
+.wx-notice.wx-cool { border-color: #d97706; background: #fffbeb; }
+.wx-notice.wx-cold { border-color: #2563eb; background: #eff6ff; }
+.wx-notice.wx-hot { border-color: #dc2626; background: #fef2f2; }
+
 /* Responsive Breakpoints */
 @media (max-width: 900px) {
   .calc-body-grid {
@@ -567,6 +828,12 @@ select.calc-control {
     padding: 1.25rem;
   }
   .calc-results-col {
+    padding: 1.25rem;
+  }
+  .calc-tools-tabs {
+    padding: 0.75rem 1.25rem 0;
+  }
+  .calc-tool-panel {
     padding: 1.25rem;
   }
 }

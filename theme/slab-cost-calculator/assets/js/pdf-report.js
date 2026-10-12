@@ -263,6 +263,9 @@
       ['Unit System', r.isImperial ? 'Imperial (ft / in / cu yd)' : 'Metric (m / cm / cu m)'],
       ['Project Type / Preset', r.meta.presetName || 'Custom Project (manually specified dimensions)']
     ];
+    if (r.meta.region && r.meta.region.index !== 1) {
+      metaRows.push(['Regional Cost Index', `${r.meta.region.name} (x${r.meta.region.index.toFixed(2)} on ready-mix, excavation & labor)`]);
+    }
     kvTable(ctx, metaRows);
 
     ctx.y += 6;

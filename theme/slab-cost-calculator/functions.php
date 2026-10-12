@@ -106,6 +106,12 @@ function slab_enqueue_assets() {
             'in_footer' => true,
             'strategy' => 'defer',
         ]);
+        // Region index, blueprint, bid checker and weather check. Listens
+        // for the engine's slabcalc:updated event, so it loads after it.
+        wp_enqueue_script('slab-calculator-tools', get_template_directory_uri() . '/assets/js/calculator-tools.js', ['slab-primary-calc'], $theme_version, [
+            'in_footer' => true,
+            'strategy' => 'defer',
+        ]);
         wp_enqueue_script('slab-supporting-calcs', get_template_directory_uri() . '/assets/js/supporting-calculators.js', ['slab-primary-calc'], $theme_version, [
             'in_footer' => true,
             'strategy' => 'defer',
