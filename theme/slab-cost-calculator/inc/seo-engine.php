@@ -345,7 +345,7 @@ class Slab_SEO_Engine {
 
         if (is_paged()) {
             // Page 2+ points to itself, not page 1: it lists different posts.
-            return get_pagenum_link(max(1, (int) get_query_var('paged')));
+            return strtok(get_pagenum_link(max(1, (int) get_query_var('paged'))), '?');
         }
 
         if (is_front_page()) {
