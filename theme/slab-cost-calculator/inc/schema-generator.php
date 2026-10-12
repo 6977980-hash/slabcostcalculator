@@ -113,7 +113,9 @@ class Slab_Schema_Generator {
                 'Civil Construction Engineering',
                 'Concrete Mix Design',
                 'Building Cost Estimation',
-                'Slab Reinforcement Calculations'
+                'Slab Reinforcement Calculations',
+                'ACI 302.1R Concrete Floor and Slab Construction',
+                'ASTM C94 Ready-Mixed Concrete'
             ]
         ];
     }
@@ -232,10 +234,18 @@ class Slab_Schema_Generator {
             ],
             'datePublished' => get_the_date('c'),
             'dateModified' => get_the_modified_date('c'),
+            // Articles are written by the site's editorial team, not a named
+            // individual, so credit the team as an Organization instead of a
+            // Person named after the WordPress login ("Team-SlabCostCalculator").
             'author' => [
-                '@type' => 'Person',
-                'name' => get_the_author_meta('display_name', $post->post_author),
-                'url' => home_url('/authors/')
+                '@type' => 'Organization',
+                'name' => 'Slab Cost Calculator Editorial Team',
+                'url' => home_url('/authors/'),
+                'parentOrganization' => ['@id' => home_url('/#organization')]
+            ],
+            'citation' => [
+                ['@type' => 'CreativeWork', 'name' => 'ACI 302.1R: Guide for Concrete Floor and Slab Construction', 'publisher' => 'American Concrete Institute'],
+                ['@type' => 'CreativeWork', 'name' => 'ASTM C94: Standard Specification for Ready-Mixed Concrete', 'publisher' => 'ASTM International']
             ],
             'publisher' => [
                 '@id' => home_url('/#organization')
