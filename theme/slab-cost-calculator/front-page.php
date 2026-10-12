@@ -140,7 +140,7 @@ get_header();
 
         <h3>9. Delivery Charges &amp; Pump Rental</h3>
         <p>
-          Transit mixer suppliers often impose an environmental or short-load fee of <strong>$100 to $200</strong> on orders smaller than 5 to 6 cubic yards. If the concrete truck cannot park within 15 to 20 feet of the forms due to fences, landscaping, or steep terrain, a trailer line pump or boom pump truck must be rented for <strong>$600 to $1,200 per pour</strong>.
+          Transit mixer suppliers often add a short-load fee of <strong>$80 to $200</strong> on orders below their minimum, commonly 5 to 6 cubic yards (<a href="#ready-mix-short-load-fee">fee breakdown</a>). If the concrete truck cannot park within 15 to 20 feet of the forms due to fences, landscaping, or steep terrain, a trailer line pump or boom pump truck must be rented for <strong>$600 to $1,200 per pour</strong> (<a href="#concrete-pump-cost">line vs. boom pump</a>).
         </p>
 
         <h2>Concrete Slab Cost by Size (Reference Matrix)</h2>
@@ -257,6 +257,8 @@ get_header();
           <li><strong>Permits &amp; Inspections:</strong> Municipal flatwork or building permits range from $50 to $350 depending on local jurisdiction.</li>
         </ul>
 
+        <?php get_template_part('template-parts/cost-factor-guides'); ?>
+
         <!-- Latest Estimating Guides & Cost Articles Section -->
         <section style="margin: 3.5rem 0;">
           <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; border-bottom: 2px solid var(--slate-200); padding-bottom: 0.75rem;">
@@ -357,6 +359,17 @@ get_header();
               Yes. A 4-inch to 6-inch compacted crushed stone or gravel base provides uniform subgrade support, facilitates water drainage away from the slab, and dramatically reduces cracking caused by soil settling or freeze-thaw frost heave.
             </div>
           </div>
+
+          <?php foreach (Slab_Schema_Generator::get_cost_factor_faqs() as $faq) : ?>
+          <div class="faq-item">
+            <button type="button" class="faq-question" aria-expanded="false">
+              <?php echo esc_html($faq['q']); ?>
+            </button>
+            <div class="faq-answer">
+              <?php echo esc_html($faq['a']); ?>
+            </div>
+          </div>
+          <?php endforeach; ?>
         </section>
 
         <!-- Author / Review Team Component -->
@@ -465,6 +478,17 @@ get_header();
                 <span>&rarr;</span>
               </a>
             </li>
+          </ul>
+        </div>
+
+        <div class="sidebar-widget">
+          <div class="widget-title">Cost Factor Guides</div>
+          <ul class="calculator-nav-list">
+            <li class="calculator-nav-item"><a href="#concrete-cost-by-psi">Concrete Cost by PSI</a></li>
+            <li class="calculator-nav-item"><a href="#concrete-pump-cost">Line vs. Boom Pump Cost</a></li>
+            <li class="calculator-nav-item"><a href="#ready-mix-short-load-fee">Ready-Mix Short Load Fee</a></li>
+            <li class="calculator-nav-item"><a href="#monolithic-vs-floating-slab">Monolithic vs. Floating Slab</a></li>
+            <li class="calculator-nav-item"><a href="#control-joint-spacing">Control Joint Spacing &amp; Timing</a></li>
           </ul>
         </div>
 

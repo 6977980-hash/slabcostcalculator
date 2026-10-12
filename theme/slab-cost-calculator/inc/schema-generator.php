@@ -290,7 +290,7 @@ class Slab_Schema_Generator {
         return [
             '@context' => 'https://schema.org',
             '@type' => 'FAQPage',
-            'mainEntity' => [
+            'mainEntity' => array_merge([
                 [
                     '@type' => 'Question',
                     'name' => 'How much does a 10x10 concrete slab cost?',
@@ -331,7 +331,46 @@ class Slab_Schema_Generator {
                         'text' => 'Yes. A 4-inch to 6-inch compacted crushed stone or gravel base provides uniform subgrade support, facilitates water drainage away from the slab, and dramatically reduces cracking caused by soil settling or freeze-thaw frost heave.'
                     ]
                 ]
-            ]
+            ], array_map(function ($faq) {
+                return [
+                    '@type' => 'Question',
+                    'name' => $faq['q'],
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => $faq['a']
+                    ]
+                ];
+            }, self::get_cost_factor_faqs()))
+        ];
+    }
+
+    /**
+     * FAQs for the cost factor sections (template-parts/cost-factor-guides.php).
+     * front-page.php renders these same entries in its visible FAQ, so the
+     * schema and the page cannot drift apart.
+     */
+    public static function get_cost_factor_faqs() {
+        return [
+            [
+                'q' => 'How much more does 4000 PSI concrete cost than 3000 PSI?',
+                'a' => 'Each 500-PSI step usually adds about $4 to $10 per cubic yard, so 4000 PSI runs roughly $8 to $20 more per yard than 3000 PSI. On a 20x20 ft, 4-inch slab (5.43 cubic yards with waste) that is about $45 to $110 in total. The IRC calls for at least 3500 PSI air-entrained concrete for garage floors, porches and steps in severe-weathering regions.'
+            ],
+            [
+                'q' => 'How much does a concrete pump cost for a slab?',
+                'a' => 'Most residential pours cost $600 to $1,200 to pump. A line (trailer) pump runs about $100 to $175 per hour with a 2 to 4 hour minimum, typically $400 to $800 per pour. A boom pump runs about $150 to $350 per hour with a 3 to 4 hour minimum, typically $900 to $1,800 or more. A pump is needed when the truck cannot park within about 15 to 20 feet of the forms.'
+            ],
+            [
+                'q' => 'What is a short load fee for ready-mix concrete?',
+                'a' => 'It is a charge for ordering less than the plant\'s minimum load, usually set between 4 and 10 cubic yards. Suppliers charge either a flat $80 to $200 per load or $30 to $45 for each yard short of the minimum. For a 10x10 ft, 4-inch slab, 1.5 cubic yards at $150 plus a $120 short-load fee comes to about $345, compared with $403 for 62 bags of 80-lb mix.'
+            ],
+            [
+                'q' => 'Is a monolithic slab more expensive than a floating slab?',
+                'a' => 'Yes. A monolithic slab adds a thickened edge footing, usually 12 inches wide and 12 to 18 inches deep, with two continuous #4 bars. On a 24x24 ft, 4-inch garage slab that adds about 2.5 to 4.4 cubic yards of concrete with waste, or roughly $625 to $1,400 including rebar and trenching. Under IRC R403.1.4.1 a detached light-frame accessory building of 600 square feet or less with eaves of 10 feet or lower can usually sit on a floating slab.'
+            ],
+            [
+                'q' => 'How far apart should control joints be in a 4-inch concrete slab?',
+                'a' => 'Space control joints 2 to 3 times the slab thickness in inches, in feet, so a 4-inch slab gets joints every 8 to 10 feet and never more than 12 feet. Cut them 1 inch deep (one quarter of the thickness), typically 4 to 12 hours after finishing with a conventional wet saw, or 1 to 4 hours with an early-entry saw. A 20x20 ft slab jointed at 10 feet needs 40 linear feet of cuts.'
+            ],
         ];
     }
 }
