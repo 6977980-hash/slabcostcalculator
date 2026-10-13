@@ -128,7 +128,7 @@ $sd = Slab_Data::all();
         <p>Formulas for volume, bags, rebar and joints are on the <a href="<?php echo esc_url(home_url('/methodology/')); ?>">methodology page</a>.</p>
 
         <h2 id="data">Download &amp; Cite</h2>
-        <p>The full data, including every size and every state, is in one CSV file: <a href="<?php echo esc_url(home_url(Slab_Price_Report::csv_path())); ?>"><?php echo esc_html(ltrim(Slab_Price_Report::csv_path(), '/')); ?></a>. You may reuse it under the <a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener license" target="_blank">Creative Commons Attribution 4.0</a> license: credit SlabCostCalculator.com and link to this page.</p>
+        <p>The full data, including every size and every state, is in one CSV file: <a href="<?php echo esc_url(home_url(Slab_Price_Report::csv_path())); ?>">concrete-price-report-<?php echo esc_html(Slab_Price_Report::YEAR); ?>.csv</a>. You may reuse it under the <a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener license" target="_blank">Creative Commons Attribution 4.0</a> license: credit SlabCostCalculator.com and link to this page.</p>
         <p><strong>Suggested citation:</strong></p>
         <blockquote class="report-citation"><p><?php echo esc_html(Slab_Price_Report::citation()); ?></p></blockquote>
         <p>Want the calculator itself on your site? See <a href="<?php echo esc_url(home_url(Slab_Embed_Widget::info_path())); ?>">embed our concrete calculator</a>.</p>

@@ -33,7 +33,7 @@ class Slab_Architecture_Router {
      * manual step required.
      */
     public static function maybe_flush_rewrite_rules() {
-        $marker = 'phase7-report-states-embed-v1';
+        $marker = 'phase7-report-states-embed-v2';
         if (get_option('slab_rewrite_rules_version') !== $marker) {
             flush_rewrite_rules();
             update_option('slab_rewrite_rules_version', $marker);
@@ -90,7 +90,9 @@ class Slab_Architecture_Router {
         // 10. Price report and its CSV, the embeddable calculator and its
         // info page (inc/price-report.php, inc/embed-widget.php).
         add_rewrite_rule('^concrete-price-report/?$', 'index.php?slab_route=price_report', 'top');
-        add_rewrite_rule('^concrete-price-report\.csv$', 'index.php?slab_route=price_report_csv', 'top');
+        // The server answers missing *.csv paths itself, so the CSV lives at
+        // /concrete-price-report/csv/ (sent with a .csv file name).
+        add_rewrite_rule('^concrete-price-report/csv/?$', 'index.php?slab_route=price_report_csv', 'top');
         add_rewrite_rule('^embed-concrete-calculator/?$', 'index.php?slab_route=embed_info', 'top');
         add_rewrite_rule('^embed/concrete-calculator/?$', 'index.php?slab_route=embed_frame', 'top');
 

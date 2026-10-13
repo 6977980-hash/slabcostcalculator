@@ -120,7 +120,7 @@ input:focus,select:focus{outline:2px solid #2563eb;outline-offset:1px}
 .n{font-size:12px;color:#4b5563}
 .f{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-top:12px;font-size:12px;color:#4b5563}
 a{color:#1d4ed8}
-@media (max-width:420px){.g{grid-template-columns:1fr 1fr}.g div:last-child{grid-column:1/-1}.r{grid-template-columns:1fr}}
+@media (max-width:480px){.w{padding:12px}.g,.r{gap:8px}label{font-size:11px}input,select{padding:7px 8px}.c{padding:8px 10px}.v{font-size:16px}.n{font-size:11px}}
 </style>
 </head>
 <body>

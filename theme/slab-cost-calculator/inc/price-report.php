@@ -4,7 +4,7 @@
  *
  * One page that sets out every price the site uses, the installed costs
  * they add up to, and how they are derived, with the same figures as a
- * downloadable CSV (/concrete-price-report.csv) so other sites and AI
+ * downloadable CSV (/concrete-price-report/csv/) so other sites and AI
  * answers can cite one stable source. Every number comes from Slab_Data.
  *
  * The figures are modelled estimates, not survey results, and the page
@@ -23,8 +23,7 @@ class Slab_Price_Report {
     const YEAR = '2026';
 
     public static function init() {
-        // Before redirect_canonical (priority 10), so the .csv URL is never
-        // given a trailing slash.
+        // Before redirect_canonical (priority 10) and the theme templates.
         add_action('template_redirect', [__CLASS__, 'serve_csv'], 0);
     }
 
@@ -33,7 +32,7 @@ class Slab_Price_Report {
     }
 
     public static function csv_path() {
-        return '/concrete-price-report.csv';
+        return '/concrete-price-report/csv/';
     }
 
     public static function title() {
@@ -158,14 +157,14 @@ class Slab_Price_Report {
         ];
     }
 
-    /** /concrete-price-report.csv */
+    /** /concrete-price-report/csv/ */
     public static function serve_csv() {
         if (get_query_var('slab_route') !== 'price_report_csv') {
             return;
         }
         nocache_headers();
         header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: inline; filename="concrete-price-report-' . self::YEAR . '.csv"');
+        header('Content-Disposition: attachment; filename="concrete-price-report-' . self::YEAR . '.csv"');
         header('Link: <' . home_url(self::path()) . '>; rel="canonical"');
         header('X-Robots-Tag: noindex');
         echo self::csv();
