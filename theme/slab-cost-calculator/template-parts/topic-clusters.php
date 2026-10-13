@@ -42,6 +42,8 @@ $clusters = [
         'links' => array_merge($size_links, [
             ['/concrete-cost-per-square-foot-pricing-matrix/', 'Cost per square foot', ''],
             ['/concrete-cost-per-cubic-yard-pricing-explained/', 'Cost per cubic yard', ''],
+            ['/concrete-slab-cost-by-state/', 'Cost by state', '50 states'],
+            ['/concrete-price-report/', '2026 concrete price report', 'Data'],
         ]),
     ],
     [

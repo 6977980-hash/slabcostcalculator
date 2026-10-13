@@ -158,7 +158,7 @@ $sd = Slab_Data::all();
 
       <h2>9. Pricing Data Sourcing &amp; Regional Indexing</h2>
       <p>
-        Our default price points represent quarterly aggregated median values from nationwide ready-mix producers, building supply houses (Home Depot, Lowe's, White Cap), and regional concrete flatwork contractor bid sheets. We intentionally allow full user customization of every rate because local supply market dynamics vary.
+        Default prices are editorial estimates of typical U.S. prices, kept in one data file that the calculator and every page read. They are not averages from a survey of contractors or suppliers. Picking a location applies an approximate location factor (U.S. average = 1.00) to ready-mix, excavation and labor. Every rate can be changed in the calculator, because local prices vary. All default prices and location factors are listed in the <a href="<?php echo esc_url(home_url('/concrete-price-report/')); ?>">2026 concrete price report</a> and the <a href="<?php echo esc_url(home_url('/concrete-slab-cost-by-state/')); ?>">state price table</a>.
       </p>
 
       <h2>10. Platform Limitations &amp; Safety Disclaimers</h2>

@@ -255,6 +255,51 @@ class Slab_Data {
                 'fast_set_minutes' => [20, 40],     // set time before the next step (bracing off, fence boards on after ~4 h)
                 'fast_set_hold_h' => 4,
             ],
+            // Location factors (U.S. national average = 1.00) for the
+            // calculator's location selector, the state pages and the price
+            // report. Approximate figures set by the site's editors for
+            // typical construction cost differences, weighted toward each
+            // state's main metro areas; not measured prices for each place.
+            // Picking a location scales ready-mix ($/yd³), excavation and
+            // labor; other materials stay at national prices.
+            'locations' => [
+                // key => [name, factor, state code]
+                'metros' => [
+                    'nyc' => ['New York City metro, NY', 1.35, 'NY'],
+                    'sf' => ['San Francisco Bay Area, CA', 1.35, 'CA'],
+                    'la' => ['Los Angeles metro, CA', 1.20, 'CA'],
+                    'bos' => ['Boston metro, MA', 1.22, 'MA'],
+                    'chi' => ['Chicago metro, IL', 1.22, 'IL'],
+                    'sea' => ['Seattle metro, WA', 1.12, 'WA'],
+                    'dc' => ['Washington, DC metro', 1.05, 'DC'],
+                    'den' => ['Denver metro, CO', 0.97, 'CO'],
+                    'hou' => ['Houston metro, TX', 0.87, 'TX'],
+                    'dal' => ['Dallas-Fort Worth, TX', 0.88, 'TX'],
+                    'atl' => ['Atlanta metro, GA', 0.90, 'GA'],
+                    'mia' => ['Miami metro, FL', 0.92, 'FL'],
+                    'phx' => ['Phoenix metro, AZ', 0.90, 'AZ'],
+                ],
+                // code => [name, factor]
+                'states' => [
+                    'AL' => ['Alabama', 0.86], 'AK' => ['Alaska', 1.22], 'AZ' => ['Arizona', 0.90],
+                    'AR' => ['Arkansas', 0.85], 'CA' => ['California', 1.25], 'CO' => ['Colorado', 0.95],
+                    'CT' => ['Connecticut', 1.12], 'DE' => ['Delaware', 1.03], 'DC' => ['District of Columbia', 1.05],
+                    'FL' => ['Florida', 0.88], 'GA' => ['Georgia', 0.88], 'HI' => ['Hawaii', 1.25],
+                    'ID' => ['Idaho', 0.92], 'IL' => ['Illinois', 1.10], 'IN' => ['Indiana', 0.93],
+                    'IA' => ['Iowa', 0.94], 'KS' => ['Kansas', 0.90], 'KY' => ['Kentucky', 0.90],
+                    'LA' => ['Louisiana', 0.86], 'ME' => ['Maine', 0.95], 'MD' => ['Maryland', 0.98],
+                    'MA' => ['Massachusetts', 1.18], 'MI' => ['Michigan', 0.98], 'MN' => ['Minnesota', 1.05],
+                    'MS' => ['Mississippi', 0.84], 'MO' => ['Missouri', 0.98], 'MT' => ['Montana', 0.93],
+                    'NE' => ['Nebraska', 0.90], 'NV' => ['Nevada', 1.02], 'NH' => ['New Hampshire', 1.00],
+                    'NJ' => ['New Jersey', 1.15], 'NM' => ['New Mexico', 0.88], 'NY' => ['New York (statewide)', 1.20],
+                    'NC' => ['North Carolina', 0.88], 'ND' => ['North Dakota', 0.92], 'OH' => ['Ohio', 0.95],
+                    'OK' => ['Oklahoma', 0.86], 'OR' => ['Oregon', 1.03], 'PA' => ['Pennsylvania', 1.02],
+                    'RI' => ['Rhode Island', 1.10], 'SC' => ['South Carolina', 0.87], 'SD' => ['South Dakota', 0.88],
+                    'TN' => ['Tennessee', 0.88], 'TX' => ['Texas', 0.87], 'UT' => ['Utah', 0.92],
+                    'VT' => ['Vermont', 0.95], 'VA' => ['Virginia', 0.92], 'WA' => ['Washington', 1.08],
+                    'WV' => ['West Virginia', 0.95], 'WI' => ['Wisconsin', 1.00], 'WY' => ['Wyoming', 0.90],
+                ],
+            ],
             // Concrete steps (steps calculator). IRC R311.7: riser 7-3/4 in max,
             // tread 10 in min, stair 36 in wide min, landing 36 in deep.
             'steps' => [
@@ -363,7 +408,7 @@ class Slab_Data {
      *    forms, vapor barrier, #4 rebar @ 18 in, broom finish, $5/sq ft labor.
      *    This is the Bid Checker benchmark ("fair" direct cost).
      */
-    public static function estimate($l, $w, $t, $scope = 'full') {
+    public static function estimate($l, $w, $t, $scope = 'full', $index = 1.0) {
         $d = self::all();
         $area = $l * $w;
         $perim = 2 * ($l + $w);
@@ -380,13 +425,15 @@ class Slab_Data {
             'bags80' => self::bags($order_cuft, '80'),
             'bags60' => self::bags($order_cuft, '60'),
         ];
-        $out['ready_mix'] = $order_yd * $d['concrete']['ready_mix_default'] + $d['delivery']['fee_default'];
+        // A location factor scales the ready-mix price and labor, as the
+        // calculator's location selector does (delivery fee unchanged).
+        $out['ready_mix'] = $order_yd * $d['concrete']['ready_mix_default'] * $index + $d['delivery']['fee_default'];
         $out['bagged'] = $out['bags80'] * $d['concrete']['bag_price_default'];
         $out['forms'] = $perim * $d['site']['forms_default'];
         $out['vapor'] = $area * $d['site']['vapor_default'];
         $out['rebar'] = $area * $d['reinforcement']['rebar_default'];
         $out['broom'] = $area * $d['finish']['broom']['default'];
-        $out['labor'] = $area * ($scope === 'basic' ? $d['labor']['sqft_range'][0] : $d['labor']['sqft_default']);
+        $out['labor'] = $area * ($scope === 'basic' ? $d['labor']['sqft_range'][0] : $d['labor']['sqft_default']) * $index;
 
         $out['direct'] = $out['ready_mix'] + $out['forms'] + $out['broom'] + $out['labor'];
         if ($scope === 'full') {
@@ -404,9 +451,9 @@ class Slab_Data {
      * DIY materials: low = cheaper of ready-mix or bags + forms; high = that
      * plus vapor barrier and rebar.
      */
-    public static function size_costs($l, $w, $t = 4) {
-        $basic = self::estimate($l, $w, $t, 'basic');
-        $full = self::estimate($l, $w, $t, 'full');
+    public static function size_costs($l, $w, $t = 4, $index = 1.0) {
+        $basic = self::estimate($l, $w, $t, 'basic', $index);
+        $full = self::estimate($l, $w, $t, 'full', $index);
         $concrete = min($full['ready_mix'], $full['bagged']);
         $diy_lo = $concrete + $full['forms'];
         $diy_hi = $diy_lo + $full['vapor'] + $full['rebar'];
@@ -730,6 +777,29 @@ class Slab_Data {
         ];
     }
 
+    /* ------------------------------ locations ----------------------------- */
+
+    /** Every state and DC: code => ['name' => ..., 'index' => ...], A to Z by name. */
+    public static function states() {
+        $out = [];
+        foreach (self::get('locations.states') as $code => $s) {
+            $out[$code] = ['code' => $code, 'name' => preg_replace('/ \(statewide\)$/', '', $s[0]), 'index' => $s[1]];
+        }
+        uasort($out, function ($a, $b) {
+            return strcmp($a['name'], $b['name']);
+        });
+        return $out;
+    }
+
+    /** Metro areas: key => ['name', 'index', 'state']. */
+    public static function metros() {
+        $out = [];
+        foreach (self::get('locations.metros') as $key => $m) {
+            $out[$key] = ['key' => $key, 'name' => $m[0], 'index' => $m[1], 'state' => $m[2]];
+        }
+        return $out;
+    }
+
     /** Settings handed to the calculators as window.SLAB_DATA. */
     public static function js_config() {
         $d = self::all();
@@ -814,6 +884,13 @@ class Slab_Data {
             'presets' => array_map(function ($p) {
                 return ['l' => $p[0], 'w' => $p[1], 't' => $p[2], 'name' => $p[3]];
             }, $d['presets']),
+            // Location selector: [key, name, factor] rows.
+            'metros' => array_map(function ($k, $m) {
+                return [$k, $m[0], $m[1]];
+            }, array_keys($d['locations']['metros']), $d['locations']['metros']),
+            'states' => array_map(function ($k, $s) {
+                return [$k, $s[0], $s[1]];
+            }, array_keys($d['locations']['states']), $d['locations']['states']),
         ];
     }
 }

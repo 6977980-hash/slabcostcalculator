@@ -33,7 +33,7 @@ class Slab_Architecture_Router {
      * manual step required.
      */
     public static function maybe_flush_rewrite_rules() {
-        $marker = 'phase6-sizes-tools-v1';
+        $marker = 'phase7-report-states-embed-v1';
         if (get_option('slab_rewrite_rules_version') !== $marker) {
             flush_rewrite_rules();
             update_option('slab_rewrite_rules_version', $marker);
@@ -81,6 +81,18 @@ class Slab_Architecture_Router {
         // 8. Tool pages without a Page row: fence posts, steps, bags vs.
         // ready-mix (inc/tool-pages.php).
         add_rewrite_rule(Slab_Tool_Pages::route_regex(), 'index.php?slab_route=tool_page&slab_slug=$matches[1]', 'top');
+
+        // 9. State prices: /concrete-slab-cost-by-state/ and one page per
+        // state that has its own notes (/texas-concrete-slab-cost/).
+        add_rewrite_rule('^concrete-slab-cost-by-state/?$', 'index.php?slab_route=state_hub', 'top');
+        add_rewrite_rule(Slab_State_Pages::route_regex(), 'index.php?slab_route=state_page&slab_slug=$matches[1]', 'top');
+
+        // 10. Price report and its CSV, the embeddable calculator and its
+        // info page (inc/price-report.php, inc/embed-widget.php).
+        add_rewrite_rule('^concrete-price-report/?$', 'index.php?slab_route=price_report', 'top');
+        add_rewrite_rule('^concrete-price-report\.csv$', 'index.php?slab_route=price_report_csv', 'top');
+        add_rewrite_rule('^embed-concrete-calculator/?$', 'index.php?slab_route=embed_info', 'top');
+        add_rewrite_rule('^embed/concrete-calculator/?$', 'index.php?slab_route=embed_frame', 'top');
 
         // Register Query Vars
         add_rewrite_tag('%slab_route%', '([^&]+)');
@@ -193,6 +205,10 @@ class Slab_Architecture_Router {
             'size_hub'  => 'page-templates/template-size-hub.php',
             'size_page' => 'page-templates/template-size-page.php',
             'tool_page' => 'page-templates/template-tool-page.php',
+            'state_hub' => 'page-templates/template-state-hub.php',
+            'state_page' => 'page-templates/template-state-page.php',
+            'price_report' => 'page-templates/template-price-report.php',
+            'embed_info' => 'page-templates/template-embed-info.php',
         ];
         if (isset($routed[$route]) && Slab_SEO_Engine::get_slab_hub_info()) {
             $new_template = locate_template([$routed[$route]]);

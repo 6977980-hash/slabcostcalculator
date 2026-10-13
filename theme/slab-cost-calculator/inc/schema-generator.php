@@ -35,7 +35,7 @@ class Slab_Schema_Generator {
         // get the homepage's FAQPage and SoftwareApplication. They are
         // listing pages: a breadcrumb and a CollectionPage, nothing more.
         $hub = Slab_SEO_Engine::get_slab_hub_info();
-        if ($hub && isset($hub['type']) && in_array($hub['type'], ['size', 'collection'], true)) {
+        if ($hub && isset($hub['type']) && in_array($hub['type'], ['size', 'collection', 'report'], true)) {
             // Slab size pages and the size hub: the page, its breadcrumb and
             // the FAQ it shows (inc/size-pages.php).
             $url = home_url($hub['path']);
@@ -51,6 +51,33 @@ class Slab_Schema_Generator {
                 'inLanguage' => 'en-US',
                 'dateModified' => SLAB_CONTENT_UPDATED,
             ];
+            // The price report also describes its data as a Dataset, with
+            // the CSV as the download (inc/price-report.php).
+            if ($hub['type'] === 'report' && class_exists('Slab_Price_Report')) {
+                $schemas[] = [
+                    '@context' => 'https://schema.org',
+                    '@type' => 'Dataset',
+                    '@id' => $url . '#dataset',
+                    'name' => Slab_Price_Report::YEAR . ' U.S. Concrete Slab Price Data',
+                    'description' => 'Modelled U.S. average prices for ready-mix concrete by strength, bagged concrete, labor, pumps, site work, reinforcement and finishes, with installed concrete slab costs by size and by state (location factors). Editorial estimates calculated from one set of unit prices; not survey data.',
+                    'url' => $url,
+                    'creator' => ['@id' => home_url('/#organization')],
+                    'publisher' => ['@id' => home_url('/#organization')],
+                    'license' => 'https://creativecommons.org/licenses/by/4.0/',
+                    'isAccessibleForFree' => true,
+                    'dateModified' => SLAB_CONTENT_UPDATED,
+                    'temporalCoverage' => Slab_Price_Report::YEAR,
+                    'spatialCoverage' => ['@type' => 'Place', 'name' => 'United States'],
+                    'measurementTechnique' => 'Cost model: editorial unit prices combined with the calculator line items (volume plus waste, ready-mix and delivery, forms, vapor barrier, rebar, finish, labor, overhead and profit); state figures apply a location factor to ready-mix and labor.',
+                    'variableMeasured' => ['Ready-mix concrete price per cubic yard', 'Installed concrete slab cost per square foot', 'Concrete labor cost per square foot', 'Location factor by state'],
+                    'keywords' => ['concrete prices', 'concrete slab cost', 'ready-mix price', 'construction cost by state'],
+                    'distribution' => [[
+                        '@type' => 'DataDownload',
+                        'encodingFormat' => 'text/csv',
+                        'contentUrl' => home_url(Slab_Price_Report::csv_path()),
+                    ]],
+                ];
+            }
             if (!empty($hub['faqs'])) {
                 $schemas[] = self::faq_page_schema($hub['faqs']);
             }

@@ -40,6 +40,9 @@
           <li><a href="<?php echo esc_url(home_url('/20x20-concrete-slab-cost-breakdown/')); ?>">20x20 Slab Cost Guide</a></li>
           <li><a href="<?php echo esc_url(home_url('/24x24-concrete-slab-cost-breakdown/')); ?>">24x24 Garage Slab Cost</a></li>
           <li><a href="<?php echo esc_url(home_url('/concrete-cost-per-cubic-yard-pricing-explained/')); ?>">Cost Per Cubic Yard</a></li>
+          <li><a href="<?php echo esc_url(home_url('/concrete-slab-cost-by-state/')); ?>">Slab Cost by State</a></li>
+          <li><a href="<?php echo esc_url(home_url('/concrete-price-report/')); ?>">2026 Concrete Price Report</a></li>
+          <li><a href="<?php echo esc_url(home_url('/embed-concrete-calculator/')); ?>">Embed Our Calculator</a></li>
         </ul>
       </div>
 

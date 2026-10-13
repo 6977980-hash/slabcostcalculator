@@ -137,6 +137,8 @@ class Slab_LLMS_Generator {
             sprintf('Weather: cold-weather practice at or below %d°F (ACI 306R); hot-weather precautions above %d°F air temperature (ACI 305R).', $w['cold_f'], $w['hot_f']),
             sprintf('Permits for small residential slabs and driveways: commonly %s.', Slab_Data::mr('permit.flatwork', 0, ' to ')),
             sprintf('New slab: foot traffic after %s hours, cars after about %d days, design strength at %d days.', Slab_Data::range($cure['foot_traffic_h']), $cure['cars_days'], $cure['full_days']),
+            sprintf('Location: prices use one approximate location factor per state (U.S. average = 1.00), from %s (%s) to %s (%s), applied to ready-mix and labor. A 4-inch slab runs about %s per sq ft in the cheapest state and %s in the most expensive. All 50 states: %s', Slab_State_Pages::ranked()[count(Slab_State_Pages::ranked()) - 1]['name'], number_format(Slab_State_Pages::ranked()[count(Slab_State_Pages::ranked()) - 1]['index'], 2), Slab_State_Pages::ranked()[0]['name'], number_format(Slab_State_Pages::ranked()[0]['index'], 2), Slab_Data::money_range(Slab_State_Pages::prices(Slab_State_Pages::ranked()[count(Slab_State_Pages::ranked()) - 1]['index'])['slab']['psf'], 2, ' to '), Slab_Data::money_range(Slab_State_Pages::prices(Slab_State_Pages::ranked()[0]['index'])['slab']['psf'], 2, ' to '), home_url(Slab_State_Pages::hub_path())),
+            'All figures on this site are modelled estimates from one set of editorial unit prices, not survey data. Full price list, method and CSV: ' . home_url('/concrete-price-report/'),
             'The calculator\'s line items, formulas and price assumptions are documented at ' . home_url('/methodology/'),
         ];
     }
@@ -180,6 +182,17 @@ class Slab_LLMS_Generator {
         foreach (Slab_Size_Pages::hub_rows() as $r) {
             $o .= self::line($r['size'] . ' concrete slab', home_url($r['url']), sprintf('%s sq ft at %d in: %s yd³ with waste or %s bags of 80-lb mix; %s installed.', number_format($r['area']), $r['t'], number_format($r['order_yd'], 2), number_format($r['bags80']), Slab_Data::money_range($r['installed'], 0, ' to ')));
         }
+        $o .= "\n";
+
+        $o .= "## Price data\n\n";
+        $o .= self::line(Slab_Price_Report::YEAR . ' Concrete Price Report', home_url(Slab_Price_Report::path()), 'Every unit price the site uses (ready-mix by PSI, bags, labor, pumps, site work, rebar, finishes), installed costs by size and state, and the method. Modelled estimates, not survey data.');
+        $o .= self::line('Price report data (CSV)', home_url(Slab_Price_Report::csv_path()), 'Same figures as the report, CC BY 4.0.');
+        $o .= self::line('Concrete slab cost by state', home_url(Slab_State_Pages::hub_path()), 'Installed slab price per sq ft, a 24x24 garage and ready-mix per yard for all 50 states, DC and 13 metro areas.');
+        foreach (array_keys(Slab_State_Pages::states()) as $slug) {
+            $sp = Slab_State_Pages::data($slug);
+            $o .= self::line('Concrete slab cost in ' . $sp['name'], home_url(Slab_State_Pages::path($slug)), sprintf('%s per sq ft installed (location factor %s); %s', Slab_Data::money_range($sp['prices']['slab']['psf'], 2, ' to '), number_format($sp['index'], 2), $sp['frost']));
+        }
+        $o .= self::line('Embeddable concrete calculator', home_url(Slab_Embed_Widget::info_path()), 'Free widget for other websites.');
         $o .= "\n";
 
         $apps = self::pages_with_template('page-templates/template-hub.php');

@@ -96,6 +96,8 @@ $big = Slab_Data::size_costs(60, 40, 4);
             <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/bags-vs-ready-mix-calculator/')); ?>">Bags vs. ready-mix</a></li>
             <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/concrete-quote-checker/')); ?>">Concrete quote checker</a></li>
             <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/concrete-cost-per-square-foot-calculator/')); ?>">Cost per sq ft calculator</a></li>
+            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/concrete-slab-cost-by-state/')); ?>">Slab cost by state</a></li>
+            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/concrete-price-report/')); ?>">2026 price report</a></li>
           </ul>
         </div>
       </aside>

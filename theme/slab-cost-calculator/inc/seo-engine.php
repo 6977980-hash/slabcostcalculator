@@ -163,6 +163,53 @@ class Slab_SEO_Engine {
             ];
         }
 
+        // State prices, the price report and the embed page (Phase 7).
+        if ($route === 'state_hub' && class_exists('Slab_State_Pages')) {
+            $ranked = Slab_State_Pages::ranked();
+            $cheap = Slab_State_Pages::prices($ranked[count($ranked) - 1]['index'])['slab']['psf'];
+            $dear = Slab_State_Pages::prices($ranked[0]['index'])['slab']['psf'];
+            return [
+                'path'        => Slab_State_Pages::hub_path(),
+                'name'        => 'Slab Cost by State',
+                'title'       => 'Concrete Slab Cost by State: All 50 States (2026)',
+                'description' => sprintf('Concrete slab cost in every U.S. state and 13 metro areas: price per sq ft, a 24x24 garage floor and ready-mix per yard, from %s to %s per sq ft.', Slab_Data::money($cheap[0]), Slab_Data::money($dear[1])),
+                'type'        => 'collection',
+                'parent'      => ['name' => 'Price Report', 'path' => '/concrete-price-report/'],
+                'faqs'        => Slab_State_Pages::hub_faqs(),
+            ];
+        }
+        if ($route === 'state_page' && class_exists('Slab_State_Pages') && Slab_State_Pages::exists($slug)) {
+            return [
+                'path'        => Slab_State_Pages::path($slug),
+                'name'        => Slab_State_Pages::data($slug)['name'],
+                'title'       => Slab_State_Pages::title($slug),
+                'description' => Slab_State_Pages::meta($slug),
+                'type'        => 'size',
+                'parent'      => ['name' => 'Slab Cost by State', 'path' => Slab_State_Pages::hub_path()],
+                'faqs'        => Slab_State_Pages::faqs($slug),
+            ];
+        }
+        if ($route === 'price_report' && class_exists('Slab_Price_Report')) {
+            return [
+                'path'        => Slab_Price_Report::path(),
+                'name'        => 'Price Report',
+                'title'       => Slab_Price_Report::title(),
+                'description' => Slab_Price_Report::meta(),
+                'type'        => 'report',
+                'faqs'        => Slab_Price_Report::faqs(),
+            ];
+        }
+        if ($route === 'embed_info' && class_exists('Slab_Embed_Widget')) {
+            return [
+                'path'        => Slab_Embed_Widget::info_path(),
+                'name'        => 'Embed Our Calculator',
+                'title'       => 'Free Concrete Calculator Widget for Your Website',
+                'description' => 'Add a free concrete slab calculator to your website with two lines of code: cubic yards, bags and installed cost by state. No sign-up, always current prices.',
+                'type'        => 'size',
+                'faqs'        => Slab_Embed_Widget::faqs(),
+            ];
+        }
+
         return isset($hubs[$route]) ? $hubs[$route] : null;
     }
 

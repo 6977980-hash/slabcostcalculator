@@ -1437,3 +1437,33 @@ select.calc-control {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   PHASE 7: price report, state pages, embed widget page
+   ========================================================================== */
+
+.report-citation {
+  margin: 0 0 1.5rem;
+  padding: 0.9rem 1.1rem;
+  border-left: 4px solid var(--primary-500, #2563eb);
+  background: var(--primary-50, #eff6ff);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+
+.report-citation p {
+  margin: 0;
+}
+
+.embed-preview {
+  margin-bottom: 2rem;
+}
+
+.embed-code {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  resize: vertical;
+}

@@ -89,7 +89,7 @@ function slab_enqueue_assets() {
     // the calculator's HTML with none of its JS, so every input silently
     // did nothing (no live totals, no BOQ table, no PDF button) on those
     // pages specifically.
-    if (slab_is_home_page() || in_array(get_query_var('slab_route'), ['quote_checker', 'size_page', 'tool_page'], true) || is_page_template('page-templates/template-calculator-single.php') || is_page_template('page-templates/template-hub.php')) {
+    if (slab_is_home_page() || in_array(get_query_var('slab_route'), ['quote_checker', 'size_page', 'tool_page', 'state_page'], true) || is_page_template('page-templates/template-calculator-single.php') || is_page_template('page-templates/template-hub.php')) {
         // PDF REPORT ENGINE: the "Print Estimate" button used to call
         // window.print() against print.css -- effectively printing/
         // screenshotting the live calculator page. It now builds a real,
@@ -149,6 +149,9 @@ require_once get_template_directory() . '/inc/applications.php';
 require_once get_template_directory() . '/inc/quote-checker.php';
 require_once get_template_directory() . '/inc/size-pages.php';
 require_once get_template_directory() . '/inc/tool-pages.php';
+require_once get_template_directory() . '/inc/state-pages.php';
+require_once get_template_directory() . '/inc/price-report.php';
+require_once get_template_directory() . '/inc/embed-widget.php';
 require_once get_template_directory() . '/inc/schema-generator.php';
 require_once get_template_directory() . '/inc/sitemap-generator.php';
 require_once get_template_directory() . '/inc/llms-txt-generator.php';
@@ -288,7 +291,13 @@ add_action('send_headers', function () {
         return;
     }
     header('X-Content-Type-Options: nosniff');
-    header('X-Frame-Options: SAMEORIGIN');
+    // The embeddable calculator (inc/embed-widget.php) is the one page
+    // other sites may show in a frame.
+    if (class_exists('Slab_Embed_Widget') && Slab_Embed_Widget::is_frame_request()) {
+        header("Content-Security-Policy: frame-ancestors *");
+    } else {
+        header('X-Frame-Options: SAMEORIGIN');
+    }
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('Permissions-Policy: camera=(), microphone=(), payment=(), usb=()');
     if (is_ssl()) {

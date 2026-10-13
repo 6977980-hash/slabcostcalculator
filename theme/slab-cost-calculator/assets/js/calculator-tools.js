@@ -35,45 +35,12 @@
   };
   const fToC = (f) => Math.round((f - 32) * 5 / 9);
 
-  // Approximate construction cost location factors (U.S. national average
-  // = 1.00), rounded from published city cost index data and weighted
-  // toward each state's main metro areas. Local quotes still vary; these
-  // set a sensible starting rate, not a guaranteed price.
-  const METROS = [
-    ['nyc', 'New York City metro, NY', 1.35],
-    ['sf', 'San Francisco Bay Area, CA', 1.35],
-    ['la', 'Los Angeles metro, CA', 1.20],
-    ['bos', 'Boston metro, MA', 1.22],
-    ['chi', 'Chicago metro, IL', 1.22],
-    ['sea', 'Seattle metro, WA', 1.12],
-    ['dc', 'Washington, DC metro', 1.05],
-    ['den', 'Denver metro, CO', 0.97],
-    ['hou', 'Houston metro, TX', 0.87],
-    ['dal', 'Dallas-Fort Worth, TX', 0.88],
-    ['atl', 'Atlanta metro, GA', 0.90],
-    ['mia', 'Miami metro, FL', 0.92],
-    ['phx', 'Phoenix metro, AZ', 0.90]
-  ];
-
-  const STATES = [
-    ['AL', 'Alabama', 0.86], ['AK', 'Alaska', 1.22], ['AZ', 'Arizona', 0.90],
-    ['AR', 'Arkansas', 0.85], ['CA', 'California', 1.25], ['CO', 'Colorado', 0.95],
-    ['CT', 'Connecticut', 1.12], ['DE', 'Delaware', 1.03], ['DC', 'District of Columbia', 1.05],
-    ['FL', 'Florida', 0.88], ['GA', 'Georgia', 0.88], ['HI', 'Hawaii', 1.25],
-    ['ID', 'Idaho', 0.92], ['IL', 'Illinois', 1.10], ['IN', 'Indiana', 0.93],
-    ['IA', 'Iowa', 0.94], ['KS', 'Kansas', 0.90], ['KY', 'Kentucky', 0.90],
-    ['LA', 'Louisiana', 0.86], ['ME', 'Maine', 0.95], ['MD', 'Maryland', 0.98],
-    ['MA', 'Massachusetts', 1.18], ['MI', 'Michigan', 0.98], ['MN', 'Minnesota', 1.05],
-    ['MS', 'Mississippi', 0.84], ['MO', 'Missouri', 0.98], ['MT', 'Montana', 0.93],
-    ['NE', 'Nebraska', 0.90], ['NV', 'Nevada', 1.02], ['NH', 'New Hampshire', 1.00],
-    ['NJ', 'New Jersey', 1.15], ['NM', 'New Mexico', 0.88], ['NY', 'New York (statewide)', 1.20],
-    ['NC', 'North Carolina', 0.88], ['ND', 'North Dakota', 0.92], ['OH', 'Ohio', 0.95],
-    ['OK', 'Oklahoma', 0.86], ['OR', 'Oregon', 1.03], ['PA', 'Pennsylvania', 1.02],
-    ['RI', 'Rhode Island', 1.10], ['SC', 'South Carolina', 0.87], ['SD', 'South Dakota', 0.88],
-    ['TN', 'Tennessee', 0.88], ['TX', 'Texas', 0.87], ['UT', 'Utah', 0.92],
-    ['VT', 'Vermont', 0.95], ['VA', 'Virginia', 0.92], ['WA', 'Washington', 1.08],
-    ['WV', 'West Virginia', 0.95], ['WI', 'Wisconsin', 1.00], ['WY', 'Wyoming', 0.90]
-  ];
+  // Location factors (U.S. national average = 1.00) from inc/site-data.php
+  // ('locations'), the same figures the state pages and price report use.
+  // Local quotes still vary; these set a sensible starting rate, not a
+  // guaranteed price.
+  const METROS = sd('metros', []);
+  const STATES = sd('states', []);
 
   const REGIONS = { us: { name: 'U.S. National Average', index: 1.00 } };
   METROS.forEach(m => { REGIONS['m-' + m[0]] = { name: m[1], index: m[2] }; });
@@ -815,6 +782,18 @@
       });
     }
     window.SlabCalculatorRegion = { key: 'us', name: REGIONS.us.name, index: 1 };
+    // State pages open the calculator on their state (data-start-region),
+    // and links like /#state-oh or /#metro-chi pick a location on the
+    // homepage calculator (state hub, embed widget).
+    const m = window.location.hash.match(/^#(state|metro)-([a-z]{2,4})$/i);
+    const hash = m ? (m[1].toLowerCase() === 'state' ? 's-' + m[2].toUpperCase() : 'm-' + m[2].toLowerCase()) : '';
+    const start = hash || root.getAttribute('data-start-region');
+    if (start && REGIONS[start]) {
+      const sel = $('#calc-region');
+      if (sel) sel.value = start;
+      applyRegion(start);
+      if (hash) root.scrollIntoView();
+    }
     const engine = window.SlabCalculatorEngine;
     if (engine && engine.getLastResult && engine.getLastResult()) onUpdate({ detail: engine.getLastResult() });
   }

@@ -34,6 +34,9 @@ if ($start_preset && !isset($sd['presets'][$start_preset])) {
     $start_preset = '';
 }
 
+// State pages open the calculator on their state: ['region' => 's-TX'].
+$start_region = isset($args['region']) && preg_match('/^(s-[A-Z]{2}|m-[a-z]+)$/', $args['region']) ? $args['region'] : '';
+
 // The results are printed for the starting size before any JavaScript
 // runs, so visitors without JS and search crawlers see real numbers.
 // Same line items and defaults as the calculator (Slab_Data::estimate()).
@@ -51,7 +54,7 @@ $fmt = function ($n, $dec = 2) {
 };
 ?>
 
-<div id="concrete-slab-calculator" class="calculator-app-wrapper" role="region" aria-label="Concrete Slab Cost Estimator"<?php echo $start_preset ? ' data-start-preset="' . esc_attr($start_preset) . '"' : ''; ?><?php echo (!$start_preset && isset($args['dims'])) ? ' data-start-dims="1"' : ''; ?>>
+<div id="concrete-slab-calculator" class="calculator-app-wrapper" role="region" aria-label="Concrete Slab Cost Estimator"<?php echo $start_preset ? ' data-start-preset="' . esc_attr($start_preset) . '"' : ''; ?><?php echo (!$start_preset && isset($args['dims'])) ? ' data-start-dims="1"' : ''; ?><?php echo $start_region ? ' data-start-region="' . esc_attr($start_region) . '"' : ''; ?>>
   <!-- Calculator Top Header Bar -->
   <div class="calc-header">
     <div class="calc-header-title">
@@ -88,7 +91,7 @@ $fmt = function ($n, $dec = 2) {
         <select id="calc-region" class="calc-control">
           <option value="us" selected>U.S. National Average (1.00)</option>
         </select>
-        <p id="calc-region-note" class="calc-field-note">Picking a location sets the ready-mix, excavation and labor rates below to that area's typical level. You can still type your own local prices afterwards.</p>
+        <p id="calc-region-note" class="calc-field-note">Picking a location sets the ready-mix, excavation and labor rates below to that area's typical level. You can still type your own local prices afterwards. <a href="<?php echo esc_url(home_url('/concrete-slab-cost-by-state/')); ?>">Slab prices by state</a>.</p>
       </div>
 
       <!-- Basic Dimensions Section -->

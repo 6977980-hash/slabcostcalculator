@@ -118,6 +118,14 @@ if (class_exists('WP_Sitemaps_Provider')) {
             foreach (array_keys(Slab_Tool_Pages::directory()) as $slug) {
                 $paths[] = '/' . $slug . '/';
             }
+            // Phase 7: price report, state prices, embed page. The CSV and
+            // the iframe page are not listed (noindex).
+            $paths[] = '/concrete-price-report/';
+            $paths[] = Slab_State_Pages::hub_path();
+            foreach (array_keys(Slab_State_Pages::states()) as $slug) {
+                $paths[] = Slab_State_Pages::path($slug);
+            }
+            $paths[] = Slab_Embed_Widget::info_path();
             foreach ($paths as $path) {
                 $urls[] = ['loc' => home_url($path), 'lastmod' => $quote['lastmod']];
             }
