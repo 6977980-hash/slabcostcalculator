@@ -1261,6 +1261,9 @@
     if (initDOM()) {
       bindEvents();
       updateUnitLabels();
+      // Size pages print their own starting size into the inputs
+      // (data-start-dims); read it before the first calculation.
+      if (dom.root.hasAttribute('data-start-dims')) syncStateFromDOM();
       recalculate();
       // Project pages start on their own preset (data-start-preset="garage").
       const start = dom.root.getAttribute('data-start-preset');

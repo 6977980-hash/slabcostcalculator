@@ -126,6 +126,43 @@ class Slab_SEO_Engine {
                 'type'        => 'tool',
             ],
         ];
+        // Slab sizes and the routed tool pages (Phase 6). 'parent' adds a
+        // breadcrumb step; 'faqs' is the visible FAQ, marked up as FAQPage.
+        if ($route === 'size_hub' && class_exists('Slab_Size_Pages')) {
+            return [
+                'path'        => Slab_Size_Pages::hub_path(),
+                'name'        => 'Slab Cost by Size',
+                'title'       => sprintf('Concrete Slab Cost by Size: %d Sizes Priced', count(Slab_Size_Pages::hub_rows())),
+                'description' => sprintf('Concrete slab cost by size: yards, 80-lb bags and installed price for %d common sizes, from an 8x8 hot tub pad to a 40x60 pole barn floor.', count(Slab_Size_Pages::hub_rows())),
+                'type'        => 'collection',
+                'faqs'        => Slab_Size_Pages::hub_faqs(),
+            ];
+        }
+        $slug = get_query_var('slab_slug');
+        if ($route === 'size_page' && class_exists('Slab_Size_Pages') && Slab_Size_Pages::exists($slug)) {
+            return [
+                'path'        => Slab_Size_Pages::path($slug),
+                'name'        => $slug . ' Concrete Slab',
+                'title'       => Slab_Size_Pages::title($slug),
+                'description' => Slab_Size_Pages::meta($slug),
+                'type'        => 'size',
+                'parent'      => ['name' => 'Slab Cost by Size', 'path' => Slab_Size_Pages::hub_path()],
+                'faqs'        => Slab_Size_Pages::faqs($slug),
+            ];
+        }
+        if ($route === 'tool_page' && class_exists('Slab_Tool_Pages') && Slab_Tool_Pages::exists($slug)) {
+            $page = Slab_Tool_Pages::get($slug);
+            return [
+                'path'        => '/' . $slug . '/',
+                'name'        => Slab_Tool_Pages::directory()[$slug][1],
+                'title'       => $page['title'],
+                'description' => $page['meta'],
+                'type'        => 'tool',
+                'parent'      => ['name' => 'Calculators', 'path' => '/calculators/'],
+                'faqs'        => $page['faqs'],
+            ];
+        }
+
         return isset($hubs[$route]) ? $hubs[$route] : null;
     }
 

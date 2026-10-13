@@ -234,6 +234,38 @@ class Slab_Data {
             ],
             'freeze_thaw_ft' => [36, 48],
             'asphalt_driveway_psf' => [3, 7],      // installed, 2-3 in asphalt on gravel base
+            // Fence and deck post holes (fence post calculator).
+            'posts' => [
+                // Post size => [label, cross-section shape, width or diameter in inches (actual)].
+                'sizes' => [
+                    '4x4' => ['4x4 wood post (3.5 in)', 'square', 3.5],
+                    '6x6' => ['6x6 wood post (5.5 in)', 'square', 5.5],
+                    '4x6' => ['4x6 wood post (3.5 × 5.5 in)', 'rect', [3.5, 5.5]],
+                    'pipe2' => ['2-3/8 in steel pipe (chain link line post)', 'round', 2.375],
+                    'pipe3' => ['2-7/8 in steel pipe (chain link terminal post)', 'round', 2.875],
+                    'pipe4' => ['4 in steel or round wood post', 'round', 4],
+                ],
+                'hole_factor' => 3,                 // hole diameter ≈ 3 × post width
+                'chain_link_hole_in' => ['pipe2' => 8, 'pipe3' => 10], // line posts, and the bigger hole for terminal (corner, end, gate) posts
+                'depth_fraction' => [0.33, 0.5],    // set 1/3 to 1/2 of the post's above-ground height
+                'gravel_in' => 6,                   // drainage gravel under the post
+                'fast_set_lb' => 50,
+                'fast_set_yield' => 0.375,          // ft³ per 50-lb bag of fast-setting mix
+                'fast_set_price' => 8.50,           // $ per 50-lb bag
+                'fast_set_minutes' => [20, 40],     // set time before the next step (bracing off, fence boards on after ~4 h)
+                'fast_set_hold_h' => 4,
+            ],
+            // Concrete steps (steps calculator). IRC R311.7: riser 7-3/4 in max,
+            // tread 10 in min, stair 36 in wide min, landing 36 in deep.
+            'steps' => [
+                'riser_max_in' => 7.75,
+                'tread_min_in' => 10,
+                'width_min_in' => 36,
+                'landing_min_in' => 36,
+                'riser_default_in' => 7,
+                'tread_default_in' => 11,
+                'installed_per_step' => [300, 700],  // $ per step, 4 ft wide, formed and broom finished by a contractor
+            ],
         ];
 
         return self::$cache;
@@ -552,6 +584,152 @@ class Slab_Data {
         ];
     }
 
+    /**
+     * Control-joint layout like the calculator's blueprint
+     * (calculator-tools.js, buildGeometry()): joints every 2.5 × thickness
+     * (in) in feet, capped at 15 ft, panels kept within 1.5:1.
+     */
+    public static function joint_layout($l, $w, $t) {
+        $j = self::get('joints');
+        $target = min(max($t, 3) * $j['ratio_blueprint'], $j['cap_ft']);
+        $panels = function ($span, $limit) {
+            return max(1, (int) ceil($span / $limit - 1e-9));
+        };
+        $pw = $panels($w, $target);
+        $pl = $panels($l, min($target, $j['max_aspect'] * $w / $pw));
+        $pw = $panels($w, min($target, $j['max_aspect'] * $l / $pl));
+        return [
+            'target_ft' => $target,
+            'panels_l' => $pl,
+            'panels_w' => $pw,
+            'panel_l' => $l / $pl,
+            'panel_w' => $w / $pw,
+            'lin_ft' => ($pl - 1) * $w + ($pw - 1) * $l,
+        ];
+    }
+
+    /** Ready-mix yards rounded up to the plant's order step (quarter yard). */
+    public static function order_step($yd) {
+        $step = self::get('delivery.order_step_yd')[0];
+        return ceil($yd / $step - 1e-9) * $step;
+    }
+
+    /**
+     * Concrete bill for a volume, bagged vs. ready-mix truck, as used by
+     * the bags-vs-truck tool (supporting-calculators.js, initBreakEven()).
+     * $net_yd is the net volume; waste is added here.
+     *  - bags: 80-lb bags at the default price, plus one day's mixer rental
+     *    (mid-range) when $mixer is true.
+     *  - truck: order rounded to the plant step at the default $/yd, plus
+     *    the delivery fee, plus a mid-range short-load fee under the usual
+     *    minimum load.
+     */
+    public static function bags_vs_truck($net_yd, $mixer = true) {
+        $d = self::all();
+        $order_cuft = $net_yd * 27 * (1 + $d['concrete']['waste_pct'] / 100);
+        $bags = $net_yd > 0 ? self::bags($order_cuft, '80') : 0;
+        $mixer_cost = $mixer && $bags > 0 ? array_sum($d['concrete']['mixer_rental_day']) / 2 : 0;
+        $bag_cost = $bags * $d['concrete']['bag_price_default'] + $mixer_cost;
+        $order = self::order_step($order_cuft / 27);
+        $short = $order > 0 && $order < $d['delivery']['common_min_yd'][0];
+        $short_fee = $short ? array_sum($d['delivery']['short_load_flat']) / 2 : 0;
+        $truck_cost = $order > 0 ? $order * $d['concrete']['ready_mix_default'] + $d['delivery']['fee_default'] + $short_fee : 0;
+        $per_hour = array_sum($d['labor']['bags_per_hour_mixer']) / 2;
+        return [
+            'bags' => $bags,
+            'bag_cost' => $bag_cost,
+            'mixer_cost' => $mixer_cost,
+            'mix_hours' => $bags / $per_hour,
+            'order_yd' => $order,
+            'short' => $short,
+            'short_fee' => $short_fee,
+            'truck_cost' => $truck_cost,
+            'trucks' => $order > 0 ? (int) ceil($order / $d['delivery']['truck_capacity_yd'][0] - 1e-9) : 0,
+            'cheaper' => $bag_cost <= $truck_cost ? 'bags' : 'truck',
+        ];
+    }
+
+    /** Smallest net volume (yd³, 0.05 steps) at which the truck costs no more than bags. */
+    public static function break_even_yd($mixer = true) {
+        for ($i = 1; $i <= 200; $i++) {
+            $yd = $i * 0.05;
+            $c = self::bags_vs_truck($yd, $mixer);
+            if ($c['truck_cost'] <= $c['bag_cost']) {
+                return $yd;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Concrete for post holes (fence post calculator). Hole diameter and
+     * depth in inches; the bottom gravel layer and the post itself take up
+     * room that needs no concrete. Waste allowance added.
+     */
+    public static function post_hole($post_key, $hole_in, $depth_in, $count = 1, $waste_pct = null) {
+        $p = self::get('posts');
+        $size = $p['sizes'][$post_key];
+        if ($size[1] === 'round') {
+            $post_area = M_PI * pow($size[2] / 2, 2);
+        } elseif ($size[1] === 'rect') {
+            $post_area = $size[2][0] * $size[2][1];
+        } else {
+            $post_area = $size[2] * $size[2];
+        }
+        $waste = $waste_pct === null ? self::get('concrete.waste_pct') : $waste_pct;
+        $fill_in = max(0, $depth_in - $p['gravel_in']);
+        $per_hole = max(0, M_PI * pow($hole_in / 2, 2) - $post_area) * $fill_in / 1728 * (1 + $waste / 100);
+        $total = $per_hole * $count;
+        $y = self::get('concrete.bag_yields');
+        return [
+            'per_hole_ft3' => $per_hole,
+            'total_ft3' => $total,
+            'per_hole_80' => $per_hole / $y['80'],
+            'per_hole_50' => $per_hole / $y['50'],
+            'per_hole_fast' => $per_hole / $p['fast_set_yield'],
+            'bags80' => $total > 0 ? (int) ceil(round($total / $y['80'], 6)) : 0,
+            'bags50' => $total > 0 ? (int) ceil(round($total / $y['50'], 6)) : 0,
+            'bags_fast' => $total > 0 ? (int) ceil(round($total / $p['fast_set_yield'], 6)) : 0,
+            'gravel_ft3' => M_PI * pow($hole_in / 2, 2) * $p['gravel_in'] / 1728 * $count,
+        ];
+    }
+
+    /** Typical hole diameter for a post: about 3 × its width, to the nearest 2 in. */
+    public static function post_hole_diameter($post_key) {
+        $chain = self::get('posts.chain_link_hole_in');
+        if (isset($chain[$post_key])) {
+            return $chain[$post_key];
+        }
+        $size = self::get('posts.sizes')[$post_key];
+        $width = is_array($size[2]) ? max($size[2]) : $size[2];
+        return max(6, (int) round($width * self::get('posts.hole_factor') / 2) * 2);
+    }
+
+    /**
+     * Solid concrete steps (steps calculator): N steps of the given rise
+     * and tread, the full width, plus an optional top landing. Inches for
+     * rise, tread; feet for width and landing depth.
+     */
+    public static function steps_volume($n, $width_ft, $rise_in, $tread_in, $landing_ft = 0) {
+        $steps_ft3 = $width_ft * ($tread_in / 12) * ($rise_in / 12) * $n * ($n + 1) / 2;
+        $landing_ft3 = $width_ft * $landing_ft * ($n * $rise_in / 12);
+        $net = $steps_ft3 + $landing_ft3;
+        $order_ft3 = $net * (1 + self::get('concrete.waste_pct') / 100);
+        // Each side form is the stepped profile; risers are one board per step.
+        $side_sqft = ($tread_in / 12) * ($rise_in / 12) * $n * ($n + 1) / 2 + $landing_ft * ($n * $rise_in / 12);
+        return [
+            'net_ft3' => $net,
+            'net_yd' => $net / 27,
+            'order_yd' => $order_ft3 / 27,
+            'bags80' => $net > 0 ? self::bags($order_ft3, '80') : 0,
+            'bags60' => $net > 0 ? self::bags($order_ft3, '60') : 0,
+            'total_rise_in' => $n * $rise_in,
+            'total_run_in' => $n * $tread_in + $landing_ft * 12,
+            'riser_lf' => $n * $width_ft,
+            'plywood_sheets' => (int) ceil(round(2 * $side_sqft / 32, 6)),
+        ];
+    }
+
     /** Settings handed to the calculators as window.SLAB_DATA. */
     public static function js_config() {
         $d = self::all();
@@ -624,6 +802,15 @@ class Slab_Data {
             'meshRollPrice' => $d['reinforcement']['mesh_roll_price'],
             'chairGridFt' => $d['reinforcement']['chair_grid_ft'],
             'formBoardDepthIn' => $d['site']['form_board_depth_in'],
+            // Phase 6 tools: bags vs. truck, fence posts, steps, quote comparison.
+            'bagPrices' => ['80' => $d['concrete']['bag_price_default']] + $d['concrete']['bag_price_sizes'],
+            'mixerRentalDay' => $d['concrete']['mixer_rental_day'],
+            'bagsPerHourMixer' => $d['labor']['bags_per_hour_mixer'],
+            'posts' => $d['posts'],
+            'steps' => $d['steps'],
+            'excavationDefault' => $d['site']['excavation_default'],
+            'permitFlatwork' => $d['permit']['flatwork'],
+            'stampedFinish' => $d['finish']['stamped']['default'],
             'presets' => array_map(function ($p) {
                 return ['l' => $p[0], 'w' => $p[1], 't' => $p[2], 'name' => $p[3]];
             }, $d['presets']),

@@ -33,7 +33,7 @@ class Slab_Architecture_Router {
      * manual step required.
      */
     public static function maybe_flush_rewrite_rules() {
-        $marker = 'quote-checker-v1';
+        $marker = 'phase6-sizes-tools-v1';
         if (get_option('slab_rewrite_rules_version') !== $marker) {
             flush_rewrite_rules();
             update_option('slab_rewrite_rules_version', $marker);
@@ -70,6 +70,17 @@ class Slab_Architecture_Router {
         // The calculator with its Bid Check tab open, plus a guide to
         // judging a concrete quote.
         add_rewrite_rule('^concrete-quote-checker/?$', 'index.php?slab_route=quote_checker', 'top');
+
+        // 7. Slab sizes: /concrete-slab-cost-by-size/ and one page per size
+        // (/12x16-concrete-slab-cost/). Only the sizes listed in
+        // inc/size-pages.php match; 10x10, 12x12, 20x20 and 24x24 keep
+        // their existing Page redirects to the size articles.
+        add_rewrite_rule('^concrete-slab-cost-by-size/?$', 'index.php?slab_route=size_hub', 'top');
+        add_rewrite_rule(Slab_Size_Pages::route_regex(), 'index.php?slab_route=size_page&slab_slug=$matches[1]', 'top');
+
+        // 8. Tool pages without a Page row: fence posts, steps, bags vs.
+        // ready-mix (inc/tool-pages.php).
+        add_rewrite_rule(Slab_Tool_Pages::route_regex(), 'index.php?slab_route=tool_page&slab_slug=$matches[1]', 'top');
 
         // Register Query Vars
         add_rewrite_tag('%slab_route%', '([^&]+)');
@@ -175,6 +186,16 @@ class Slab_Architecture_Router {
 
         if ($route === 'quote_checker') {
             $new_template = locate_template(['page-templates/template-quote-checker.php', 'page.php']);
+            if ($new_template) return $new_template;
+        }
+
+        $routed = [
+            'size_hub'  => 'page-templates/template-size-hub.php',
+            'size_page' => 'page-templates/template-size-page.php',
+            'tool_page' => 'page-templates/template-tool-page.php',
+        ];
+        if (isset($routed[$route]) && Slab_SEO_Engine::get_slab_hub_info()) {
+            $new_template = locate_template([$routed[$route]]);
             if ($new_template) return $new_template;
         }
 

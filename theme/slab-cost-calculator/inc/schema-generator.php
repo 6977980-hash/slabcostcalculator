@@ -35,11 +35,31 @@ class Slab_Schema_Generator {
         // get the homepage's FAQPage and SoftwareApplication. They are
         // listing pages: a breadcrumb and a CollectionPage, nothing more.
         $hub = Slab_SEO_Engine::get_slab_hub_info();
+        if ($hub && isset($hub['type']) && in_array($hub['type'], ['size', 'collection'], true)) {
+            // Slab size pages and the size hub: the page, its breadcrumb and
+            // the FAQ it shows (inc/size-pages.php).
+            $url = home_url($hub['path']);
+            $schemas[] = self::build_breadcrumb_list(slab_get_breadcrumb_trail());
+            $schemas[] = [
+                '@context' => 'https://schema.org',
+                '@type' => $hub['type'] === 'collection' ? 'CollectionPage' : 'WebPage',
+                '@id' => $url . '#webpage',
+                'url' => $url,
+                'name' => $hub['title'],
+                'description' => $hub['description'],
+                'isPartOf' => ['@id' => home_url('/#website')],
+                'inLanguage' => 'en-US',
+                'dateModified' => SLAB_CONTENT_UPDATED,
+            ];
+            if (!empty($hub['faqs'])) {
+                $schemas[] = self::faq_page_schema($hub['faqs']);
+            }
+            self::print_schemas($schemas);
+            return;
+        }
         if ($hub && isset($hub['type']) && $hub['type'] === 'tool') {
             $url = home_url($hub['path']);
-            $schemas[] = self::build_breadcrumb_list([
-                ['name' => $hub['name'], 'item' => $url],
-            ]);
+            $schemas[] = self::build_breadcrumb_list(slab_get_breadcrumb_trail());
             $schemas[] = [
                 '@context' => 'https://schema.org',
                 '@type' => 'WebPage',
@@ -62,8 +82,11 @@ class Slab_Schema_Generator {
                 'description' => $hub['description'],
                 'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'USD'],
             ];
-            // Same Q&As the page shows (page-templates/template-quote-checker.php).
-            if (function_exists('slab_quote_checker_faqs')) {
+            // Same Q&As the page shows (inc/tool-pages.php, or
+            // page-templates/template-quote-checker.php for the quote checker).
+            if (!empty($hub['faqs'])) {
+                $schemas[] = self::faq_page_schema($hub['faqs']);
+            } elseif (function_exists('slab_quote_checker_faqs')) {
                 $schemas[] = [
                     '@context' => 'https://schema.org',
                     '@type' => 'FAQPage',

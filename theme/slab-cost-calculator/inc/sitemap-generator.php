@@ -82,9 +82,10 @@ class Slab_Sitemap_Generator {
 
 if (class_exists('WP_Sitemaps_Provider')) {
     /**
-     * /wp-sitemap-hubs-1.xml: listing pages served by a rewrite rule rather
-     * than a Page. /calculators/, /cost-guides/ and /how-to/ also exist as
-     * Pages, so core already lists them; only /knowledgebase/ is missing.
+     * /wp-sitemap-hubs-1.xml: pages served by a rewrite rule rather than a
+     * Page: /knowledgebase/, the quote checker, the slab size pages and the
+     * routed tools. /calculators/, /cost-guides/ and /how-to/ also exist as
+     * Pages, so core already lists them.
      */
     class Slab_Hub_Sitemap_Provider extends WP_Sitemaps_Provider {
 
@@ -108,7 +109,19 @@ if (class_exists('WP_Sitemaps_Provider')) {
                 'loc'     => home_url('/concrete-quote-checker/'),
                 'lastmod' => gmdate('c', strtotime(SLAB_CONTENT_UPDATED . ' 12:00:00 UTC')),
             ];
-            return [$entry, $quote];
+            $urls = [$entry, $quote];
+            // Phase 6: slab size pages, the size hub and the routed tools.
+            $paths = [Slab_Size_Pages::hub_path()];
+            foreach (array_keys(Slab_Size_Pages::sizes()) as $size) {
+                $paths[] = Slab_Size_Pages::path($size);
+            }
+            foreach (array_keys(Slab_Tool_Pages::directory()) as $slug) {
+                $paths[] = '/' . $slug . '/';
+            }
+            foreach ($paths as $path) {
+                $urls[] = ['loc' => home_url($path), 'lastmod' => $quote['lastmod']];
+            }
+            return $urls;
         }
 
         public function get_max_num_pages($object_subtype = '') {

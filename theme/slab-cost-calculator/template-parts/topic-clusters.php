@@ -21,11 +21,14 @@ $short_k = function ($n) {
     return $n >= 1000 ? '$' . rtrim(rtrim(number_format($n / 1000, 1), '0'), '.') . 'k' : '$' . number_format($n);
 };
 $size_links = [];
-foreach ([[10, 10], [12, 12], [20, 20], [24, 24]] as $sz) {
-    $c = Slab_Data::size_costs($sz[0], $sz[1], 4);
+// The four size articles plus the most searched size pages (inc/size-pages.php).
+foreach ([[10, 10, '/10x10-concrete-slab-cost-breakdown/'], [12, 16, null], [20, 20, '/20x20-concrete-slab-cost-breakdown/'], [24, 24, '/24x24-concrete-slab-cost-breakdown/'], [30, 40, null], [40, 60, null]] as $sz) {
+    $key = $sz[0] . 'x' . $sz[1];
+    $info = Slab_Size_Pages::exists($key) ? Slab_Size_Pages::sizes()[$key] : null;
+    $c = Slab_Data::size_costs($sz[0], $sz[1], $info ? $info['t'] : 4);
     $size_links[] = [
-        '/' . $sz[0] . 'x' . $sz[1] . '-concrete-slab-cost-breakdown/',
-        $sz[0] . 'x' . $sz[1] . ' slab cost',
+        $sz[2] ?: Slab_Size_Pages::path($key),
+        $key . ' slab cost',
         $short_k($c['installed'][0]) . '–' . $short_k($c['installed'][1]),
     ];
 }
@@ -34,8 +37,8 @@ $clusters = [
     [
         'key'   => 'size',
         'title' => 'Cost by Slab Size',
-        'desc'  => 'Installed and DIY prices for the most common slab sizes, at 4 inches thick.',
-        'hub'   => ['/cost-guides/', 'All cost guides'],
+        'desc'  => 'Installed prices, yards and bags for common slab sizes, from hot tub pads to pole barns.',
+        'hub'   => ['/concrete-slab-cost-by-size/', 'All slab sizes'],
         'links' => array_merge($size_links, [
             ['/concrete-cost-per-square-foot-pricing-matrix/', 'Cost per square foot', ''],
             ['/concrete-cost-per-cubic-yard-pricing-explained/', 'Cost per cubic yard', ''],
@@ -67,6 +70,9 @@ $clusters = [
             ['/concrete-rebar-calculator/', 'Rebar grid', '#3–#5'],
             ['/gravel-base-calculator/', 'Gravel base', 'tons'],
             ['/concrete-footing-calculator/', 'Footings & piers', ''],
+            ['/fence-post-concrete-calculator/', 'Fence posts', 'bags/post'],
+            ['/concrete-steps-calculator/', 'Concrete steps', ''],
+            ['/bags-vs-ready-mix-calculator/', 'Bags vs. ready-mix', 'break-even'],
         ],
     ],
     [
@@ -90,6 +96,7 @@ $clusters = [
         'hub'   => ['/concrete-quote-checker/', 'Concrete quote checker'],
         'links' => [
             ['/concrete-quote-checker/', 'Is my concrete quote fair?', 'Tool'],
+            ['/concrete-quote-checker/#compare-quotes', 'Compare 2-3 quotes', 'Tool'],
             ['/best-time-of-year-to-pour-concrete/', 'Best time to pour', ''],
             ['#control-joint-spacing', 'Control joint spacing', ''],
             ['/concrete-curing-time-guide/', 'Curing time', ''],

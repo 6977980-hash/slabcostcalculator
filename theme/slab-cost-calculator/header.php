@@ -39,6 +39,9 @@
             <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/concrete-footing-calculator/')); ?>">Concrete Footing Calculator</a></li>
             <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/concrete-labor-cost-calculator/')); ?>">Concrete Labor Cost Calculator</a></li>
             <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/concrete-removal-cost-calculator/')); ?>">Demolition &amp; Removal Calculator</a></li>
+            <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/fence-post-concrete-calculator/')); ?>">Fence Post Concrete Calculator</a></li>
+            <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/concrete-steps-calculator/')); ?>">Concrete Steps Calculator</a></li>
+            <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/bags-vs-ready-mix-calculator/')); ?>">Bags vs. Ready-Mix Calculator</a></li>
           </ul>
         </li>
 
@@ -54,6 +57,7 @@
             <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/12x12-concrete-slab-cost-breakdown/')); ?>">12x12 Concrete Slab Cost</a></li>
             <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/20x20-concrete-slab-cost-breakdown/')); ?>">20x20 Concrete Slab Cost</a></li>
             <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/24x24-concrete-slab-cost-breakdown/')); ?>">24x24 Garage Slab Cost</a></li>
+            <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/concrete-slab-cost-by-size/')); ?>">All Slab Sizes (8x8 to 40x60)</a></li>
             <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/concrete-cost-per-cubic-yard-pricing-explained/')); ?>">Cost Per Cubic Yard Guide</a></li>
           </ul>
         </li>

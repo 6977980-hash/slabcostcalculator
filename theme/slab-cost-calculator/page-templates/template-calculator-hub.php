@@ -142,6 +142,28 @@ slab_render_breadcrumbs();
         <a href="<?php echo esc_url(home_url('/concrete-project-cost-calculator/')); ?>" style="font-weight: 700; font-size: 0.875rem;">Launch Calculator &rarr;</a>
       </div>
     </div>
+
+    <!-- Group 4: Posts, steps, buying and quotes (Phase 6) -->
+    <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--slate-900); margin-bottom: 1.25rem;">Posts, Steps, Buying &amp; Quotes</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+      <?php foreach (Slab_Tool_Pages::directory() as $tool_slug => $info) : ?>
+      <div class="subcalc-card">
+        <h3 class="subcalc-title"><a href="<?php echo esc_url(home_url('/' . $tool_slug . '/')); ?>"><?php echo esc_html($info[1]); ?></a></h3>
+        <p class="subcalc-desc"><?php echo esc_html($info[2]); ?></p>
+        <a href="<?php echo esc_url(home_url('/' . $tool_slug . '/')); ?>" style="font-weight: 700; font-size: 0.875rem;">Launch Calculator &rarr;</a>
+      </div>
+      <?php endforeach; ?>
+      <div class="subcalc-card">
+        <h3 class="subcalc-title"><a href="<?php echo esc_url(home_url('/concrete-quote-checker/')); ?>">Concrete Quote Checker</a></h3>
+        <p class="subcalc-desc">Check one contractor quote against a scope-matched benchmark, or compare two or three quotes like for like.</p>
+        <a href="<?php echo esc_url(home_url('/concrete-quote-checker/')); ?>" style="font-weight: 700; font-size: 0.875rem;">Launch Calculator &rarr;</a>
+      </div>
+      <div class="subcalc-card">
+        <h3 class="subcalc-title"><a href="<?php echo esc_url(home_url('/concrete-slab-cost-by-size/')); ?>">Slab Cost by Size</a></h3>
+        <p class="subcalc-desc">Yards, bags and installed price worked out for common sizes, from an 8x8 pad to a 40x60 barn floor.</p>
+        <a href="<?php echo esc_url(home_url('/concrete-slab-cost-by-size/')); ?>" style="font-weight: 700; font-size: 0.875rem;">See All Sizes &rarr;</a>
+      </div>
+    </div>
   </div>
 </main>
 

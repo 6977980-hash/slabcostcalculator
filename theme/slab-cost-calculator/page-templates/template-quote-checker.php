@@ -107,6 +107,12 @@ foreach ($examples as $i => $ex) {
         </div>
         <p>Set the calculator to your own slab and local prices to get your benchmark; the regional index in the calculator adjusts labor and material rates for your state.</p>
 
+        <h2 id="compare-quotes">Compare Two or Three Quotes</h2>
+        <p>
+          Quotes for the same slab are rarely for the same work: one includes the gravel base and a vapor barrier, another leaves out rebar, a third adds a pump. Enter each quote's total and tick what it includes. Each one is graded against a benchmark for its own scope, then the items it leaves out are added at a fair price, so you can see which is the best value like for like rather than just the lowest number.
+        </p>
+        <?php get_template_part('template-parts/quote-compare'); ?>
+
         <h2 id="what-a-quote-should-include">What a Fair Concrete Quote Includes</h2>
         <p>Two quotes can only be compared if they cover the same work. A complete written quote lists:</p>
         <ul>
@@ -171,6 +177,7 @@ foreach ($examples as $i => $ex) {
           <ul class="calculator-nav-list">
             <li class="calculator-nav-item"><a href="#how-it-works">How the checker works</a></li>
             <li class="calculator-nav-item"><a href="#worked-examples">Worked examples</a></li>
+            <li class="calculator-nav-item"><a href="#compare-quotes">Compare 2-3 quotes</a></li>
             <li class="calculator-nav-item"><a href="#what-a-quote-should-include">What a quote should include</a></li>
             <li class="calculator-nav-item"><a href="#red-flags">Red flags</a></li>
             <li class="calculator-nav-item"><a href="#faq">Questions</a></li>

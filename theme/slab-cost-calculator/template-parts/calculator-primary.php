@@ -38,6 +38,11 @@ if ($start_preset && !isset($sd['presets'][$start_preset])) {
 // runs, so visitors without JS and search crawlers see real numbers.
 // Same line items and defaults as the calculator (Slab_Data::estimate()).
 $dims = $start_preset ? $sd['presets'][$start_preset] : [20, 20, 4];
+// Size pages open the calculator on their own size:
+// get_template_part('template-parts/calculator-primary', null, ['dims' => [16, 12, 4]]).
+if (!$start_preset && isset($args['dims']) && is_array($args['dims']) && count($args['dims']) === 3) {
+    $dims = array_map('floatval', array_values($args['dims']));
+}
 $first = Slab_Data::estimate($dims[0], $dims[1], $dims[2]);
 $first_m3 = $first['order_yd'] / 1.30795;
 $first_lbs = $first['order_yd'] * 27 * $sd['concrete']['density_lb_ft3'];
@@ -46,7 +51,7 @@ $fmt = function ($n, $dec = 2) {
 };
 ?>
 
-<div id="concrete-slab-calculator" class="calculator-app-wrapper" role="region" aria-label="Concrete Slab Cost Estimator"<?php echo $start_preset ? ' data-start-preset="' . esc_attr($start_preset) . '"' : ''; ?>>
+<div id="concrete-slab-calculator" class="calculator-app-wrapper" role="region" aria-label="Concrete Slab Cost Estimator"<?php echo $start_preset ? ' data-start-preset="' . esc_attr($start_preset) . '"' : ''; ?><?php echo (!$start_preset && isset($args['dims'])) ? ' data-start-dims="1"' : ''; ?>>
   <!-- Calculator Top Header Bar -->
   <div class="calc-header">
     <div class="calc-header-title">
@@ -609,6 +614,7 @@ $fmt = function ($n, $dec = 2) {
             </div>
           </details>
           <div id="bid-result" class="bid-result" aria-live="polite"></div>
+          <p class="calc-field-note"><a href="<?php echo esc_url(home_url('/concrete-quote-checker/#compare-quotes')); ?>">Have two or three quotes? Compare them side by side &rarr;</a></p>
         </div>
 
         <!-- Weather -->

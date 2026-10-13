@@ -50,7 +50,8 @@ class Slab_Calculator_Pages {
     /** Number of different tools on the site (the slab calculator plus each distinct page tool). */
     public static function tool_count() {
         $tools = array_unique(array_column(self::directory(), 0));
-        return count($tools);
+        // Plus the routed tools (fence posts, steps, bags vs. ready-mix).
+        return count($tools) + (class_exists('Slab_Tool_Pages') ? count(Slab_Tool_Pages::directory()) : 0);
     }
 
     /** Tool key for a page slug, or null. */

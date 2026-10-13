@@ -1345,3 +1345,95 @@ select.calc-control {
     display: none !important;
   }
 }
+
+/* ==========================================================================
+   PHASE 6: size pages, fence post / steps / bags-vs-truck tools, quote compare
+   ========================================================================== */
+
+.size-stats {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 900px) {
+  .size-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.data-table tr.row-highlight td {
+  background: var(--primary-50);
+}
+
+.calc-field-warn {
+  color: #b45309;
+  font-weight: 600;
+}
+
+.be-chart {
+  margin-top: 1rem;
+}
+
+.be-legend {
+  font-size: 0.8rem;
+  color: var(--slate-500);
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.be-key {
+  display: inline-block;
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  margin-left: 0.5rem;
+}
+
+.be-key-bags { background: #d97706; }
+.be-key-truck { background: #2563eb; }
+
+.qc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.qc-quote {
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  background: #ffffff;
+}
+
+.qc-quote h3 {
+  font-size: 0.95rem;
+  margin: 0 0 0.5rem;
+}
+
+.qc-quote .calc-form-group {
+  margin-bottom: 0.5rem;
+}
+
+.qc-checks {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.82rem;
+}
+
+.qc-checks label {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.qc-result td.qc-best {
+  font-weight: 700;
+  color: #15803d;
+}
+
+@media (max-width: 760px) {
+  .qc-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -43,4 +43,5 @@ if (!defined('ABSPATH')) {
   <div class="table-caption">
     *Note: All volumes are for a 4-inch slab with <?php echo esc_html(Slab_Data::get('concrete.waste_pct')); ?>% waste. Bag counts use 0.60 cu ft per 80-lb bag (45 bags per yd³) and 0.45 cu ft per 60-lb bag (60 bags per yd³), rounded up. Costs use the calculator's own line items and default rates. <?php echo esc_html(Slab_Data::cost_basis_note()); ?> Actual costs vary by locality and access; use the regional index in the calculator for your area.
   </div>
+  <p style="margin-top: 0.75rem;"><a href="<?php echo esc_url(home_url('/concrete-slab-cost-by-size/')); ?>"><strong>See all slab sizes, from 8x8 to 40x60 &rarr;</strong></a></p>
 </div>

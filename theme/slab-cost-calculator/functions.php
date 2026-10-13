@@ -89,7 +89,7 @@ function slab_enqueue_assets() {
     // the calculator's HTML with none of its JS, so every input silently
     // did nothing (no live totals, no BOQ table, no PDF button) on those
     // pages specifically.
-    if (slab_is_home_page() || get_query_var('slab_route') === 'quote_checker' || is_page_template('page-templates/template-calculator-single.php') || is_page_template('page-templates/template-hub.php')) {
+    if (slab_is_home_page() || in_array(get_query_var('slab_route'), ['quote_checker', 'size_page', 'tool_page'], true) || is_page_template('page-templates/template-calculator-single.php') || is_page_template('page-templates/template-hub.php')) {
         // PDF REPORT ENGINE: the "Print Estimate" button used to call
         // window.print() against print.css -- effectively printing/
         // screenshotting the live calculator page. It now builds a real,
@@ -147,6 +147,8 @@ require_once get_template_directory() . '/inc/calculator-pages.php';
 require_once get_template_directory() . '/inc/calculator-faq.php';
 require_once get_template_directory() . '/inc/applications.php';
 require_once get_template_directory() . '/inc/quote-checker.php';
+require_once get_template_directory() . '/inc/size-pages.php';
+require_once get_template_directory() . '/inc/tool-pages.php';
 require_once get_template_directory() . '/inc/schema-generator.php';
 require_once get_template_directory() . '/inc/sitemap-generator.php';
 require_once get_template_directory() . '/inc/llms-txt-generator.php';
@@ -173,7 +175,12 @@ function slab_render_breadcrumbs() {
 function slab_get_breadcrumb_trail() {
     $hub = Slab_SEO_Engine::get_slab_hub_info();
     if ($hub) {
-        return [['name' => $hub['name'], 'item' => home_url($hub['path'])]];
+        $trail = [];
+        if (!empty($hub['parent'])) {
+            $trail[] = ['name' => $hub['parent']['name'], 'item' => home_url($hub['parent']['path'])];
+        }
+        $trail[] = ['name' => $hub['name'], 'item' => home_url($hub['path'])];
+        return $trail;
     }
 
     $trail = [];

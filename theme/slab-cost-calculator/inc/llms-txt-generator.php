@@ -20,15 +20,14 @@ if (!defined('ABSPATH')) {
 class Slab_LLMS_Generator {
 
     /**
-     * Pages left out of the lists: the six that 301 to an article, and three
-     * calculator pages that currently render a different tool than their
-     * name (audit H4; to be built or removed in a later phase).
+     * Pages left out of the lists: the six that 301 to an article. (The mix,
+     * wire mesh and form calculators were left out until Phase 5 gave them
+     * their own tools; they are listed again.)
      */
     const SKIP_SLUGS = [
         '10x10-concrete-slab-cost', '12x12-concrete-slab-cost',
         '20x20-concrete-slab-cost', '24x24-concrete-slab-cost',
         'concrete-cost-per-square-foot', 'concrete-cost-per-cubic-yard',
-        'concrete-mix-calculator', 'concrete-wire-mesh-calculator', 'concrete-form-calculator',
         'privacy-policy', 'terms',
     ];
 
@@ -166,14 +165,22 @@ class Slab_LLMS_Generator {
         $o .= "\n";
 
         $calcs = self::pages_with_template('page-templates/template-calculator-single.php');
-        if ($calcs) {
-            $o .= "## Calculators\n\n";
-            $o .= self::line('All calculators', home_url('/calculators/'));
-            foreach ($calcs as $p) {
-                $o .= self::line(get_the_title($p), get_permalink($p));
-            }
-            $o .= "\n";
+        $o .= "## Calculators\n\n";
+        $o .= self::line('All calculators', home_url('/calculators/'));
+        foreach ($calcs as $p) {
+            $o .= self::line(get_the_title($p), get_permalink($p));
         }
+        foreach (Slab_Tool_Pages::directory() as $slug => $info) {
+            $o .= self::line($info[1], home_url('/' . $slug . '/'), $info[2]);
+        }
+        $o .= "\n";
+
+        $o .= "## Slab cost by size\n\n";
+        $o .= self::line('Concrete slab cost by size (all sizes)', home_url(Slab_Size_Pages::hub_path()), 'Yards, bags and installed price for every size below.');
+        foreach (Slab_Size_Pages::hub_rows() as $r) {
+            $o .= self::line($r['size'] . ' concrete slab', home_url($r['url']), sprintf('%s sq ft at %d in: %s yd³ with waste or %s bags of 80-lb mix; %s installed.', number_format($r['area']), $r['t'], number_format($r['order_yd'], 2), number_format($r['bags80']), Slab_Data::money_range($r['installed'], 0, ' to ')));
+        }
+        $o .= "\n";
 
         $apps = self::pages_with_template('page-templates/template-hub.php');
         if ($apps) {
