@@ -536,6 +536,9 @@ class Slab_SEO_Engine {
     }
 
     public static function render_meta_tags() {
+        // Google Search Console ownership verification (HTML tag method).
+        // Keep it: removing the tag can unverify the property.
+        echo '<meta name="google-site-verification" content="9uGVms4w1OFt96PoLLNTu8S8Om2iWEVoyBw-jl5SsD0" />' . "\n";
         $title = wp_get_document_title();
         $description = self::get_meta_description();
         $canonical = self::get_canonical_url();
