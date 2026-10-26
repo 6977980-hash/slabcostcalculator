@@ -312,3 +312,20 @@ add_action('template_redirect', function () {
         header('X-Robots-Tag: noindex, follow', true);
     }
 }, 0);
+
+// Google Analytics 4 (gtag.js), first thing in <head> on every theme page.
+// The embeddable widget frame (inc/embed-widget.php) prints its own HTML
+// without wp_head, so visits on other people's sites are not tracked.
+add_action('wp_head', function () {
+    ?>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VMK7ZY8NTC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-VMK7ZY8NTC');
+</script>
+<?php
+}, 0);
