@@ -338,8 +338,24 @@ class Slab_State_Pages {
         return strtr($text, $tokens);
     }
 
+    /** "Phoenix metro, AZ" -> "Phoenix". */
+    public static function metro_city($name) {
+        return preg_replace('/( metro)?, [A-Z]{2}$/', '', $name);
+    }
+
+    /**
+     * States with one big metro name it in the title, since people search
+     * the city ("cost of concrete in phoenix", Search Console 2026-11-01).
+     */
     public static function title($slug) {
         $d = self::data($slug);
+        if (count($d['metro_rows']) === 1) {
+            $m = reset($d['metro_rows']);
+            $t = 'Concrete Slab Cost in ' . $d['name'] . ' & ' . self::metro_city($m['name']) . ' (2026)';
+            if (mb_strlen($t) <= 60) {
+                return $t;
+            }
+        }
         return 'Concrete Slab Cost in ' . $d['name'] . ' (2026 Prices)';
     }
 
@@ -347,7 +363,7 @@ class Slab_State_Pages {
         $d = self::data($slug);
         return sprintf(
             'Concrete slab cost in %s: about %s per sq ft installed, %s the U.S. average. Patio, driveway and garage prices, plus %s frost, soil and PSI notes.',
-            $d['name'],
+            $d['name'] . (count($d['metro_rows']) === 1 ? ' and ' . self::metro_city(reset($d['metro_rows'])['name']) : ''),
             Slab_Data::money_range($d['prices']['slab']['psf'], 2, '–'),
             self::vs_national($d['index']),
             $d['name']
@@ -389,6 +405,22 @@ class Slab_State_Pages {
                 ),
             ],
         ];
+        foreach ($d['metro_rows'] as $m) {
+            $city = self::metro_city($m['name']);
+            $mp = $m['prices'];
+            $faqs[] = [
+                'q' => "How much does concrete cost in {$city}?",
+                'a' => sprintf(
+                    'In the %s area our model puts 3,000 PSI ready-mix at about %s per cubic yard before delivery, and a 4-inch slab at about %s per sq ft installed, %s the U.S. average. A 12 x 12 ft patio runs about %s and a 20 x 40 ft driveway about %s.',
+                    $city,
+                    Slab_Data::money_range(self::ready_mix(Slab_Data::get('concrete.psi_base'), $m['index']), 0, ' to '),
+                    Slab_Data::money_range($mp['slab']['psf'], 2, ' to '),
+                    self::vs_national($m['index']),
+                    Slab_Data::money_range($mp['patio']['installed'], 0, ' to '),
+                    Slab_Data::money_range($mp['driveway']['installed'], 0, ' to ')
+                ),
+            ];
+        }
         $faqs[] = ['q' => self::fill($d['faq']['q'], $d), 'a' => self::fill($d['faq']['a'], $d)];
         $faqs[] = [
             'q' => "How are these {$n} prices worked out?",

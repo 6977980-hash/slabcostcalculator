@@ -239,7 +239,9 @@ class Slab_SEO_Engine {
             // point. Collapsed into a single ~58-character string with the
             // core keyword phrase once, and the other parts cleared so
             // wp_get_document_title() doesn't re-append them.
-            $title['title'] = 'Concrete Slab Cost Calculator — Estimate Materials & Labor';
+            // Search Console (2026-11-01): "concrete slab cost calculator" is the
+            // site's biggest query; the title also covers the "price" variant.
+            $title['title'] = 'Concrete Slab Cost Calculator: Price, Yards & Bags (2026)';
             $title['tagline'] = '';
             $title['site'] = '';
         }
@@ -252,6 +254,18 @@ class Slab_SEO_Engine {
             $slug = get_post_field('post_name', get_queried_object_id());
             if (isset($short[$slug])) {
                 $title['title'] = $short[$slug];
+                $title['tagline'] = '';
+                $title['site'] = '';
+                return $title;
+            }
+        }
+
+        // Calculator pages with a search-tuned <title> (inc/calculator-pages.php
+        // 'title' key). The H1 on the page stays as it is.
+        if (is_page() && class_exists('Slab_Calculator_Pages')) {
+            $calc = Slab_Calculator_Pages::get(get_post_field('post_name', get_queried_object_id()));
+            if ($calc && !empty($calc['title'])) {
+                $title['title'] = $calc['title'];
                 $title['tagline'] = '';
                 $title['site'] = '';
                 return $title;
@@ -303,7 +317,10 @@ class Slab_SEO_Engine {
         }
 
         if (is_front_page()) {
-            return 'Use our concrete slab cost calculator to estimate concrete volume, bags, ready-mix, labor, materials, and total slab cost. Supports imperial and metric units.';
+            return sprintf(
+                'Free concrete slab cost calculator: a 4 in slab costs about %s per sq ft installed. Get the total price, cubic yards, bags, rebar and labor for any size.',
+                Slab_Data::money_range(Slab_Data::installed_psf(), 0, '–')
+            );
         }
 
         if (is_singular()) {

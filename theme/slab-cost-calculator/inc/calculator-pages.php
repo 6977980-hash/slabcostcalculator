@@ -310,12 +310,20 @@ class Slab_Calculator_Pages {
             ],
 
             'concrete-rebar-calculator' => [
+                'title' => 'Rebar Calculator for Concrete Slab: Bars, Sticks & Chairs',
                 'subtitle' => 'Lay out a #4 rebar grid for your slab: total bar footage with laps, number of 20-ft sticks, and how many chairs hold it up.',
                 'meta' => sprintf('Rebar calculator for slabs: a 20x20 #4 grid at %d in needs %d ft of bar, %d twenty-foot sticks and %d chairs. Spacing, laps and edge cover.', $r['rebar_base_spacing_in'], (int) round($grid['lin_ft']), $grid['sticks'], $grid['chairs']),
                 'answer' => sprintf('A 20 × 20 ft slab with #4 rebar at %d inches each way needs about <strong>%d linear feet</strong> of bar including laps, which is <strong>%d twenty-foot sticks</strong> and about %d chairs.', $r['rebar_base_spacing_in'], (int) round($grid['lin_ft']), $grid['sticks'], $grid['chairs']),
                 'sections' => [
                     ['How the Grid Is Laid Out', sprintf('<p>Bars start %d inches in from each edge (so they stay covered by concrete), then run at the chosen spacing in both directions. The total length gets %d%% added for laps and offcuts; where two bars meet end to end they overlap about %d bar diameters (%d inches for #4). Chairs hold the grid near the middle of the slab, roughly every %s ft. This is the same grid our slab calculator draws in its blueprint.</p>', $r['edge_cover_in'], (int) round($r['splice_allowance'] * 100), $r['lap_bar_diameters'], $r['lap_in_no4'], Slab_Data::range($r['chair_grid_ft'], ' to '))
                         . '<p>Lighter foot-traffic slabs often use welded wire mesh instead; see the ' . self::link('/concrete-wire-mesh-calculator/', 'wire mesh calculator') . ' and our ' . self::link('/concrete-slab-reinforcement-rebar-vs-wire-mesh/', 'rebar vs. wire mesh guide') . '.</p>'],
+                    ['Rebar for Common Slab Sizes', self::rebar_size_table()],
+                ],
+                'faqs' => [
+                    ['q' => 'How much rebar do I need for a concrete slab?', 'a' => sprintf('For a #4 grid at %d inches each way, plan on about %s linear feet of bar per square foot of slab including laps. A 20 x 20 ft slab needs about %d ft (%d twenty-foot sticks) and %d chairs; the table on this page lists other sizes.', $r['rebar_base_spacing_in'], Slab_Data::num(round($grid['lin_ft'] / 400, 2)), (int) round($grid['lin_ft']), $grid['sticks'], $grid['chairs'])],
+                    ['q' => 'What size rebar should I use for a 4 inch slab?', 'a' => sprintf('#3 (3/8 in) or #4 (1/2 in) bar. #4 at %d inches each way is the common choice for driveways and garage floors; #3 or welded wire mesh is enough for patios and walks. Keep the bar near mid-depth on chairs with at least %d inches of cover at the edges.', $r['rebar_base_spacing_in'], $r['edge_cover_in'])],
+                    ['q' => 'What rebar spacing should I use for a residential slab?', 'a' => sprintf('%d inches each way is standard for residential slabs. Tighten to %d inches for RV pads, heavy trucks or poor soil; light foot-traffic slabs can use 24 inches or wire mesh.', $r['rebar_base_spacing_in'], $r['rebar_tight_spacing_in'])],
+                    ['q' => 'Do I need rebar in a concrete slab?', 'a' => 'Not always. Rebar does not stop cracks; it keeps them tight so the pieces do not shift. Use it for slabs that carry vehicles, sit on clay or will hold a building. A patio or walkway is often fine with wire mesh or fiber mix and properly spaced control joints.'],
                 ],
             ],
 
@@ -351,12 +359,20 @@ class Slab_Calculator_Pages {
             ],
 
             'gravel-base-calculator' => [
+                'title' => 'Gravel Base Calculator: How Much Gravel Under a Slab',
                 'subtitle' => 'Find the cubic yards and tons of crushed stone to put under a slab, with extra for compaction so the base ends up at full depth.',
                 'meta' => sprintf('Gravel base calculator: yards and tons of crushed stone under a slab. 400 sq ft at %d in needs %s yd³ (%s tons) including compaction.', $s['gravel_depth_in'], $nf($gravel_yd), $nf($gravel_yd * $s['gravel_tons_per_yd'])),
                 'answer' => sprintf('A %d-inch compacted gravel base under a 20 × 20 ft slab takes about <strong>%s cubic yards</strong> of crushed stone, or <strong>%s tons</strong>, including %d%% extra for compaction. At %s per yard that is roughly %s.', $s['gravel_depth_in'], $nf($gravel_yd), $nf($gravel_yd * $s['gravel_tons_per_yd']), (int) round(($s['gravel_compaction'] - 1) * 100), esc_html(Slab_Data::money_range($s['gravel_range'], 0, ' to ')), esc_html(Slab_Data::money_range([$gravel_yd * $s['gravel_range'][0], $gravel_yd * $s['gravel_range'][1]], 0, ' to '))),
                 'sections' => [
                     ['How the Base Is Calculated', self::formula('Gravel to order', 'Area × Depth (in) ÷ 12 ÷ 27 × ' . Slab_Data::num($s['gravel_compaction'], 2), 'Multiply yards by about ' . Slab_Data::num($s['gravel_tons_per_yd'], 1) . ' to get tons; most yards sell stone by the ton.')
                         . '<p>The base spreads the slab\'s load and lets water drain away from its underside. Spread it in thin layers and run a plate compactor over each one. See ' . self::link('/how-much-gravel-do-i-need-under-a-concrete-slab/', 'how much gravel you need under a slab') . ' for stone types and when a base can be thinner.</p>'],
+                    ['How Much Gravel Under a Concrete Slab, by Size', self::gravel_size_table()],
+                ],
+                'faqs' => [
+                    ['q' => 'How much gravel do I need under a concrete slab?', 'a' => sprintf('Multiply the slab area by the base depth, divide by 12 and by 27 for cubic yards, and add %d%% for compaction. A %d-inch base under a 20 x 20 ft slab is about %s cubic yards, or %s tons of crushed stone.', (int) round(($s['gravel_compaction'] - 1) * 100), $s['gravel_depth_in'], $nf($gravel_yd), $nf($gravel_yd * $s['gravel_tons_per_yd']))],
+                    ['q' => 'How thick should the gravel base be under a slab?', 'a' => sprintf('%s inches of compacted crushed stone for patios, sheds, driveways and garage floors. Go thicker on soft or wet soil, and compact it in layers of no more than about 4 inches.', Slab_Data::range($s['gravel_depth_range'], ' to '))],
+                    ['q' => 'What kind of gravel goes under a concrete slab?', 'a' => 'Crushed stone with fines (often sold as 3/4-inch minus, crusher run or road base) compacts into a firm, level layer. Clean 3/4-inch stone drains better and is used where water is a concern. Avoid round pea gravel, which rolls and does not lock together.'],
+                    ['q' => 'How many tons of gravel per cubic yard?', 'a' => sprintf('About %s tons per cubic yard for crushed stone. Most suppliers sell by the ton, so convert your yards before you order.', Slab_Data::num($s['gravel_tons_per_yd'], 1))],
                 ],
             ],
 
@@ -371,11 +387,18 @@ class Slab_Calculator_Pages {
             ],
 
             'concrete-labor-cost-calculator' => [
+                'title' => 'Concrete Labor Cost Calculator (2026 Rates per Sq Ft)',
                 'subtitle' => 'Estimate what a crew charges to place and finish a slab, by finish and site difficulty, with the crew hours behind the price.',
                 'meta' => sprintf('Concrete labor cost calculator: %s/sq ft for placing and finishing, crew hours by finish. A 400 sq ft broom-finish slab is about %s.', Slab_Data::money_range($lab['sqft_range'], 2, '-'), Slab_Data::money(400 * $lab['sqft_default'], 0)),
                 'answer' => sprintf('Placing and finishing a 400 sq ft broom-finished slab costs about <strong>%s</strong> in labor at %s per sq ft, which is roughly %d crew-hours. Stamped finishes run about %s per sq ft.', esc_html(Slab_Data::money(400 * $lab['sqft_default'], 0)), esc_html(Slab_Data::money($lab['sqft_default'], 2)), (int) round(400 * $lab['crew_hours_per_sqft']), esc_html(Slab_Data::money($lab['sqft_stamped'], 2))),
                 'sections' => [
                     ['How Labor Is Estimated', sprintf('<p>Crews price small and mid-size slabs per square foot (%s), which covers setting forms, placing, screeding, floating, finishing, jointing and curing. Behind that is time: about %s crew-hours per square foot for a broom finish, more for stamped work or hard-to-reach sites, at %s per crew-hour (%s per finisher). Site prep, base, concrete and rebar are separate lines. Our guide to %s explains both methods.</p>', esc_html(Slab_Data::money_range($lab['sqft_range'], 2, ' to ')), Slab_Data::num($lab['crew_hours_per_sqft'], 3), esc_html(Slab_Data::money_range($lab['crew_hour'], 0, ' to ')), esc_html(Slab_Data::money_range($lab['worker_hour'], 0, ' to ')), self::link('/how-to-estimate-concrete-labor-cost/', 'estimating concrete labor cost'))],
+                    ['Labor Cost by Slab Size', self::labor_size_table()],
+                ],
+                'faqs' => [
+                    ['q' => 'How much does labor cost to pour a concrete slab?', 'a' => sprintf('About %s per sq ft for placing and finishing with a broom finish, so a 400 sq ft slab runs about %s in labor. Stamped and decorative finishes cost about %s per sq ft. Small jobs often have a minimum charge.', Slab_Data::money_range($lab['sqft_range'], 2, ' to '), Slab_Data::money_range([400 * $lab['sqft_range'][0], 400 * $lab['sqft_range'][1]], 0, ' to '), Slab_Data::money($lab['sqft_stamped'], 2))],
+                    ['q' => 'How much do concrete finishers charge per hour?', 'a' => sprintf('About %s per finisher-hour, or %s per crew-hour for a typical crew, depending on the area and the season.', Slab_Data::money_range($lab['worker_hour'], 0, ' to '), Slab_Data::money_range($lab['crew_hour'], 0, ' to '))],
+                    ['q' => 'Is labor more than materials on a concrete slab?', 'a' => 'On most small and mid-size slabs, labor and the contractor\'s overhead make up roughly half of the installed price or more. Doing the site prep and forms yourself and hiring a crew only for pour day is a common way to save.'],
                 ],
             ],
 
@@ -420,6 +443,49 @@ class Slab_Calculator_Pages {
         ];
 
         return self::$cache;
+    }
+
+    /** Common slab sizes for the per-size tables. */
+    private static function common_sizes() {
+        return [[10, 10], [12, 16], [20, 20], [24, 24], [30, 40], [40, 60]];
+    }
+
+    /** #4 rebar footage, sticks and chairs for common sizes. */
+    private static function rebar_size_table() {
+        $r = Slab_Data::get('reinforcement');
+        $o = '<div class="table-responsive"><table class="data-table"><thead><tr><th>Slab</th><th>Bar (lin ft)</th><th>20-ft sticks</th><th>Chairs</th></tr></thead><tbody>';
+        foreach (self::common_sizes() as $sz) {
+            $g = Slab_Data::rebar_grid($sz[1], $sz[0], $r['rebar_base_spacing_in']);
+            $o .= '<tr><td><strong>' . $sz[0] . ' × ' . $sz[1] . ' ft</strong></td><td>' . number_format(round($g['lin_ft'])) . '</td><td>' . (int) $g['sticks'] . '</td><td>' . (int) $g['chairs'] . '</td></tr>';
+        }
+        return $o . '</tbody></table><div class="table-caption">#4 bar at ' . (int) $r['rebar_base_spacing_in'] . ' in each way, ' . (int) $r['edge_cover_in'] . ' in edge cover, ' . (int) round($r['splice_allowance'] * 100) . '% added for laps.</div></div>';
+    }
+
+    /** Gravel yards and tons under common slab sizes at the low and high base depth. */
+    private static function gravel_size_table() {
+        $s = Slab_Data::get('site');
+        $dep = $s['gravel_depth_range'];
+        $o = '<div class="table-responsive"><table class="data-table"><thead><tr><th>Slab</th><th>' . (int) $dep[0] . ' in base</th><th>' . (int) $dep[1] . ' in base</th></tr></thead><tbody>';
+        foreach (self::common_sizes() as $sz) {
+            $o .= '<tr><td><strong>' . $sz[0] . ' × ' . $sz[1] . ' ft</strong></td>';
+            foreach ($dep as $in) {
+                $yd = $sz[0] * $sz[1] * $in / 12 / 27 * $s['gravel_compaction'];
+                $o .= '<td>' . esc_html(Slab_Data::num(round($yd, 1), 1)) . ' yd³ (' . esc_html(Slab_Data::num(round($yd * $s['gravel_tons_per_yd'], 1), 1)) . ' tons)</td>';
+            }
+            $o .= '</tr>';
+        }
+        return $o . '</tbody></table><div class="table-caption">Compacted crushed stone, including ' . (int) round(($s['gravel_compaction'] - 1) * 100) . '% extra for compaction, at about ' . esc_html(Slab_Data::num($s['gravel_tons_per_yd'], 1)) . ' tons per yard.</div></div>';
+    }
+
+    /** Placing and finishing labor for common slab sizes (broom finish). */
+    private static function labor_size_table() {
+        $lab = Slab_Data::get('labor');
+        $o = '<div class="table-responsive"><table class="data-table"><thead><tr><th>Slab</th><th>Area</th><th>Labor (broom finish)</th><th>Crew-hours</th></tr></thead><tbody>';
+        foreach (self::common_sizes() as $sz) {
+            $a = $sz[0] * $sz[1];
+            $o .= '<tr><td><strong>' . $sz[0] . ' × ' . $sz[1] . ' ft</strong></td><td>' . number_format($a) . ' sq ft</td><td>' . esc_html(Slab_Data::money_range(Slab_Data::round_pair([$a * $lab['sqft_range'][0], $a * $lab['sqft_range'][1]], 10), 0, '–')) . '</td><td>' . (int) round($a * $lab['crew_hours_per_sqft']) . '</td></tr>';
+        }
+        return $o . '</tbody></table><div class="table-caption">Placing, screeding, finishing, jointing and curing at ' . esc_html(Slab_Data::money_range($lab['sqft_range'], 2, '–')) . ' per sq ft. Concrete, base, forms and rebar are separate.</div></div>';
     }
 
     /** $/sq ft installed by thickness for three slab sizes. */
