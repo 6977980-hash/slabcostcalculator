@@ -182,6 +182,15 @@ class Slab_Size_Pages {
                 ],
                 'faq' => ['q' => 'Is a 10x20 slab big enough to park a car?', 'a' => 'Yes for one compact or mid-size car: 10 ft gives enough width to open doors on one side. Make it 12 ft wide if you need to open doors on both sides or park a full-size pickup.'],
             ],
+            '12x15' => ['l' => 15, 'w' => 12, 't' => 4, 'use' => 'patio',
+                'intro' => 'A 12 × 15 ft slab ({area} sq ft) is a comfortable patio for a table for six and a grill, or the floor of a mid-size shed. At 4 in thick it takes {order_yd} yd³ with waste, about {bags80} bags of 80-lb mix, which sits right around the point where a small ready-mix load starts to beat bags on price.',
+                'notes' => [
+                    'Slope a patio away from the house at about 1/4 in per foot, so the 12-ft depth drops about 3 in.',
+                    'One control joint across the 15-ft side splits it into two panels of about 12 × 7.5 ft, close enough to square to keep random cracks away.',
+                    'Under 200 sq ft many towns do not ask for a permit for a patio or shed slab, but check setbacks and HOA rules first.',
+                ],
+                'faq' => ['q' => 'Is a 12x15 patio big enough for a dining table?', 'a' => 'Yes. A table for six needs about 10 x 12 ft with room to pull chairs out, so a 12 x 15 ft patio fits it with space left for a grill or two lounge chairs. For a separate seating group as well, look at 16 x 20 ft.'],
+            ],
             '12x16' => ['l' => 16, 'w' => 12, 't' => 4, 'use' => 'shed',
                 'intro' => 'A 12 × 16 ft slab is the classic backyard workshop and large-shed size: {area} sq ft, room for a workbench along one wall and a mower along the other. At 4 in thick it takes {order_yd} yd³ with waste, so a small ready-mix load usually beats {bags80} bags on both price and labor.',
                 'notes' => [
@@ -289,6 +298,15 @@ class Slab_Size_Pages {
                     'Budget a pump or a truck path along the long side; the chute will not reach the middle from one side.',
                 ],
                 'faq' => ['q' => 'Can a 30x50 slab be poured in one day?', 'a' => 'Yes with a large crew, a pump and well-spaced trucks, but many contractors pour it in two halves with a doweled construction joint to keep each pour manageable.'],
+            ],
+            '24x50' => ['l' => 50, 'w' => 24, 't' => 6, 'use' => 'shop',
+                'intro' => 'A 24 × 50 ft slab ({area} sq ft) is a long shop, an RV or boat garage, or a narrow pole barn with a work bay at one end. At 6 in thick it is {order_yd} yd³ with waste in {trucks} trucks, and its long shape gets control joints about every 12 ft down the length.',
+                'notes' => [
+                    'RV and boat bays need 6 in minimum with #4 rebar at 12 in under the wheel paths; light storage can drop to 5 in.',
+                    'A 50-ft run is too long for one screed pass from the ends. Plan truck or pump access along a long side.',
+                    'Post-frame buildings set their posts on separate footings; pour those first and form the slab around them.',
+                ],
+                'faq' => ['q' => 'Is a 24x50 slab big enough for an RV garage?', 'a' => 'Yes for most RVs up to about 40 ft, with room for a workbench or a second vehicle. Pour the RV bay 6 inches thick with #4 rebar at 12 inches, and plan a door at least 12 ft wide and 14 ft high.'],
             ],
             '40x40' => ['l' => 40, 'w' => 40, 't' => 6, 'use' => 'shop',
                 'intro' => 'A 40 × 40 ft slab ({area} sq ft) is a square shop, a farm equipment building or a commercial-style garage. Being square, it gets the same joint grid both ways; at 6 in it takes {order_yd} yd³ and a crew of five or more with power trowels.',
@@ -454,8 +472,35 @@ class Slab_Size_Pages {
         return $a . ' × ' . $b . ' ft';
     }
 
+    /**
+     * <title> leads with the installed price so the search snippet answers
+     * the query ("16x20 concrete slab cost") before the click. Falls back
+     * to the shorter form if a large range would push it past 60 chars.
+     */
     public static function title($size) {
-        return $size . ' Concrete Slab Cost: Bags, Yards & Price';
+        $d = self::data($size);
+        $t = $size . ' Concrete Slab Cost: ' . Slab_Data::money_range($d['installed'], 0, '–') . ' Installed (2026)';
+        if (mb_strlen($t) > 60) {
+            $t = $size . ' Concrete Slab Cost: ' . Slab_Data::money_range($d['installed'], 0, '–') . ' (2026)';
+        }
+        return $t;
+    }
+
+    /**
+     * The canonical slug for a size typed either way round: "24x20" and
+     * "20x24" are the same slab. Returns the page or article path, or null.
+     */
+    public static function path_for_any_order($a, $b) {
+        foreach ([$a . 'x' . $b, $b . 'x' . $a] as $key) {
+            if (self::exists($key)) {
+                return self::path($key);
+            }
+            $art = self::article_sizes();
+            if (isset($art[$key])) {
+                return $art[$key][4];
+            }
+        }
+        return null;
     }
 
     public static function h1($size) {

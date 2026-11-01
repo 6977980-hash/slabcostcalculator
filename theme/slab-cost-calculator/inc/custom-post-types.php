@@ -33,7 +33,7 @@ class Slab_Architecture_Router {
      * manual step required.
      */
     public static function maybe_flush_rewrite_rules() {
-        $marker = 'phase7-report-states-embed-v2';
+        $marker = 'gsc-2026-11-sizes-12x15-24x50';
         if (get_option('slab_rewrite_rules_version') !== $marker) {
             flush_rewrite_rules();
             update_option('slab_rewrite_rules_version', $marker);
@@ -250,11 +250,26 @@ class Slab_Architecture_Router {
             // redirect is a safety net in case the dead URL was already
             // crawled, indexed, or bookmarked externally.
             'concrete-slab-cost' => 'how-much-does-a-concrete-slab-cost',
+            // Live Search Console (2026-11-01) still showed impressions for
+            // these dead URLs; send them to the page that answers the query.
+            'concrete-slab-cost-per-square-foot' => 'concrete-cost-per-square-foot-pricing-matrix',
+            'concrete-slab-cost-calculator' => '',
         ];
 
         if (isset($legacy_redirects[$path])) {
-            wp_safe_redirect(home_url('/' . trailingslashit($legacy_redirects[$path])), 301);
+            $target = $legacy_redirects[$path];
+            wp_safe_redirect(home_url($target === '' ? '/' : '/' . trailingslashit($target)), 301);
             exit;
+        }
+
+        // A size typed the other way round ("24x20" for the 20x24 page) is
+        // the same slab; Search Console shows people search both orders.
+        if (class_exists('Slab_Size_Pages') && preg_match('/^(\d{1,3})x(\d{1,3})-concrete-slab-cost$/', $path, $m)) {
+            $to = Slab_Size_Pages::path_for_any_order($m[1], $m[2]);
+            if ($to) {
+                wp_safe_redirect(home_url($to), 301);
+                exit;
+            }
         }
     }
 
