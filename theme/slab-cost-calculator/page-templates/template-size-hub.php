@@ -3,7 +3,7 @@
  * CONCRETE SLAB COST BY SIZE — /concrete-slab-cost-by-size/
  *
  * Routed by Slab_Architecture_Router (slab_route=size_hub). Lists every size
- * page and the four size articles, grouped by project type, with figures
+ * page, grouped by project type, with figures
  * from Slab_Data (inc/size-pages.php).
  *
  * @package SlabCostCalculator
@@ -33,7 +33,7 @@ $big = Slab_Data::size_costs(60, 40, 4);
       <article class="article-content">
         <header class="page-header" style="margin-bottom: 1.5rem;">
           <h1 class="hero-title">Concrete Slab Cost by Size</h1>
-          <p class="hero-subtitle">Concrete, bags and installed price for <?php echo count($rows); ?> common slab sizes, from an 8 × 8 hot tub pad to a 40 × 60 pole barn floor. Each size has its own page with a full materials list, bags vs. ready-mix, pour-day notes and a calculator set to that size.</p>
+          <p class="hero-subtitle">Concrete, bags and installed price for <?php echo count($rows); ?> common slab sizes, from an 8 × 8 hot tub pad to a 60 × 100 pole barn floor. Each size has its own page with a full materials list, bags vs. ready-mix, pour-day notes and a calculator set to that size.</p>
           <p class="hero-answer"><strong>Quick answer:</strong> installed concrete slabs run about <?php echo esc_html(Slab_Data::money_range(Slab_Data::installed_psf(), 0, ' to ')); ?> per sq ft at 4 inches. Small slabs cost more per foot (an 8 × 10 is about <?php echo esc_html(Slab_Data::money_range(Slab_Data::round_out($small['installed_psf'], 0.5), 2, ' to ')); ?>) because delivery and setup are spread over less area; a 40 × 60 is about <?php echo esc_html(Slab_Data::money_range(Slab_Data::round_out($big['installed_psf'], 0.5), 2, ' to ')); ?>.</p>
           <div class="trust-bar">
             <div class="trust-item"><strong>Last Updated:</strong> <time datetime="<?php echo esc_attr(SLAB_CONTENT_UPDATED); ?>"><?php echo esc_html(wp_date('F j, Y', strtotime(SLAB_CONTENT_UPDATED . ' 12:00:00'))); ?></time></div>

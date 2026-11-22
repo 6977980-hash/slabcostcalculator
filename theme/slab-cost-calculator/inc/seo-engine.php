@@ -133,7 +133,7 @@ class Slab_SEO_Engine {
                 'path'        => Slab_Size_Pages::hub_path(),
                 'name'        => 'Slab Cost by Size',
                 'title'       => sprintf('Concrete Slab Cost by Size: %d Sizes Priced', count(Slab_Size_Pages::hub_rows())),
-                'description' => sprintf('Concrete slab cost by size: yards, 80-lb bags and installed price for %d common sizes, from an 8x8 hot tub pad to a 40x60 pole barn floor.', count(Slab_Size_Pages::hub_rows())),
+                'description' => sprintf('Concrete slab cost by size: yards, 80-lb bags and installed price for %d common sizes, from an 8x8 hot tub pad to a 60x100 pole barn floor.', count(Slab_Size_Pages::hub_rows())),
                 'type'        => 'collection',
                 'faqs'        => Slab_Size_Pages::hub_faqs(),
             ];

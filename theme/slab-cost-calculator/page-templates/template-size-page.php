@@ -260,6 +260,7 @@ slab_render_breadcrumbs();
           <li><a href="<?php echo esc_url(home_url($link[1])); ?>"><?php echo esc_html($link[0]); ?></a></li>
           <?php endforeach; ?>
           <li><a href="<?php echo esc_url(home_url(Slab_Size_Pages::hub_path())); ?>">Concrete slab cost by size (all sizes)</a></li>
+          <li>Any other size: <a href="<?php echo esc_url(home_url('/')); ?>">concrete slab cost calculator</a></li>
         </ul>
 
         <?php get_template_part('template-parts/author-bio'); ?>
