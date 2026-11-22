@@ -260,6 +260,18 @@ class Slab_SEO_Engine {
             }
         }
 
+        // Project-type pages with a search-tuned <title> (inc/applications.php
+        // 'title' key: /garage/, /shed/).
+        if (is_page_template('page-templates/template-hub.php') && class_exists('Slab_Applications')) {
+            $app = Slab_Applications::get(get_post_field('post_name', get_queried_object_id()));
+            if ($app && !empty($app['title'])) {
+                $title['title'] = $app['title'];
+                $title['tagline'] = '';
+                $title['site'] = '';
+                return $title;
+            }
+        }
+
         // Calculator pages with a search-tuned <title> (inc/calculator-pages.php
         // 'title' key). The H1 on the page stays as it is.
         if (is_page() && class_exists('Slab_Calculator_Pages')) {

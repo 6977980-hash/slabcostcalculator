@@ -27,7 +27,7 @@ $app = Slab_Applications::get($app_slug);
     <div class="content-grid">
       <article class="article-content">
         <header class="page-header" style="margin-bottom: 2rem;">
-          <h1 class="hero-title"><?php the_title(); ?></h1>
+          <h1 class="hero-title"><?php echo $app && !empty($app['h1']) ? esc_html($app['h1']) : esc_html(get_the_title()); ?></h1>
           <?php if ($app) : ?>
             <p class="hero-subtitle"><?php echo esc_html($app['subtitle']); ?></p>
             <p class="hero-answer"><?php echo wp_kses_post($app['answer']); ?></p>
@@ -59,7 +59,7 @@ $app = Slab_Applications::get($app_slug);
                 <?php foreach ($app['sizes'] as $row) : ?>
                   <tr>
                     <td><strong><?php echo esc_html($row['label']); ?></strong></td>
-                    <td><?php echo esc_html($row['dims'] . ' (' . number_format($row['area']) . ' sq ft)'); ?></td>
+                    <td><?php if (!empty($row['url'])) : ?><a href="<?php echo esc_url(home_url($row['url'])); ?>"><?php echo esc_html($row['dims']); ?></a><?php else : echo esc_html($row['dims']); endif; ?> <?php echo esc_html('(' . number_format($row['area']) . ' sq ft)'); ?></td>
                     <td><?php echo esc_html(number_format($row['yd'], 2)); ?> yd³<?php if ($row['bags'] && $row['yd'] < 3) : ?> <span class="table-sub">(<?php echo (int) $row['bags']; ?> × 80-lb bags)</span><?php endif; ?></td>
                     <?php if ($row['diy'] !== null) : ?><td><?php echo esc_html(Slab_Data::money_range($row['diy'], 0, '–')); ?></td><?php endif; ?>
                     <td><?php echo esc_html(Slab_Data::money_range($row['installed'], 0, '–')); ?></td>

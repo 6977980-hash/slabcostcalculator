@@ -86,6 +86,8 @@ $joint_max = $sd['joints']['max_ft'][5];
 
 ob_start();
 ?>
+<p><strong>Looking for prices by garage size?</strong> The <a href="<?php echo esc_url(home_url('/garage/')); ?>">garage slab cost</a> page lists 1, 2 and 3-car floor prices side by side. This guide covers the foundation question: monolithic slab or stem wall.</p>
+
 <p class="hero-answer"><strong>Quick answer:</strong> a 2-car garage slab (24x24 ft, 576 sq ft) at 5 inches costs about <strong><?php echo esc_html($mr($g['installed'])); ?></strong> as a plain floating slab, or roughly <?php echo esc_html(Slab_Data::money_range($garage_psf, 0, ' to ')); ?> per sq ft. With a monolithic thickened edge it runs about <?php echo esc_html($mr($mono_total)); ?>. In cold climates, a stem wall on frost-depth footings adds roughly <?php echo esc_html($mr($stem_add)); ?>, for a total near <?php echo esc_html($mr($stem_total)); ?>.</p>
 
 <p>The floor itself is the easy part of a garage slab. The real cost question is what holds up the walls. In a warm climate, a slab with a thickened edge does the job in one pour. Where the ground freezes, the building department will usually want footings below the frost line, and that can roughly double the price or more. This guide prices both, with the math shown.</p>
