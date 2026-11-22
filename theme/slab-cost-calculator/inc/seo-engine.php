@@ -133,7 +133,7 @@ class Slab_SEO_Engine {
                 'path'        => Slab_Size_Pages::hub_path(),
                 'name'        => 'Slab Cost by Size',
                 'title'       => sprintf('Concrete Slab Cost by Size: %d Sizes Priced', count(Slab_Size_Pages::hub_rows())),
-                'description' => sprintf('Concrete slab cost by size: yards, 80-lb bags and installed price for %d common sizes, from an 8x8 hot tub pad to a 40x60 pole barn floor.', count(Slab_Size_Pages::hub_rows())),
+                'description' => sprintf('Concrete slab cost by size: yards, 80-lb bags and installed price for %d common sizes, from an 8x8 hot tub pad to a 60x100 pole barn floor.', count(Slab_Size_Pages::hub_rows())),
                 'type'        => 'collection',
                 'faqs'        => Slab_Size_Pages::hub_faqs(),
             ];
@@ -254,6 +254,18 @@ class Slab_SEO_Engine {
             $slug = get_post_field('post_name', get_queried_object_id());
             if (isset($short[$slug])) {
                 $title['title'] = $short[$slug];
+                $title['tagline'] = '';
+                $title['site'] = '';
+                return $title;
+            }
+        }
+
+        // Project-type pages with a search-tuned <title> (inc/applications.php
+        // 'title' key: /garage/, /shed/).
+        if (is_page_template('page-templates/template-hub.php') && class_exists('Slab_Applications')) {
+            $app = Slab_Applications::get(get_post_field('post_name', get_queried_object_id()));
+            if ($app && !empty($app['title'])) {
+                $title['title'] = $app['title'];
                 $title['tagline'] = '';
                 $title['site'] = '';
                 return $title;

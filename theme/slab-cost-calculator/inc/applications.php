@@ -56,6 +56,7 @@ class Slab_Applications {
             'bags' => $c['est']['bags80'],
             'diy' => $c['diy'],
             'installed' => $c['installed'],
+            'url' => class_exists('Slab_Size_Pages') ? Slab_Size_Pages::path_for_any_order($l, $w) : null,
         ];
     }
 
@@ -136,7 +137,7 @@ class Slab_Applications {
             ],
             'links' => [
                 ['Concrete patio cost guide (stamped vs. broom)', '/concrete-patio-slab-cost-guide/'],
-                ['12x12 slab cost breakdown', '/12x12-concrete-slab-cost-breakdown/'],
+                ['12x12 slab cost breakdown', '/12x12-concrete-slab-cost/'],
                 ['Concrete sealers: do you need one?', '/concrete-sealers-do-you-need-one/'],
             ],
         ];
@@ -202,18 +203,29 @@ class Slab_Applications {
         $m = $sd['monolithic'];
         $edge = Slab_Data::edge_yd(24, 24, 5, $m['edge_depth_in'][1]);
 
+        $one = self::size_row('1-car', 12, 24, 5);
+        $three = self::size_row('3-car', 24, 36, 5);
         return [
-            'subtitle' => 'Garage floor slab costs for 1, 2 and 3-car garages, and the choices that matter: thickness, vapor barrier, thickened edges and slope to the door.',
-            'meta' => sprintf('Garage slab cost: %s/sq ft installed at 5 in, about %s for a 24x24 2-car garage. Thickened edges, vapor barrier, PSI and slope.', Slab_Data::money_range($gpsf, 0, '-'), self::mr($two['installed'])),
+            // Search Console 2026-11-22: "garage slab cost", "2 car garage
+            // concrete slab cost" ranked 87-95, split between this page and
+            // the monolithic-vs-stem-wall post. This is the price-by-size page.
+            'title' => 'Garage Slab Cost: 1, 2 & 3-Car Prices (2026)',
+            'h1' => 'Garage Slab Cost: 1, 2 and 3-Car Garage Floor Prices',
+            'subtitle' => 'What a concrete garage floor costs for 1, 2 and 3-car garages at 5 inches thick, and the choices that change the price: thickness, vapor barrier, thickened edges and slope to the door.',
+            'meta' => sprintf('Garage slab cost: 1-car %s, 2-car %s, 3-car %s installed at 5 in thick. Per sq ft price, thickened edge and foundation.', Slab_Data::money_range($one['installed'], 0, '-'), Slab_Data::money_range($two['installed'], 0, '-'), Slab_Data::money_range($three['installed'], 0, '-')),
             'preset' => 'garage',
-            'answer' => sprintf('A garage floor slab costs about <strong>%s per sq ft</strong> installed at 5 inches thick, so a 24 × 24 ft two-car garage runs about <strong>%s</strong> for the slab. Thickened edges for a monolithic pour add concrete and digging on top of that.', esc_html(Slab_Data::money_range($gpsf, 0, ' to ')), esc_html(self::mr($two['installed']))),
-            'size_title' => 'Garage Slab Sizes and Costs (5 in thick)',
+            'answer' => sprintf('A concrete garage slab costs about <strong>%s per sq ft</strong> installed at 5 inches thick: about <strong>%s</strong> for a 1-car garage (12 × 24 ft), <strong>%s</strong> for a standard 2-car garage (24 × 24 ft) and <strong>%s</strong> for a 3-car garage (24 × 36 ft). A thickened edge for a monolithic pour, or footings and a stem wall in frost country, are extra.', esc_html(Slab_Data::money_range($gpsf, 0, ' to ')), esc_html(self::mr($one['installed'])), esc_html(self::mr($two['installed'])), esc_html(self::mr($three['installed']))),
+            'size_title' => 'Garage Slab Cost by Size (5 in thick)',
             'sizes' => [
-                self::size_row('1-car', 12, 24, 5),
+                $one,
+                self::size_row('1-car, short', 20, 12, 5),
                 self::size_row('1.5-car / workshop', 16, 24, 5),
-                self::size_row('2-car, compact', 20, 22, 5),
+                self::size_row('2-car, compact', 20, 20, 5),
+                self::size_row('2-car, tight', 20, 24, 5),
                 $two,
-                self::size_row('3-car', 24, 36, 5),
+                self::size_row('2-car + workbench', 24, 30, 5),
+                self::size_row('2-car, large / shop', 30, 30, 5),
+                $three,
             ],
             'specs' => [
                 ['Thickness', '5 in for cars; 6 in for a shop with lifts, heavy tools or trucks'],
@@ -242,13 +254,17 @@ class Slab_Applications {
             ],
             'faqs' => [
                 ['q' => 'How much does a 2-car garage slab cost?', 'a' => sprintf('A 24 x 24 ft garage floor at 5 inches thick costs about %s installed, or %s per sq ft. It needs %s cubic yards of concrete before thickened edges.', self::mr($two['installed']), Slab_Data::money_range($gpsf, 0, ' to '), number_format($two['yd'], 2))],
+                ['q' => 'How much does a 1-car garage slab cost?', 'a' => sprintf('A 12 x 24 ft single garage floor at 5 inches costs about %s installed (%s cubic yards of concrete). A wider 12 x 20 or 16 x 24 ft bay is in the table on this page.', self::mr($one['installed']), number_format($one['yd'], 2))],
+                ['q' => 'How much does a 3-car garage slab cost?', 'a' => sprintf('A 24 x 36 ft three-car garage floor at 5 inches costs about %s installed and takes %s cubic yards of concrete, usually two trucks. A thickened edge or footings are extra.', self::mr($three['installed']), number_format($three['yd'], 2))],
+                ['q' => 'How much does a garage foundation cost compared with just the slab?', 'a' => sprintf('The prices here are the floor slab. A monolithic slab with a thickened edge adds roughly %s yd³ of concrete on a 24 x 24 ft garage plus trenching; a footing and stem wall in deep-frost areas costs more. Our monolithic vs. stem wall guide prices both.', number_format($edge, 2))],
                 ['q' => 'How thick should a garage floor be?', 'a' => 'Five inches is the usual recommendation for cars. Use 6 inches for a workshop with a car lift, heavy machines or trucks.'],
                 ['q' => 'Do I need a vapor barrier under a garage slab?', 'a' => 'The IRC calls for a 6-mil vapor retarder under slabs of enclosed spaces, with some exceptions for unheated garages. Most builders install one anyway because it is cheap and stops moisture from damaging coatings and stored items.'],
                 ['q' => 'Monolithic slab or stem wall for a garage?', 'a' => 'A monolithic thickened-edge slab is cheaper and common where frost is shallow. In deep-frost areas codes usually require footings below the frost line, which means a stem wall foundation. Ask your building department.'],
             ],
             'links' => [
                 ['Garage slab cost: monolithic vs. stem wall', '/how-much-does-a-garage-slab-cost/'],
-                ['24x24 slab cost breakdown', '/24x24-concrete-slab-cost-breakdown/'],
+                ['24x24 2-car garage slab cost', '/24x24-concrete-slab-cost/'],
+                ['24x36 3-car garage slab cost', '/24x36-concrete-slab-cost/'],
                 ['Rebar vs. wire mesh', '/concrete-slab-reinforcement-rebar-vs-wire-mesh/'],
             ],
         ];
@@ -265,18 +281,27 @@ class Slab_Applications {
         $pad_cost = [$pad_yd * $s['gravel_range'][0], $pad_yd * $s['gravel_range'][1]];
         $pad_cost = Slab_Data::round_pair([$pad_cost[0] + 2 * (14 + 12) * $s['forms_range'][0], $pad_cost[1] + 2 * (14 + 12) * $s['forms_range'][1]], 10);
 
+        $small = self::size_row('8 × 10 shed', 10, 8, 4);
+        $big = self::size_row('16 × 24 shed / workshop', 24, 16, 4);
         return [
-            'subtitle' => 'Concrete shed pad costs for common shed sizes, how a concrete pad compares with gravel, and how to make sure the shed actually fits.',
-            'meta' => sprintf('Concrete shed pad cost: about %s installed for a 10x12 shed, %s DIY. Sizes from 8x10 to 12x20, concrete vs gravel pad, anchors and thickness.', self::mr($mid['installed']), self::mr($mid['diy'])),
+            // Search Console 2026-11-22: "shed slab cost", "cost of concrete
+            // slab for shed" ranked 93-95. This is the price-by-size page.
+            'title' => 'Shed Slab Cost: Concrete Pad Prices by Size (2026)',
+            'h1' => 'Shed Slab Cost: Concrete Shed Pad Prices by Size',
+            'subtitle' => 'What a concrete shed pad costs for every common shed size from 6 × 8 to 16 × 24 ft, how a concrete pad compares with gravel, and how to make sure the shed actually fits.',
+            'meta' => sprintf('Shed slab cost: 8x10 %s, 10x12 %s, 16x24 %s installed at 4 in thick. DIY prices, concrete vs gravel pad and anchors.', Slab_Data::money_range($small['installed'], 0, '-'), Slab_Data::money_range($mid['installed'], 0, '-'), Slab_Data::money_range($big['installed'], 0, '-')),
             'preset' => 'shed',
-            'answer' => sprintf('A 4-inch concrete pad for a 10 × 12 ft shed costs about <strong>%s</strong> installed, or <strong>%s</strong> in materials if you pour it yourself. A compacted gravel pad for the same shed costs roughly %s in materials.', esc_html(self::mr($mid['installed'])), esc_html(self::mr($mid['diy'])), esc_html(self::mr($pad_cost))),
-            'size_title' => 'Shed Pad Sizes and Costs (4 in thick)',
+            'answer' => sprintf('A 4-inch concrete shed slab costs about <strong>%s</strong> installed for an 8 × 10 shed, <strong>%s</strong> for a 10 × 12 and <strong>%s</strong> for a 16 × 24 workshop. Doing it yourself, the 10 × 12 pad is about %s in materials. A compacted gravel pad for the same shed costs roughly %s in materials.', esc_html(self::mr($small['installed'])), esc_html(self::mr($mid['installed'])), esc_html(self::mr($big['installed'])), esc_html(self::mr($mid['diy'])), esc_html(self::mr($pad_cost))),
+            'size_title' => 'Shed Slab Cost by Size (4 in thick)',
             'sizes' => [
-                self::size_row('8 × 10 shed', 10, 8, 4),
+                self::size_row('6 × 8 shed', 8, 6, 4),
+                $small,
                 self::size_row('10 × 10 shed', 10, 10, 4),
                 $mid,
+                self::size_row('10 × 16 shed', 16, 10, 4),
                 self::size_row('12 × 16 shed', 16, 12, 4),
                 self::size_row('12 × 20 shed / small garage', 20, 12, 4),
+                $big,
             ],
             'specs' => [
                 ['Thickness', '4 in; 5 in with thickened edges if a riding mower, ATV or car is stored inside'],
@@ -297,13 +322,17 @@ class Slab_Applications {
             ],
             'faqs' => [
                 ['q' => 'How much does a concrete pad for a 10x12 shed cost?', 'a' => sprintf('About %s installed at 4 inches thick, or %s in materials to do it yourself. It needs %s cubic yards of concrete (%d bags of 80-lb mix).', self::mr($mid['installed']), self::mr($mid['diy']), number_format($mid['yd'], 2), $mid['bags'])],
+                ['q' => 'How much does a concrete slab for a 12x16 shed cost?', 'a' => sprintf('About %s installed at 4 inches thick. At %s cubic yards it is usually cheaper as a small ready-mix load than as bags.', self::mr(self::size_row('', 16, 12, 4)['installed']), number_format(self::size_row('', 16, 12, 4)['yd'], 2))],
+                ['q' => 'Is it cheaper to pour a shed slab yourself?', 'a' => sprintf('Yes, by about half on small pads: a 10 x 12 pad is about %s in materials against %s installed. Above about 2 cubic yards, mixing bags by hand gets hard, so order ready-mix or hire a crew for pour day.', self::mr($mid['diy']), self::mr($mid['installed']))],
                 ['q' => 'How thick should a shed slab be?', 'a' => 'Four inches for a storage shed. Use 5 inches with thickened edges if you will park a riding mower, ATV or car inside.'],
                 ['q' => 'Is a gravel or concrete shed base better?', 'a' => 'Gravel is cheaper and fine for sheds with their own floor. Concrete costs more but gives a flat, rodent-proof floor you can anchor to, which is better for workshops and heavy equipment.'],
                 ['q' => 'Should a shed pad be bigger than the shed?', 'a' => 'No. Make it the same size or slightly smaller, so rain running down the walls drips onto the ground rather than onto the slab and under the siding.'],
             ],
             'links' => [
                 ['Shed pad cost and construction guide', '/concrete-shed-pad-cost-and-construction/'],
-                ['10x10 slab cost breakdown', '/10x10-concrete-slab-cost-breakdown/'],
+                ['10x10 shed slab cost', '/10x10-concrete-slab-cost/'],
+                ['10x12 shed slab cost', '/10x12-concrete-slab-cost/'],
+                ['12x16 shed slab cost', '/12x16-concrete-slab-cost/'],
                 ['How many bags of concrete do I need?', '/how-many-bags-of-concrete-do-i-need/'],
             ],
         ];

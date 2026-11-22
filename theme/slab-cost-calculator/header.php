@@ -53,10 +53,10 @@
           <ul class="dropdown-menu">
             <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/how-much-does-a-concrete-slab-cost/')); ?>">Concrete Slab Cost Guide</a></li>
             <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/concrete-cost-per-square-foot-pricing-matrix/')); ?>">Cost Per Square Foot (2026)</a></li>
-            <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/10x10-concrete-slab-cost-breakdown/')); ?>">10x10 Concrete Slab Cost</a></li>
-            <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/12x12-concrete-slab-cost-breakdown/')); ?>">12x12 Concrete Slab Cost</a></li>
-            <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/20x20-concrete-slab-cost-breakdown/')); ?>">20x20 Concrete Slab Cost</a></li>
-            <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/24x24-concrete-slab-cost-breakdown/')); ?>">24x24 Garage Slab Cost</a></li>
+            <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/10x10-concrete-slab-cost/')); ?>">10x10 Concrete Slab Cost</a></li>
+            <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/12x12-concrete-slab-cost/')); ?>">12x12 Concrete Slab Cost</a></li>
+            <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/20x20-concrete-slab-cost/')); ?>">20x20 Concrete Slab Cost</a></li>
+            <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/24x24-concrete-slab-cost/')); ?>">24x24 Garage Slab Cost</a></li>
             <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/concrete-slab-cost-by-size/')); ?>">All Slab Sizes (8x8 to 40x60)</a></li>
             <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/concrete-slab-cost-by-state/')); ?>">Slab Cost by State</a></li>
             <li class="dropdown-item"><a href="<?php echo esc_url(home_url('/concrete-price-report/')); ?>">2026 Concrete Price Report</a></li>

@@ -62,6 +62,8 @@ ob_start();
 ?>
 <p class="hero-answer"><strong>Quick answer:</strong> a 4-inch concrete shed pad costs about <strong><?php echo esc_html($mr($rows[0]['c']['installed'])); ?></strong> installed for an 8x10 shed, <?php echo esc_html($mr($rows[1]['c']['installed'])); ?> for a 10x12 and <?php echo esc_html($mr($rows[2]['c']['installed'])); ?> for a 12x16. DIY materials run about <?php echo esc_html($mr($rows[1]['c']['diy'])); ?> for a 10x12. A compacted gravel pad for the same 10x12 shed costs only about <?php echo esc_html($mr(Slab_Data::round_pair([$cmp[0]['g_lo']['diy'][0], $cmp[0]['g_hi']['diy'][1]], 10))); ?> in stone, but it is a different kind of foundation.</p>
 
+<p>For a quick price table for every shed size from 6 × 8 to 16 × 24 ft, see <a href="<?php echo esc_url(home_url('/shed/')); ?>">shed slab cost by size</a>.</p>
+
 <p>Whether a shed needs concrete at all depends on what goes in it and what kind of shed it is. A wood shed with its own floor frame sits happily on gravel. A shed with no floor, a workshop, or anything storing a mower, tractor or heavy tools is better on a slab. This guide prices both, then covers how to build the slab so the shed stays square, dry and anchored.</p>
 
 <h2>Concrete Shed Pad Cost by Size</h2>

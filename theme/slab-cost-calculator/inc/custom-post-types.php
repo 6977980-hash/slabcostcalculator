@@ -33,7 +33,7 @@ class Slab_Architecture_Router {
      * manual step required.
      */
     public static function maybe_flush_rewrite_rules() {
-        $marker = 'gsc-2026-11-sizes-12x15-24x50';
+        $marker = 'gsc-2026-11-22-sizes-states';
         if (get_option('slab_rewrite_rules_version') !== $marker) {
             flush_rewrite_rules();
             update_option('slab_rewrite_rules_version', $marker);
@@ -73,8 +73,9 @@ class Slab_Architecture_Router {
 
         // 7. Slab sizes: /concrete-slab-cost-by-size/ and one page per size
         // (/12x16-concrete-slab-cost/). Only the sizes listed in
-        // inc/size-pages.php match; 10x10, 12x12, 20x20 and 24x24 keep
-        // their existing Page redirects to the size articles.
+        // inc/size-pages.php match. Since 2026-11-22 that includes 10x10,
+        // 12x12, 20x20 and 24x24: this 'top' rule wins over their old
+        // wp-admin Pages, and the old -breakdown posts 301 here.
         add_rewrite_rule('^concrete-slab-cost-by-size/?$', 'index.php?slab_route=size_hub', 'top');
         add_rewrite_rule(Slab_Size_Pages::route_regex(), 'index.php?slab_route=size_page&slab_slug=$matches[1]', 'top');
 
@@ -254,6 +255,9 @@ class Slab_Architecture_Router {
             // these dead URLs; send them to the page that answers the query.
             'concrete-slab-cost-per-square-foot' => 'concrete-cost-per-square-foot-pricing-matrix',
             'concrete-slab-cost-calculator' => '',
+            // Search Console 2026-11-22: dead URLs that still had impressions.
+            'concrete-slab-cost-by-thickness' => 'how-thick-should-a-concrete-slab-be',
+            'shed-concrete-pad-cost' => 'shed',
         ];
 
         if (isset($legacy_redirects[$path])) {
@@ -286,7 +290,7 @@ class Slab_Architecture_Router {
      * byte-for-byte identical body content, a serious duplicate-content
      * problem on its own. Each of those six pages also targets the exact same
      * keyword as one of the 30 imported blog posts (e.g. /10x10-concrete-slab-cost/
-     * vs. /10x10-concrete-slab-cost-breakdown/), which is the keyword
+     * vs. /10x10-concrete-slab-cost/), which is the keyword
      * cannibalization this was flagged for — except the blog post has unique,
      * substantive content and the page has none.
      *
@@ -306,11 +310,18 @@ class Slab_Architecture_Router {
 
         $path = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
 
+        // The four size posts became size pages (Search Console 2026-11-22:
+        // the posts ranked 70-95, size pages 4-8). Send the old post URLs
+        // to the size page; the posts stay in the database untouched.
+        if (class_exists('Slab_Size_Pages')) {
+            $retired = array_flip(Slab_Size_Pages::retired_articles());
+            if (isset($retired[$path])) {
+                wp_safe_redirect(home_url(Slab_Size_Pages::path($retired[$path])), 301);
+                exit;
+            }
+        }
+
         $topic_redirects = [
-            '10x10-concrete-slab-cost'       => '10x10-concrete-slab-cost-breakdown',
-            '12x12-concrete-slab-cost'       => '12x12-concrete-slab-cost-breakdown',
-            '20x20-concrete-slab-cost'       => '20x20-concrete-slab-cost-breakdown',
-            '24x24-concrete-slab-cost'       => '24x24-concrete-slab-cost-breakdown',
             'concrete-cost-per-square-foot'  => 'concrete-cost-per-square-foot-pricing-matrix',
             'concrete-cost-per-cubic-yard'   => 'concrete-cost-per-cubic-yard-pricing-explained',
         ];

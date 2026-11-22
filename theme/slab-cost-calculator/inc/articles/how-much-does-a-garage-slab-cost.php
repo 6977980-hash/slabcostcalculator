@@ -86,6 +86,8 @@ $joint_max = $sd['joints']['max_ft'][5];
 
 ob_start();
 ?>
+<p><strong>Looking for prices by garage size?</strong> The <a href="<?php echo esc_url(home_url('/garage/')); ?>">garage slab cost</a> page lists 1, 2 and 3-car floor prices side by side. This guide covers the foundation question: monolithic slab or stem wall.</p>
+
 <p class="hero-answer"><strong>Quick answer:</strong> a 2-car garage slab (24x24 ft, 576 sq ft) at 5 inches costs about <strong><?php echo esc_html($mr($g['installed'])); ?></strong> as a plain floating slab, or roughly <?php echo esc_html(Slab_Data::money_range($garage_psf, 0, ' to ')); ?> per sq ft. With a monolithic thickened edge it runs about <?php echo esc_html($mr($mono_total)); ?>. In cold climates, a stem wall on frost-depth footings adds roughly <?php echo esc_html($mr($stem_add)); ?>, for a total near <?php echo esc_html($mr($stem_total)); ?>.</p>
 
 <p>The floor itself is the easy part of a garage slab. The real cost question is what holds up the walls. In a warm climate, a slab with a thickened edge does the job in one pour. Where the ground freezes, the building department will usually want footings below the frost line, and that can roughly double the price or more. This guide prices both, with the math shown.</p>
@@ -153,7 +155,7 @@ ob_start();
 </ul>
 
 <h2>Which Foundation Should You Choose?</h2>
-<p>If you are in a warm or mild climate, or building a small detached garage that qualifies for the frost exemption, a monolithic slab is the cheapest sound choice, with one pour and one footing inspection. If you are in a cold climate and the garage is attached or larger than 600 sq ft, plan on a stem wall or a frost-protected shallow foundation and budget accordingly. A stem wall also raises the wood framing well above grade, which helps with snow, splash and termites. Comparing a 24x24 slab on its own? See the <a href="<?php echo esc_url(home_url('/24x24-concrete-slab-cost-breakdown/')); ?>">24x24 slab cost breakdown</a>.</p>
+<p>If you are in a warm or mild climate, or building a small detached garage that qualifies for the frost exemption, a monolithic slab is the cheapest sound choice, with one pour and one footing inspection. If you are in a cold climate and the garage is attached or larger than 600 sq ft, plan on a stem wall or a frost-protected shallow foundation and budget accordingly. A stem wall also raises the wood framing well above grade, which helps with snow, splash and termites. Comparing a 24x24 slab on its own? See the <a href="<?php echo esc_url(home_url('/24x24-concrete-slab-cost/')); ?>">24x24 slab cost breakdown</a>.</p>
 
 <h2>DIY or Hire a Pro?</h2>
 <p>A garage slab is a structural element that will be inspected, and it takes <?php echo esc_html(number_format($e['order_yd'], 2)); ?> cubic yards for a 2-car floor alone. Even experienced DIYers usually hire a crew for the pour and finish. You can save on demolition, clearing and the final cleanup. Before signing, check the bid with the <a href="<?php echo esc_url(home_url('/concrete-quote-checker/')); ?>">concrete quote checker</a> and make sure it states floor thickness, edge or footing size, PSI, base depth, vapor barrier and anchor bolts. Wait at least <?php echo (int) $sd['curing']['cars_days']; ?> days before parking on the new floor.</p>

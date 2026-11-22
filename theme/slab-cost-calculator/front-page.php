@@ -101,6 +101,38 @@ $f = $sd['finish'];
   </div>
 </section>
 
+<!-- Slab cost by size, high on the page (Search Console 2026-11-22: the
+     main keyword fell to page 3-5; the size pages that answer with a price
+     table rank 4-8). Every figure comes from inc/size-pages.php. -->
+<section class="container home-size-prices" aria-labelledby="price-by-size">
+  <h2 id="price-by-size">Concrete Slab Cost by Size (2026 Prices)</h2>
+  <p>Installed price with forms, #4 rebar, a broom finish and labor at U.S. average prices, at the usual thickness for each project. Click a size for yards, bags, a materials list and prices at 4, 5 and 6 inches, or <a href="#concrete-slab-calculator">enter your own size in the calculator</a>.</p>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead><tr><th>Slab size</th><th>Typical use</th><th>Thickness</th><th>Installed cost</th><th>Per sq ft</th></tr></thead>
+      <tbody>
+        <?php
+        $home_sizes = ['10x10' => 'Shed or hot tub pad', '12x12' => 'Small patio', '12x16' => 'Shed or workshop', '16x20' => 'Family patio', '20x20' => 'Large patio or parking pad', '24x24' => '2-car garage', '24x36' => '3-car garage', '20x40' => '2-car driveway', '30x40' => 'Shop or pole barn', '40x60' => 'Large pole barn'];
+        foreach ($home_sizes as $hs => $use_label) :
+            $hd = Slab_Size_Pages::data($hs);
+            if (!$hd) {
+                continue;
+            }
+        ?>
+        <tr>
+          <td><a href="<?php echo esc_url(home_url(Slab_Size_Pages::path($hs))); ?>"><strong><?php echo esc_html($hs); ?></strong></a> <span class="table-sub">(<?php echo esc_html(number_format($hd['area'])); ?> sq ft)</span></td>
+          <td><?php echo esc_html($use_label); ?></td>
+          <td><?php echo (int) $hd['t']; ?> in</td>
+          <td><?php echo esc_html(Slab_Data::money_range($hd['installed'], 0, '–')); ?></td>
+          <td><?php echo esc_html(Slab_Data::money_range(Slab_Data::round_out($hd['installed_psf'], 0.5), 2, '–')); ?></td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+    <div class="table-caption">More sizes from 8 × 8 to 60 × 100 ft: <a href="<?php echo esc_url(home_url(Slab_Size_Pages::hub_path())); ?>">concrete slab cost by size</a>. Prices in your state: <a href="<?php echo esc_url(home_url(Slab_State_Pages::hub_path())); ?>">concrete slab cost by state</a>. Garages: <a href="<?php echo esc_url(home_url('/garage/')); ?>">garage slab cost</a>; sheds: <a href="<?php echo esc_url(home_url('/shed/')); ?>">shed slab cost</a>.</div>
+  </div>
+</section>
+
 <!-- Topic clusters (replaces the latest-posts grid) -->
 <div class="container">
   <?php get_template_part('template-parts/topic-clusters'); ?>
@@ -452,10 +484,10 @@ $f = $sd['finish'];
             $short_k = function ($n) {
                 return $n >= 1000 ? '$' . rtrim(rtrim(number_format($n / 1000, 1), '0'), '.') . 'k' : '$' . number_format($n);
             };
-            foreach ([[10, 10, '10x10 Slab Cost'], [12, 12, '12x12 Slab Cost'], [20, 20, '20x20 Slab Cost'], [24, 24, '24x24 Garage Slab']] as $sz) :
-                $c = Slab_Data::size_costs($sz[0], $sz[1], 4);
+            foreach ([[10, 10, '10x10 Slab Cost', 4], [12, 12, '12x12 Slab Cost', 4], [20, 20, '20x20 Slab Cost', 4], [24, 24, '24x24 Garage Slab', 5]] as $sz) :
+                $c = Slab_Data::size_costs($sz[0], $sz[1], $sz[3]);
             ?>
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/' . $sz[0] . 'x' . $sz[1] . '-concrete-slab-cost-breakdown/')); ?>"><?php echo esc_html($sz[2] . ' (' . $short_k($c['installed'][0]) . '–' . $short_k($c['installed'][1]) . ')'); ?></a></li>
+            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/' . $sz[0] . 'x' . $sz[1] . '-concrete-slab-cost/')); ?>"><?php echo esc_html($sz[2] . ' (' . $short_k($c['installed'][0]) . '–' . $short_k($c['installed'][1]) . ')'); ?></a></li>
             <?php endforeach; ?>
           </ul>
         </div>

@@ -1202,3 +1202,8 @@ img, svg {
     gap: 0.6rem;
   }
 }
+
+/* Homepage "slab cost by size" table (v1.13.0) */
+.home-size-prices { margin-top: 2.5rem; margin-bottom: 1rem; }
+.home-size-prices h2 { margin-bottom: 0.5rem; }
+.size-thickness-prices { margin-top: 0.75rem; }

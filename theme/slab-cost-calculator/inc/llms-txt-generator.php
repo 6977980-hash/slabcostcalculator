@@ -29,6 +29,9 @@ class Slab_LLMS_Generator {
         '20x20-concrete-slab-cost', '24x24-concrete-slab-cost',
         'concrete-cost-per-square-foot', 'concrete-cost-per-cubic-yard',
         'privacy-policy', 'terms',
+        // Size posts that 301 to size pages (listed under "Slab cost by size").
+        '10x10-concrete-slab-cost-breakdown', '12x12-concrete-slab-cost-breakdown',
+        '20x20-concrete-slab-cost-breakdown', '24x24-concrete-slab-cost-breakdown',
     ];
 
     public static function init() {
