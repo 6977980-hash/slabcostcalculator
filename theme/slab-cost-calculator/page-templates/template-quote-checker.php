@@ -168,7 +168,7 @@ foreach ($examples as $i => $ex) {
           <div class="widget-title">Cost by Slab Size</div>
           <ul class="calculator-nav-list">
             <?php foreach ([[10, 10], [12, 12], [20, 20], [24, 24]] as $sz) : $c = Slab_Data::size_costs($sz[0], $sz[1], 4); ?>
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/' . $sz[0] . 'x' . $sz[1] . '-concrete-slab-cost-breakdown/')); ?>"><span><?php echo esc_html($sz[0] . 'x' . $sz[1] . ' Slab Cost'); ?></span><span class="calculator-nav-badge"><?php echo esc_html(Slab_Data::money_range($c['installed'], 0, '–')); ?></span></a></li>
+            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/' . $sz[0] . 'x' . $sz[1] . '-concrete-slab-cost/')); ?>"><span><?php echo esc_html($sz[0] . 'x' . $sz[1] . ' Slab Cost'); ?></span><span class="calculator-nav-badge"><?php echo esc_html(Slab_Data::money_range($c['installed'], 0, '–')); ?></span></a></li>
             <?php endforeach; ?>
           </ul>
         </div>

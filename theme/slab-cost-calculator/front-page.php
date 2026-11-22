@@ -455,7 +455,7 @@ $f = $sd['finish'];
             foreach ([[10, 10, '10x10 Slab Cost'], [12, 12, '12x12 Slab Cost'], [20, 20, '20x20 Slab Cost'], [24, 24, '24x24 Garage Slab']] as $sz) :
                 $c = Slab_Data::size_costs($sz[0], $sz[1], 4);
             ?>
-            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/' . $sz[0] . 'x' . $sz[1] . '-concrete-slab-cost-breakdown/')); ?>"><?php echo esc_html($sz[2] . ' (' . $short_k($c['installed'][0]) . '–' . $short_k($c['installed'][1]) . ')'); ?></a></li>
+            <li class="calculator-nav-item"><a href="<?php echo esc_url(home_url('/' . $sz[0] . 'x' . $sz[1] . '-concrete-slab-cost/')); ?>"><?php echo esc_html($sz[2] . ' (' . $short_k($c['installed'][0]) . '–' . $short_k($c['installed'][1]) . ')'); ?></a></li>
             <?php endforeach; ?>
           </ul>
         </div>

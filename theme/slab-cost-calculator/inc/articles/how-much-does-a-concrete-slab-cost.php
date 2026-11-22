@@ -82,7 +82,7 @@ ob_start();
 </table>
 <div class="table-caption"><?php echo esc_html(Slab_Data::cost_basis_note()); ?> Concrete includes <?php echo (int) $sd['concrete']['waste_pct']; ?>% waste.</div>
 </div>
-<p>Notice how the per-square-foot price falls as slabs get bigger. A delivery fee, a contractor's setup time and the forms around the edge are all paid once per job, so a 10x10 pad carries them on 100 sq ft while a 30x40 shop spreads them over 1,200 sq ft. For a closer look at the sizes people ask about most, see the <a href="<?php echo esc_url(home_url('/10x10-concrete-slab-cost-breakdown/')); ?>">10x10</a>, <a href="<?php echo esc_url(home_url('/12x12-concrete-slab-cost-breakdown/')); ?>">12x12</a>, <a href="<?php echo esc_url(home_url('/20x20-concrete-slab-cost-breakdown/')); ?>">20x20</a> and <a href="<?php echo esc_url(home_url('/24x24-concrete-slab-cost-breakdown/')); ?>">24x24</a> breakdowns.</p>
+<p>Notice how the per-square-foot price falls as slabs get bigger. A delivery fee, a contractor's setup time and the forms around the edge are all paid once per job, so a 10x10 pad carries them on 100 sq ft while a 30x40 shop spreads them over 1,200 sq ft. For a closer look at the sizes people ask about most, see the <a href="<?php echo esc_url(home_url('/10x10-concrete-slab-cost/')); ?>">10x10</a>, <a href="<?php echo esc_url(home_url('/12x12-concrete-slab-cost/')); ?>">12x12</a>, <a href="<?php echo esc_url(home_url('/20x20-concrete-slab-cost/')); ?>">20x20</a> and <a href="<?php echo esc_url(home_url('/24x24-concrete-slab-cost/')); ?>">24x24</a> breakdowns.</p>
 
 <h2>Cost by Thickness</h2>
 <p>Thickness changes only the concrete line, so it moves the total less than people expect. On the 20x20 reference slab:</p>

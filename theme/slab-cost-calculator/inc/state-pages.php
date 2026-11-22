@@ -26,10 +26,10 @@ class Slab_State_Pages {
     /** Reference projects priced on every state page: key => [label, l, w, t, link]. */
     public static function projects() {
         return [
-            'patio' => ['12 × 12 ft patio', 12, 12, 4, '/12x12-concrete-slab-cost-breakdown/'],
+            'patio' => ['12 × 12 ft patio', 12, 12, 4, '/12x12-concrete-slab-cost/'],
             'shed' => ['10 × 12 ft shed slab', 12, 10, 4, '/10x12-concrete-slab-cost/'],
-            'slab' => ['20 × 20 ft slab', 20, 20, 4, '/20x20-concrete-slab-cost-breakdown/'],
-            'garage' => ['24 × 24 ft garage floor (5 in)', 24, 24, 5, '/24x24-concrete-slab-cost-breakdown/'],
+            'slab' => ['20 × 20 ft slab', 20, 20, 4, '/20x20-concrete-slab-cost/'],
+            'garage' => ['24 × 24 ft garage floor (5 in)', 24, 24, 5, '/24x24-concrete-slab-cost/'],
             'driveway' => ['20 × 40 ft driveway (5 in)', 40, 20, 5, '/20x40-concrete-slab-cost/'],
             'shop' => ['30 × 40 ft shop floor (6 in)', 40, 30, 6, '/30x40-concrete-slab-cost/'],
         ];

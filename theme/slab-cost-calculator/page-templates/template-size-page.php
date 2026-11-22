@@ -56,6 +56,7 @@ slab_render_breadcrumbs();
           <p class="hero-answer">
             <strong>Quick answer:</strong> <?php echo $an; ?> <?php echo esc_html($dims); ?> slab (<?php echo esc_html(number_format($d['area'])); ?> sq ft) <?php echo (int) $d['t']; ?> inches thick needs <strong><?php echo esc_html($yd($e['net_yd'])); ?></strong> of concrete, <?php echo esc_html($yd($e['order_yd'])); ?> with <?php echo $waste_pct; ?>% waste (order <?php echo esc_html(Slab_Data::num($d['ready_mix_yd'])); ?> yd³ of ready-mix) or <strong><?php echo esc_html(number_format($e['bags80'])); ?> bags of 80-lb mix</strong>. Installed, it costs about <strong><?php echo esc_html($range($d['installed'])); ?></strong> (<?php echo esc_html(Slab_Data::money_range($psf, 2, ' – ')); ?> per sq ft); DIY materials run <?php echo esc_html($range($d['diy'])); ?>.
           </p>
+          <p class="size-thickness-prices"><strong>Installed cost by thickness:</strong> <?php echo esc_html(Slab_Size_Pages::thickness_prices($d, ' · ')); ?>. <a href="#calculator">Price your own <?php echo esc_html($size); ?> slab in the calculator &darr;</a></p>
           <div class="trust-bar">
             <div class="trust-item"><strong>Last Updated:</strong> <time datetime="<?php echo esc_attr(SLAB_CONTENT_UPDATED); ?>"><?php echo esc_html(wp_date('F j, Y', strtotime(SLAB_CONTENT_UPDATED . ' 12:00:00'))); ?></time></div>
             <div class="trust-item"><a href="<?php echo esc_url(home_url('/methodology/')); ?>" style="font-weight: 600; text-decoration: underline;">How these numbers are calculated &rarr;</a></div>
@@ -204,6 +205,7 @@ slab_render_breadcrumbs();
             </tbody>
           </table>
         </div>
+        <p>Work out each item for your own dimensions: <a href="<?php echo esc_url(home_url('/concrete-volume-calculator/')); ?>">concrete volume calculator</a> (yards), <a href="<?php echo esc_url(home_url('/concrete-bags-calculator/')); ?>">bags calculator</a>, <a href="<?php echo esc_url(home_url('/concrete-weight-calculator/')); ?>">concrete weight calculator</a> (truck and floor loads), <a href="<?php echo esc_url(home_url('/gravel-base-calculator/')); ?>">gravel base calculator</a>, <a href="<?php echo esc_url(home_url('/concrete-rebar-calculator/')); ?>">rebar calculator</a>, <a href="<?php echo esc_url(home_url('/concrete-footing-calculator/')); ?>">footing calculator</a> (thickened edges and post footings) and <a href="<?php echo esc_url(home_url('/concrete-labor-cost-calculator/')); ?>">labor cost calculator</a>.</p>
 
         <h2 id="specs">Recommended Specs for <?php echo preg_match('/^[aeiou]/i', $use['name']) ? 'an' : 'a'; ?> <?php echo esc_html(ucwords($use['name'])); ?></h2>
         <div class="table-responsive">

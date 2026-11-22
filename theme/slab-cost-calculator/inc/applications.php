@@ -136,7 +136,7 @@ class Slab_Applications {
             ],
             'links' => [
                 ['Concrete patio cost guide (stamped vs. broom)', '/concrete-patio-slab-cost-guide/'],
-                ['12x12 slab cost breakdown', '/12x12-concrete-slab-cost-breakdown/'],
+                ['12x12 slab cost breakdown', '/12x12-concrete-slab-cost/'],
                 ['Concrete sealers: do you need one?', '/concrete-sealers-do-you-need-one/'],
             ],
         ];
@@ -248,7 +248,7 @@ class Slab_Applications {
             ],
             'links' => [
                 ['Garage slab cost: monolithic vs. stem wall', '/how-much-does-a-garage-slab-cost/'],
-                ['24x24 slab cost breakdown', '/24x24-concrete-slab-cost-breakdown/'],
+                ['24x24 slab cost breakdown', '/24x24-concrete-slab-cost/'],
                 ['Rebar vs. wire mesh', '/concrete-slab-reinforcement-rebar-vs-wire-mesh/'],
             ],
         ];
@@ -303,7 +303,7 @@ class Slab_Applications {
             ],
             'links' => [
                 ['Shed pad cost and construction guide', '/concrete-shed-pad-cost-and-construction/'],
-                ['10x10 slab cost breakdown', '/10x10-concrete-slab-cost-breakdown/'],
+                ['10x10 slab cost breakdown', '/10x10-concrete-slab-cost/'],
                 ['How many bags of concrete do I need?', '/how-many-bags-of-concrete-do-i-need/'],
             ],
         ];

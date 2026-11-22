@@ -207,12 +207,22 @@ class Slab_Calculator_Pages {
         self::$cache = [
 
             'concrete-volume-calculator' => [
+                'title' => 'Concrete Volume Calculator: Cubic Yards for Any Slab',
                 'subtitle' => 'Enter length, width and thickness to get the exact volume of a slab in cubic feet, cubic yards and cubic meters.',
                 'meta' => 'Concrete volume calculator: slab volume in cubic feet, cubic yards and cubic meters. Formula, worked example and unit conversions.',
                 'answer' => sprintf('A 20 × 20 ft slab 4 inches thick holds <strong>%s cubic feet</strong>, which is <strong>%s cubic yards</strong> or %s cubic meters, before any waste allowance.', $nf(400 * 4 / 12), $nf($e20['net_yd']), $nf(400 * 4 / 12 * 0.0283168)),
                 'sections' => [
                     ['How the Volume Is Calculated', self::formula('Slab volume', 'Length (ft) × Width (ft) × Thickness (in) ÷ 12 = cubic feet', 'Divide cubic feet by 27 for cubic yards, or multiply by 0.0283 for cubic meters.')
                         . '<p>This tool gives the exact geometric volume. It is the number to use when you compare quantities or check a takeoff. To decide how much to order, add a waste allowance with the ' . self::link('/concrete-yard-calculator/', 'cubic yard calculator') . ' or the ' . self::link('/concrete-waste-calculator/', 'waste calculator') . '. For shapes other than a rectangle, split the area into rectangles, triangles (half of base × height) and circles (3.14 × radius²) and add them up. Our guide on ' . self::link('/how-to-calculate-concrete-for-a-slab/', 'how to calculate concrete for a slab') . ' walks through those shapes.</p>'],
+                    ['Concrete Volume for Common Slab Sizes', self::volume_size_table()],
+                    ['Worked Example: an L-Shaped Patio', sprintf('<p>A patio is 20 ft along the house and 12 ft deep, with a 10 × 8 ft extension off one end, all 4 inches thick. Split it into two rectangles:</p><ul><li>Main part: 20 × 12 × 4 ÷ 12 = <strong>80.0 ft³</strong></li><li>Extension: 10 × 8 × 4 ÷ 12 = <strong>26.7 ft³</strong></li><li>Total: 106.7 ft³ ÷ 27 = <strong>%s yd³</strong> net</li></ul><p>With %d%% waste that is %s yd³, so you would order %s yd³ of ready-mix, or %d bags of 80-lb mix. A thickened edge, steps or a footing are extra volume: add them as their own pieces with the %s.</p>', $nf(106.667 / 27), $waste, $nf(106.667 / 27 * (1 + $waste / 100)), $nf($round(106.667 / 27 * (1 + $waste / 100))), Slab_Data::bags(106.667 * (1 + $waste / 100), '80'), self::link('/concrete-footing-calculator/', 'footing calculator'))],
+                ],
+                'faqs' => [
+                    ['q' => 'How do you calculate the volume of a concrete slab?', 'a' => 'Multiply length by width in feet, then by thickness in inches divided by 12. That gives cubic feet; divide by 27 for cubic yards. A 20 x 20 ft slab 4 inches thick is 20 x 20 x 0.333 = 133.3 cubic feet, or ' . $nf($e20['net_yd']) . ' cubic yards.'],
+                    ['q' => 'How many cubic yards is a 10x10 slab?', 'a' => sprintf('At 4 inches thick, %s cubic yards (33.3 cubic feet). At 5 inches it is %s yards and at 6 inches %s yards, before waste.', $nf($e10['net_yd']), $nf(Slab_Data::estimate(10, 10, 5)['net_yd']), $nf(Slab_Data::estimate(10, 10, 6)['net_yd']))],
+                    ['q' => 'How many cubic feet are in a cubic yard of concrete?', 'a' => '27 cubic feet (3 ft x 3 ft x 3 ft). One cubic yard is also about 0.765 cubic meters.'],
+                    ['q' => 'How much area does one cubic yard of concrete cover?', 'a' => sprintf('About %s sq ft at 4 inches thick, %s sq ft at 5 inches and %s sq ft at 6 inches, before waste.', Slab_Data::num(81), Slab_Data::num(round(27 * 12 / 5, 1)), Slab_Data::num(54))],
+                    ['q' => 'Should I add waste to the volume?', 'a' => sprintf('Yes, when you order: about %d%% for a formed slab on a graded base, more on uneven ground. This calculator shows the exact volume so you can compare takeoffs; the yard calculator adds the waste and rounds the order.', $waste)],
                 ],
             ],
 
@@ -300,12 +310,21 @@ class Slab_Calculator_Pages {
             ],
 
             'concrete-weight-calculator' => [
+                'title' => 'Concrete Weight Calculator: Slab Weight in Pounds & Tons',
                 'subtitle' => 'How much does a slab weigh? Get the wet and cured weight in pounds, US tons and metric tonnes for hauling, lifting or load checks.',
                 'meta' => sprintf('Concrete weight calculator: a 20x20x4 slab weighs about %s lbs. Wet and cured weight in pounds, tons and tonnes at %d lb/ft³.', number_format($wt), $c['density_lb_ft3']),
                 'answer' => sprintf('Normal-weight concrete weighs about <strong>%d lb per cubic foot</strong> (%s lb per cubic yard). A 20 × 20 ft slab 4 inches thick weighs about <strong>%s lbs</strong>, or %s US tons.', $c['density_lb_ft3'], number_format($c['density_lb_ft3'] * 27), number_format($wt), $nf($wt / 2000)),
                 'sections' => [
                     ['How Weight Is Calculated', self::formula('Slab weight', 'Volume (ft³) × ' . $c['density_lb_ft3'] . ' lb/ft³', 'Divide by 2,000 for US tons, or multiply by 0.4536 for kilograms.')
                         . '<p>Weight matters when you haul old concrete away (dumpsters and trailers have weight limits), when a slab sits on a structure or a lift, and when you move precast pieces. Lightweight concrete with special aggregate weighs noticeably less, and heavily reinforced concrete a little more. For debris from a tear-out, the ' . self::link('/concrete-removal-cost-calculator/', 'removal calculator') . ' estimates both the tonnage and the cost.</p>'],
+                    ['How Much a Concrete Slab Weighs, by Size', self::weight_size_table()],
+                    ['Worked Example: Hauling Away an Old Patio', sprintf('<p>An old 12 × 16 ft patio, 4 inches thick, is %s ft³ of concrete: %s × %d lb = <strong>%s lb</strong>, or about %s tons. A 10-yard roll-off dumpster often allows only 2 to 4 tons, and clean concrete is so dense that a dumpster reaches its weight limit long before it is full, so ask for a "heavy debris" or "clean concrete" container. A half-ton pickup carries about 1,000-1,500 lb safely, so the same patio would be eight or more trips.</p>', $nf(12 * 16 * 4 / 12, 0), $nf(12 * 16 * 4 / 12, 0), $c['density_lb_ft3'], number_format(12 * 16 * 4 / 12 * $c['density_lb_ft3']), $nf(12 * 16 * 4 / 12 * $c['density_lb_ft3'] / 2000, 1))],
+                ],
+                'faqs' => [
+                    ['q' => 'How much does a cubic yard of concrete weigh?', 'a' => sprintf('About %s lb (roughly 2 US tons) for normal-weight concrete at %d lb per cubic foot. Wet concrete straight from the truck is a little heavier.', number_format($c['density_lb_ft3'] * 27), $c['density_lb_ft3'])],
+                    ['q' => 'How much does a 4 inch concrete slab weigh per square foot?', 'a' => sprintf('About %s lb per sq ft (%d lb/ft³ x 4/12 ft). A 5-inch slab weighs about %s lb per sq ft and a 6-inch slab about %s.', Slab_Data::num(round($c['density_lb_ft3'] / 3, 1)), $c['density_lb_ft3'], Slab_Data::num(round($c['density_lb_ft3'] * 5 / 12, 1)), Slab_Data::num(round($c['density_lb_ft3'] / 2, 1)))],
+                    ['q' => 'How much does a 10x10 concrete slab weigh?', 'a' => sprintf('At 4 inches thick, about %s lb (%s tons). At 6 inches, about %s lb.', number_format(100 * 4 / 12 * $c['density_lb_ft3']), $nf(100 * 4 / 12 * $c['density_lb_ft3'] / 2000, 1), number_format(100 * 6 / 12 * $c['density_lb_ft3']))],
+                    ['q' => 'How much does an 80-lb bag of concrete make, and what does it weigh once set?', 'a' => sprintf('An 80-lb bag makes about %s cubic feet. Once mixed and cured it still weighs close to 80 lb, because most of the mixing water becomes part of the hardened concrete.', Slab_Data::num($c['bag_yields']['80'], 2))],
                 ],
             ],
 
@@ -318,6 +337,11 @@ class Slab_Calculator_Pages {
                     ['How the Grid Is Laid Out', sprintf('<p>Bars start %d inches in from each edge (so they stay covered by concrete), then run at the chosen spacing in both directions. The total length gets %d%% added for laps and offcuts; where two bars meet end to end they overlap about %d bar diameters (%d inches for #4). Chairs hold the grid near the middle of the slab, roughly every %s ft. This is the same grid our slab calculator draws in its blueprint.</p>', $r['edge_cover_in'], (int) round($r['splice_allowance'] * 100), $r['lap_bar_diameters'], $r['lap_in_no4'], Slab_Data::range($r['chair_grid_ft'], ' to '))
                         . '<p>Lighter foot-traffic slabs often use welded wire mesh instead; see the ' . self::link('/concrete-wire-mesh-calculator/', 'wire mesh calculator') . ' and our ' . self::link('/concrete-slab-reinforcement-rebar-vs-wire-mesh/', 'rebar vs. wire mesh guide') . '.</p>'],
                     ['Rebar for Common Slab Sizes', self::rebar_size_table()],
+                    ['Worked Example: a 12 × 20 Carport Pad', (function () use ($r) {
+                        $g = Slab_Data::rebar_grid(20, 12, $r['rebar_base_spacing_in']);
+                        $gt = Slab_Data::rebar_grid(20, 12, $r['rebar_tight_spacing_in']);
+                        return sprintf('<p>A 12 × 20 ft pad with #4 bar at %d in each way, starting %d in from the edges, needs about <strong>%s lin ft</strong> of bar with laps: %d twenty-foot sticks and about %d chairs. If a loaded trailer or RV will park on it, tighten to %d in: %s lin ft and %d sticks. At typical prices of %s per sq ft installed, the rebar on this pad costs about %s.</p>', $r['rebar_base_spacing_in'], $r['edge_cover_in'], number_format(round($g['lin_ft'])), $g['sticks'], $g['chairs'], $r['rebar_tight_spacing_in'], number_format(round($gt['lin_ft'])), $gt['sticks'], esc_html(Slab_Data::money($r['rebar_default'], 2)), esc_html(Slab_Data::money(240 * $r['rebar_default'], 0)));
+                    })()],
                 ],
                 'faqs' => [
                     ['q' => 'How much rebar do I need for a concrete slab?', 'a' => sprintf('For a #4 grid at %d inches each way, plan on about %s linear feet of bar per square foot of slab including laps. A 20 x 20 ft slab needs about %d ft (%d twenty-foot sticks) and %d chairs; the table on this page lists other sizes.', $r['rebar_base_spacing_in'], Slab_Data::num(round($grid['lin_ft'] / 400, 2)), (int) round($grid['lin_ft']), $grid['sticks'], $grid['chairs'])],
@@ -377,12 +401,23 @@ class Slab_Calculator_Pages {
             ],
 
             'concrete-footing-calculator' => [
+                'title' => 'Concrete Footing Calculator: Footings, Piers & Sonotubes',
                 'subtitle' => 'Concrete for continuous strip footings and round piers or sonotubes, in cubic yards and 80-lb bags, with a waste allowance.',
                 'meta' => sprintf('Footing and pier calculator: concrete for strip footings and sonotubes. An 80 ft run of 12x12 in footing needs %s yd³ with %d%% waste.', $nf($foot_yd), $waste),
                 'answer' => sprintf('An 80 ft run of 12 × 12 inch strip footing needs <strong>%s cubic yards</strong> of concrete with %d%% waste. A 12-inch sonotube 4 ft deep holds about %s cubic feet, or %d bags of 80-lb mix.', $nf($foot_yd), $waste, $nf(M_PI * 0.25 * 4), Slab_Data::bags(M_PI * 0.25 * 4 * (1 + $waste / 100))),
                 'sections' => [
                     ['Strip Footings and Round Piers', self::formula('Strip footing', 'Length (ft) × Width (in) ÷ 12 × Depth (in) ÷ 12 ÷ 27', 'Round pier: 3.1416 × (diameter ÷ 2)² × depth, all in feet, then ÷ 27 for yards.')
                         . sprintf('<p>Footings must sit on undisturbed soil and, in cold climates, below the frost line (often %s inches in northern states). Your building code and plans set the size; this tool only counts the concrete. Footings dug straight into the ground use more concrete than the drawing shows, so pick a higher waste allowance for trenches.</p>', Slab_Data::range($sd['freeze_thaw_ft']))],
+                    ['Footing Concrete Around Common Slab Sizes', self::footing_size_table()],
+                    ['Sonotube and Pier Concrete by Diameter', self::pier_table()],
+                    ['Worked Example: a 24 × 24 Garage Thickened Edge', sprintf('<p>A monolithic garage slab has a footing poured with the floor: a trench %d in wide and %s in deep around the edge. The run is the perimeter, 96 ft. At 12 × 12 in: 96 × 1 × 1 = 96 ft³, or %s yd³; with %d%% waste, %s yd³. At 12 × 18 in it is %s yd³ with waste. That is on top of the floor itself, which you can price on the %s.</p>', $sd['monolithic']['edge_width_in'], Slab_Data::range($sd['monolithic']['edge_depth_in'], '-'), $nf(96 / 27), $waste, $nf(96 / 27 * (1 + $waste / 100)), $nf(144 / 27 * (1 + $waste / 100)), self::link('/24x24-concrete-slab-cost/', '24x24 slab cost page'))],
+                ],
+                'faqs' => [
+                    ['q' => 'How much concrete do I need for a footing?', 'a' => sprintf('Multiply length (ft) x width (in) / 12 x depth (in) / 12 and divide by 27 for cubic yards. An 80 ft run of 12 x 12 inch footing is 80 cubic feet, or %s cubic yards with %d%% waste.', $nf($foot_yd), $waste)],
+                    ['q' => 'How many bags of concrete for a sonotube?', 'a' => sprintf('A 12-inch tube 4 ft deep holds about %s cubic feet: %d bags of 80-lb mix with waste. An 8-inch tube 4 ft deep takes about %d bags.', $nf(M_PI * 0.25 * 4), Slab_Data::bags(M_PI * 0.25 * 4 * (1 + $waste / 100)), Slab_Data::bags(M_PI * (1 / 9) * 4 * (1 + $waste / 100)))],
+                    ['q' => 'How deep should a footing be?', 'a' => sprintf('Below the frost line and on undisturbed soil: often %s inches in northern states, 12 inches or less in the South. The local building code sets the exact depth; the IRC minimum is 12 inches below grade.', Slab_Data::range($sd['freeze_thaw_ft'], ' to '))],
+                    ['q' => 'How wide should a footing be for a garage or shed?', 'a' => 'For a one-story garage or shed on normal soil, a 12-inch-wide footing or thickened edge is common, and 16 inches for two stories or soft soil. A permit drawing or engineer sets the final size.'],
+                    ['q' => 'Can I pour the footing and slab at the same time?', 'a' => 'Yes. That is a monolithic slab: the thickened edge is the footing and it is poured with the floor in one go. It is common for garages and sheds in mild climates; in deep-frost areas a separate footing and stem wall is often required.'],
                 ],
             ],
 
@@ -394,10 +429,12 @@ class Slab_Calculator_Pages {
                 'sections' => [
                     ['How Labor Is Estimated', sprintf('<p>Crews price small and mid-size slabs per square foot (%s), which covers setting forms, placing, screeding, floating, finishing, jointing and curing. Behind that is time: about %s crew-hours per square foot for a broom finish, more for stamped work or hard-to-reach sites, at %s per crew-hour (%s per finisher). Site prep, base, concrete and rebar are separate lines. Our guide to %s explains both methods.</p>', esc_html(Slab_Data::money_range($lab['sqft_range'], 2, ' to ')), Slab_Data::num($lab['crew_hours_per_sqft'], 3), esc_html(Slab_Data::money_range($lab['crew_hour'], 0, ' to ')), esc_html(Slab_Data::money_range($lab['worker_hour'], 0, ' to ')), self::link('/how-to-estimate-concrete-labor-cost/', 'estimating concrete labor cost'))],
                     ['Labor Cost by Slab Size', self::labor_size_table()],
+                    ['Worked Example: a 24 × 24 Garage Floor', sprintf('<p>A 576 sq ft garage floor with a broom finish is about %d crew-hours: a crew of %s working one long day. At %s per sq ft the labor line is about <strong>%s</strong>; stamped instead of broom would be about %s. Hiring a crew only for pour day (you set the forms, base and rebar) usually saves 20-30%% of that, and the %s shows the full installed price.</p>', (int) round(576 * $lab['crew_hours_per_sqft']), Slab_Data::range($lab['crew_size'], '-'), esc_html(Slab_Data::money($lab['sqft_default'], 2)), esc_html(Slab_Data::money(576 * $lab['sqft_default'], 0)), esc_html(Slab_Data::money(576 * $lab['sqft_stamped'], 0)), self::link('/24x24-concrete-slab-cost/', '24x24 slab cost page'))],
                 ],
                 'faqs' => [
                     ['q' => 'How much does labor cost to pour a concrete slab?', 'a' => sprintf('About %s per sq ft for placing and finishing with a broom finish, so a 400 sq ft slab runs about %s in labor. Stamped and decorative finishes cost about %s per sq ft. Small jobs often have a minimum charge.', Slab_Data::money_range($lab['sqft_range'], 2, ' to '), Slab_Data::money_range([400 * $lab['sqft_range'][0], 400 * $lab['sqft_range'][1]], 0, ' to '), Slab_Data::money($lab['sqft_stamped'], 2))],
                     ['q' => 'How much do concrete finishers charge per hour?', 'a' => sprintf('About %s per finisher-hour, or %s per crew-hour for a typical crew, depending on the area and the season.', Slab_Data::money_range($lab['worker_hour'], 0, ' to '), Slab_Data::money_range($lab['crew_hour'], 0, ' to '))],
+                    ['q' => 'How long does it take a crew to pour a slab?', 'a' => sprintf('About %s crew-hours per sq ft for a broom finish: a 400 sq ft patio is roughly %d crew-hours, one day for a crew of %s. Stamped work takes about %s crew-hours per sq ft. Forms and base are usually set a day or more before the pour.', Slab_Data::num($lab['crew_hours_per_sqft'], 3), (int) round(400 * $lab['crew_hours_per_sqft']), Slab_Data::range($lab['crew_size'], '-'), Slab_Data::num($lab['crew_hours_per_sqft_stamped'], 2))],
                     ['q' => 'Is labor more than materials on a concrete slab?', 'a' => 'On most small and mid-size slabs, labor and the contractor\'s overhead make up roughly half of the installed price or more. Doing the site prep and forms yourself and hiring a crew only for pour day is a common way to save.'],
                 ],
             ],
@@ -450,13 +487,81 @@ class Slab_Calculator_Pages {
         return [[10, 10], [12, 16], [20, 20], [24, 24], [30, 40], [40, 60]];
     }
 
+    /** "20 × 20 ft", linked to its size page when there is one. */
+    private static function size_cell($a, $b) {
+        $label = '<strong>' . $a . ' × ' . $b . ' ft</strong>';
+        $path = class_exists('Slab_Size_Pages') ? Slab_Size_Pages::path_for_any_order($a, $b) : null;
+        return $path ? '<a href="' . esc_url(home_url($path)) . '">' . $label . '</a>' : $label;
+    }
+
+    /** Cubic feet, net yards and yards to order at 4, 5 and 6 in for common sizes. */
+    private static function volume_size_table() {
+        $c = Slab_Data::get('concrete');
+        $o = '<div class="table-responsive"><table class="data-table"><thead><tr><th>Slab</th><th>4 in</th><th>5 in</th><th>6 in</th></tr></thead><tbody>';
+        foreach ([[10, 10], [10, 12], [12, 12], [12, 16], [16, 20], [20, 20], [24, 24], [20, 40], [30, 40], [40, 60]] as $sz) {
+            $o .= '<tr><td>' . self::size_cell($sz[0], $sz[1]) . '</td>';
+            foreach ([4, 5, 6] as $t) {
+                $e = Slab_Data::estimate($sz[1], $sz[0], $t);
+                $o .= '<td>' . esc_html(number_format($e['net_yd'], 2)) . ' yd³ <span class="table-sub">(' . esc_html(number_format($e['net_yd'] * 27, 1)) . ' ft³)</span></td>';
+            }
+            $o .= '</tr>';
+        }
+        return $o . '</tbody></table><div class="table-caption">Exact volume before waste. Add ' . (int) $c['waste_pct'] . '% and round up to the next quarter yard to order ready-mix.</div></div>';
+    }
+
+    /** Cured weight of common slabs at 4, 5 and 6 in. */
+    private static function weight_size_table() {
+        $den = Slab_Data::get('concrete.density_lb_ft3');
+        $o = '<div class="table-responsive"><table class="data-table"><thead><tr><th>Slab</th><th>4 in</th><th>5 in</th><th>6 in</th></tr></thead><tbody>';
+        foreach ([[4, 4], [8, 8], [10, 10], [12, 12], [12, 16], [20, 20], [24, 24], [30, 40]] as $sz) {
+            $o .= '<tr><td>' . self::size_cell($sz[0], $sz[1]) . '</td>';
+            foreach ([4, 5, 6] as $t) {
+                $lb = $sz[0] * $sz[1] * $t / 12 * $den;
+                $o .= '<td>' . esc_html(number_format(round($lb, -1))) . ' lb <span class="table-sub">(' . esc_html(number_format($lb / 2000, 1)) . ' tons)</span></td>';
+            }
+            $o .= '</tr>';
+        }
+        return $o . '</tbody></table><div class="table-caption">Normal-weight concrete at ' . (int) $den . ' lb/ft³. Rebar adds about 1-2%; wet concrete weighs a few percent more than cured.</div></div>';
+    }
+
+    /** Concrete in a thickened edge or strip footing around common slabs. */
+    private static function footing_size_table() {
+        $c = Slab_Data::get('concrete');
+        $waste = 1 + $c['waste_pct'] / 100;
+        $o = '<div class="table-responsive"><table class="data-table"><thead><tr><th>Slab (perimeter)</th><th>12 × 12 in footing</th><th>16 × 8 in footing</th><th>12 × 18 in footing</th></tr></thead><tbody>';
+        foreach ([[12, 16], [12, 20], [20, 20], [24, 24], [24, 30], [30, 40], [40, 60]] as $sz) {
+            $perim = 2 * ($sz[0] + $sz[1]);
+            $o .= '<tr><td>' . self::size_cell($sz[0], $sz[1]) . ' <span class="table-sub">(' . $perim . ' ft)</span></td>';
+            foreach ([[12, 12], [16, 8], [12, 18]] as $f) {
+                $yd = $perim * $f[0] / 12 * $f[1] / 12 / 27 * $waste;
+                $o .= '<td>' . esc_html(number_format($yd, 2)) . ' yd³</td>';
+            }
+            $o .= '</tr>';
+        }
+        return $o . '</tbody></table><div class="table-caption">Footing run = slab perimeter, width × depth in inches, with ' . (int) $c['waste_pct'] . '% waste. Trenches dug without forms often take more.</div></div>';
+    }
+
+    /** Round piers / sonotubes: concrete per tube by diameter and depth. */
+    private static function pier_table() {
+        $c = Slab_Data::get('concrete');
+        $waste = 1 + $c['waste_pct'] / 100;
+        $o = '<div class="table-responsive"><table class="data-table"><thead><tr><th>Tube diameter</th><th>3 ft deep</th><th>4 ft deep</th><th>80-lb bags (4 ft)</th></tr></thead><tbody>';
+        foreach ([8, 10, 12, 16, 18] as $dia) {
+            $r = $dia / 24;
+            $f3 = M_PI * $r * $r * 3;
+            $f4 = M_PI * $r * $r * 4;
+            $o .= '<tr><td><strong>' . $dia . ' in</strong></td><td>' . esc_html(number_format($f3, 2)) . ' ft³</td><td>' . esc_html(number_format($f4, 2)) . ' ft³</td><td>' . (int) Slab_Data::bags($f4 * $waste, '80') . '</td></tr>';
+        }
+        return $o . '</tbody></table><div class="table-caption">Volume = 3.1416 × radius² × depth. Bags include ' . (int) $c['waste_pct'] . '% waste.</div></div>';
+    }
+
     /** #4 rebar footage, sticks and chairs for common sizes. */
     private static function rebar_size_table() {
         $r = Slab_Data::get('reinforcement');
         $o = '<div class="table-responsive"><table class="data-table"><thead><tr><th>Slab</th><th>Bar (lin ft)</th><th>20-ft sticks</th><th>Chairs</th></tr></thead><tbody>';
         foreach (self::common_sizes() as $sz) {
             $g = Slab_Data::rebar_grid($sz[1], $sz[0], $r['rebar_base_spacing_in']);
-            $o .= '<tr><td><strong>' . $sz[0] . ' × ' . $sz[1] . ' ft</strong></td><td>' . number_format(round($g['lin_ft'])) . '</td><td>' . (int) $g['sticks'] . '</td><td>' . (int) $g['chairs'] . '</td></tr>';
+            $o .= '<tr><td>' . self::size_cell($sz[0], $sz[1]) . '</td><td>' . number_format(round($g['lin_ft'])) . '</td><td>' . (int) $g['sticks'] . '</td><td>' . (int) $g['chairs'] . '</td></tr>';
         }
         return $o . '</tbody></table><div class="table-caption">#4 bar at ' . (int) $r['rebar_base_spacing_in'] . ' in each way, ' . (int) $r['edge_cover_in'] . ' in edge cover, ' . (int) round($r['splice_allowance'] * 100) . '% added for laps.</div></div>';
     }
@@ -467,7 +572,7 @@ class Slab_Calculator_Pages {
         $dep = $s['gravel_depth_range'];
         $o = '<div class="table-responsive"><table class="data-table"><thead><tr><th>Slab</th><th>' . (int) $dep[0] . ' in base</th><th>' . (int) $dep[1] . ' in base</th></tr></thead><tbody>';
         foreach (self::common_sizes() as $sz) {
-            $o .= '<tr><td><strong>' . $sz[0] . ' × ' . $sz[1] . ' ft</strong></td>';
+            $o .= '<tr><td>' . self::size_cell($sz[0], $sz[1]) . '</td>';
             foreach ($dep as $in) {
                 $yd = $sz[0] * $sz[1] * $in / 12 / 27 * $s['gravel_compaction'];
                 $o .= '<td>' . esc_html(Slab_Data::num(round($yd, 1), 1)) . ' yd³ (' . esc_html(Slab_Data::num(round($yd * $s['gravel_tons_per_yd'], 1), 1)) . ' tons)</td>';
@@ -483,7 +588,7 @@ class Slab_Calculator_Pages {
         $o = '<div class="table-responsive"><table class="data-table"><thead><tr><th>Slab</th><th>Area</th><th>Labor (broom finish)</th><th>Crew-hours</th></tr></thead><tbody>';
         foreach (self::common_sizes() as $sz) {
             $a = $sz[0] * $sz[1];
-            $o .= '<tr><td><strong>' . $sz[0] . ' × ' . $sz[1] . ' ft</strong></td><td>' . number_format($a) . ' sq ft</td><td>' . esc_html(Slab_Data::money_range(Slab_Data::round_pair([$a * $lab['sqft_range'][0], $a * $lab['sqft_range'][1]], 10), 0, '–')) . '</td><td>' . (int) round($a * $lab['crew_hours_per_sqft']) . '</td></tr>';
+            $o .= '<tr><td>' . self::size_cell($sz[0], $sz[1]) . '</td><td>' . number_format($a) . ' sq ft</td><td>' . esc_html(Slab_Data::money_range(Slab_Data::round_pair([$a * $lab['sqft_range'][0], $a * $lab['sqft_range'][1]], 10), 0, '–')) . '</td><td>' . (int) round($a * $lab['crew_hours_per_sqft']) . '</td></tr>';
         }
         return $o . '</tbody></table><div class="table-caption">Placing, screeding, finishing, jointing and curing at ' . esc_html(Slab_Data::money_range($lab['sqft_range'], 2, '–')) . ' per sq ft. Concrete, base, forms and rebar are separate.</div></div>';
     }

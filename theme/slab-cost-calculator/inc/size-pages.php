@@ -13,8 +13,11 @@
  * computed sections change with the size (bags or truck, how many trucks,
  * whether the chute reaches, how many joint panels, crew hours).
  *
- * The four sizes that already have full articles (10x10, 12x12, 20x20,
- * 24x24) are not repeated here; the hub links to those articles instead.
+ * 10x10, 12x12, 20x20 and 24x24 used to be blog posts
+ * (/10x10-concrete-slab-cost/ etc.). Search Console (2026-11-22)
+ * showed those posts at position 70-95 while every size page ranked 4-8,
+ * so they are size pages now and the old posts 301 here
+ * (Slab_Architecture_Router::redirect_duplicate_topic_pages()).
  *
  * @package SlabCostCalculator
  */
@@ -25,14 +28,22 @@ if (!defined('ABSPATH')) {
 
 class Slab_Size_Pages {
 
-    /** Sizes covered by full articles; listed on the hub, linked to the article. */
-    public static function article_sizes() {
+    /**
+     * Old article URLs for sizes that are size pages now: slug => post slug.
+     * The posts 301 to the size page and are left out of the sitemaps.
+     */
+    public static function retired_articles() {
         return [
-            '10x10' => [10, 10, 4, 'shed', '/10x10-concrete-slab-cost-breakdown/'],
-            '12x12' => [12, 12, 4, 'patio', '/12x12-concrete-slab-cost-breakdown/'],
-            '20x20' => [20, 20, 4, 'patio', '/20x20-concrete-slab-cost-breakdown/'],
-            '24x24' => [24, 24, 5, 'garage', '/24x24-concrete-slab-cost-breakdown/'],
+            '10x10' => '10x10-concrete-slab-cost-breakdown',
+            '12x12' => '12x12-concrete-slab-cost-breakdown',
+            '20x20' => '20x20-concrete-slab-cost-breakdown',
+            '24x24' => '24x24-concrete-slab-cost-breakdown',
         ];
+    }
+
+    /** Kept for older callers: no size is served by an article any more. */
+    public static function article_sizes() {
+        return [];
     }
 
     /** Project types: what each kind of slab needs. */
@@ -344,6 +355,78 @@ class Slab_Size_Pages {
                 ],
                 'faq' => ['q' => 'How much does a 20x40 concrete driveway cost?', 'a' => 'The installed range on this page is for a 5-inch driveway with forms, #4 rebar and a broom finish. Tear-out of an old driveway, excavation and the street apron are extra.'],
             ],
+            '10x10' => ['l' => 10, 'w' => 10, 't' => 4, 'use' => 'shed',
+                'intro' => 'A 10 × 10 ft slab ({area} sq ft) is one of the most common small slabs: a pad for a prefab shed, a hot tub, a small patio by the back door or a playset. At 4 in thick it takes {order_yd} yd³ with waste, about {bags80} bags of 80-lb mix, which is under the point where a ready-mix truck pays for itself, so most people pour it from bags.',
+                'notes' => [
+                    'A 10 × 10 is under the 120 sq ft limit many towns use for permit-free sheds, but zoning setbacks from the property line still apply.',
+                    'No control joint is strictly needed at 4 in, but one cut each way through the middle (four 5 × 5 ft panels) keeps any crack straight and out of sight.',
+                    'For a hot tub, keep the top dead level and check whether the tub maker asks for 6 in; for a shed or patio, slope it about 1/8 in per foot so rain runs off.',
+                ],
+                'faq' => ['q' => 'How many 80-lb bags of concrete for a 10x10 slab?', 'a' => 'At 4 inches thick, {bags80} bags of 80-lb mix with waste ({wst4} cubic yards). At 6 inches it is {net6} cubic yards net, which is close to where a small ready-mix load costs the same as bags.'],
+            ],
+            '12x12' => ['l' => 12, 'w' => 12, 't' => 4, 'use' => 'patio',
+                'intro' => 'A 12 × 12 ft slab ({area} sq ft) is the standard small patio: a table for four and a grill, or a square shed or gazebo floor. At 4 in thick it needs {order_yd} yd³ with waste, about {bags80} bags of 80-lb mix, which puts it right at the point where bags and a small ready-mix load cost about the same.',
+                'notes' => [
+                    'Slope a patio away from the house about 1/4 in per foot, so the 12-ft depth drops about 3 in from the wall to the edge.',
+                    'Cut one control joint each way through the middle; four 6 × 6 ft panels are square, which is what keeps random cracks away.',
+                    'A stamped or colored finish adds the most per square foot on small patios; the stamped row in the cost section shows the price for this size.',
+                ],
+                'faq' => ['q' => 'Is a 12x12 patio big enough for a table and chairs?', 'a' => 'Yes for a round or square table for four with room to pull chairs out. For a table for six plus a grill, look at 12 x 15 or 12 x 20 ft.'],
+            ],
+            '20x20' => ['l' => 20, 'w' => 20, 't' => 4, 'use' => 'patio',
+                'intro' => 'A 20 × 20 ft slab ({area} sq ft) is a large patio with dining and seating areas, a detached two-car parking pad, or the floor of a small two-car garage. At 4 in it takes {order_yd} yd³ with waste; garage floors are poured 5 in thick, which takes {wst5} yd³, so check the thickness table before you order.',
+                'notes' => [
+                    'If cars will park on it or a garage will sit on it, pour 5 in with #4 rebar and price the 5-in row below, not the 4-in patio figure.',
+                    'At 20 ft wide the truck chute reaches about halfway from one side. Plan access on two sides, a wheelbarrow crew or a line pump.',
+                    'Mark the control joints on the forms before the pour: a 4-in slab this size is cut into panels of about 10 × 10 ft.',
+                ],
+                'faq' => ['q' => 'How many yards of concrete for a 20x20 slab?', 'a' => 'At 4 inches thick, {net4} cubic yards net and {wst4} with waste, so order {rm4} yards. At 5 inches (garage floor) it is {net5} net, order {rm5}; at 6 inches, {net6} net.'],
+            ],
+            '24x24' => ['l' => 24, 'w' => 24, 't' => 5, 'use' => 'garage',
+                'intro' => 'A 24 × 24 ft slab ({area} sq ft) is the standard two-car garage: two cars with room to open doors and walk around them. Garage floors are poured 5 in thick with #4 rebar, which takes {order_yd} yd³ with waste, usually {trucks_text}, and the walls need a thickened edge or footings, priced separately below.',
+                'notes' => [
+                    'Use 3,500 PSI air-entrained concrete in freeze-thaw areas (the code minimum for garage floors), and 4,000 PSI if salty cars park inside.',
+                    'Slope the floor toward the overhead door about 1/8 in per foot so melting snow and wash water drain out.',
+                    'Put a 10-mil vapor barrier under the slab if the garage may ever be heated, finished or turned into living space.',
+                ],
+                'faq' => ['q' => 'How much does a 24x24 garage slab cost with a thickened edge?', 'a' => 'The installed range on this page is for a 5-inch floating slab. A monolithic thickened edge under the walls adds the concrete and cost shown in the cost section, plus trenching; a stem wall on footings costs more again in frost areas.'],
+            ],
+            '25x25' => ['l' => 25, 'w' => 25, 't' => 5, 'use' => 'garage',
+                'intro' => 'A 25 × 25 ft slab ({area} sq ft) is a roomy two-car garage, a foot wider each way than the standard 24 × 24, or a large square patio. Poured 5 in thick for a garage it takes {order_yd} yd³ with waste ({trucks_text}); a 4-in patio needs {wst4} yd³.',
+                'notes' => [
+                    'Garage floor: 5 in thick, #4 rebar at 18 in, 3,500 PSI air-entrained where it freezes, and a slope to the door of about 1/8 in per foot.',
+                    'A 25-ft span is past the chute\'s reach from one side; plan truck access on two sides or a pump.',
+                    'The walls need a thickened edge or footings; the cost section shows the thickened-edge add-on.',
+                ],
+                'faq' => ['q' => 'How much concrete for a 25x25 slab?', 'a' => 'At 4 inches, {net4} cubic yards net ({wst4} with waste). At 5 inches, {net5} net and {wst5} with waste, so order {rm5} yards. At 6 inches, {net6} net.'],
+            ],
+            '50x100' => ['l' => 100, 'w' => 50, 't' => 6, 'use' => 'shop',
+                'intro' => 'A 50 × 100 ft slab ({area} sq ft) is a big pole barn, a farm machine shed or a small commercial floor. At 6 in it takes {order_yd} yd³ with waste in {trucks} truckloads, so it is poured in sections over several days, with a pump or laser screed and a full finishing crew each day.',
+                'notes' => [
+                    'A slab this size should be engineered with the building: column footings, door openings, the joint plan and any floor drains all interact.',
+                    'Ask for bids per square foot and per pour section; small price differences per yard add up to thousands of dollars at this volume.',
+                    'Plan the pour sections on control-joint lines with doweled construction joints, and agree on the curing method in the bid.',
+                ],
+                'faq' => ['q' => 'How many yards of concrete for a 50x100 slab?', 'a' => 'At 6 inches thick, {net6} cubic yards net and {wst6} with waste, which is {trucks} truckloads. At 4 inches it is {net4} net; at 5 inches, {net5} net.'],
+            ],
+            '60x80' => ['l' => 80, 'w' => 60, 't' => 6, 'use' => 'shop',
+                'intro' => 'A 60 × 80 ft slab ({area} sq ft) is a large shop, equipment building or barndominium floor. At 6 in it is {order_yd} yd³ with waste in {trucks} truckloads, a multi-day pour that needs an engineered joint plan, a pump or buggies to reach the middle, and power trowels.',
+                'notes' => [
+                    'The middle of a 60-ft-wide slab is far out of chute reach; budget a boom pump or a laser screed crew.',
+                    'Barndominiums and heated shops need a vapor barrier and, where it freezes, perimeter insulation; add them before pricing.',
+                    'Compare at least three ready-mix suppliers and ask for a volume price; at this size the concrete is most of the bill.',
+                ],
+                'faq' => ['q' => 'How much does a 60x80 concrete slab cost?', 'a' => 'The installed range on this page is for a 6-inch slab with forms, vapor barrier, #4 rebar and a broom finish at national average prices. Site work, gravel, footings, a pump and any engineering are extra; the 4 and 5-inch prices are in the thickness table.'],
+            ],
+            '60x100' => ['l' => 100, 'w' => 60, 't' => 6, 'use' => 'shop',
+                'intro' => 'A 60 × 100 ft slab ({area} sq ft) is a commercial-size pole barn, riding arena aisle building or warehouse floor. At 6 in it takes {order_yd} yd³ with waste in {trucks} truckloads, poured in sections over several days with a pump or laser screed.',
+                'notes' => [
+                    'Get the slab designed with the building, and ask whether the soils need testing before the base goes in.',
+                    'Heavy equipment and loaded trucks call for 4,000 PSI with #4 rebar at 12 in, or a thicker slab where an engineer specifies it.',
+                    'At {area} sq ft, curing and joint timing matter as much as the concrete: agree on curing compound or wet curing and early-entry saws in the bid.',
+                ],
+                'faq' => ['q' => 'How many yards of concrete for a 60x100 slab?', 'a' => 'At 6 inches thick, {net6} cubic yards net and {wst6} with waste, about {trucks} truckloads. At 4 inches it is {net4} net; at 5 inches, {net5} net.'],
+            ],
         ];
     }
 
@@ -460,6 +543,7 @@ class Slab_Size_Pages {
             '{rm5}' => Slab_Data::num($d['by_t'][5]['ready_mix_yd']),
             '{rm6}' => Slab_Data::num($d['by_t'][6]['ready_mix_yd']),
             '{trucks}' => (string) $d['bvt']['trucks'],
+            '{trucks_text}' => $d['bvt']['trucks'] . ($d['bvt']['trucks'] === 1 ? ' ready-mix truck' : ' ready-mix trucks'),
             '{panels}' => (string) ($d['joints']['panels_l'] * $d['joints']['panels_w']),
             '{stamped_range}' => Slab_Data::mr('finish.stamped.range', 0, ' to '),
             '{broom_range}' => Slab_Data::mr('finish.broom.range', 2, ' to '),
@@ -474,16 +558,32 @@ class Slab_Size_Pages {
 
     /**
      * <title> leads with the installed price so the search snippet answers
-     * the query ("16x20 concrete slab cost") before the click. Falls back
-     * to the shorter form if a large range would push it past 60 chars.
+     * the query ("16x20 concrete slab cost") before the click, and ends in
+     * "Calculator" because searchers add it ("30x30 concrete slab cost
+     * calculator", Search Console 2026-11-22). Shorter forms keep it to 60.
      */
     public static function title($size) {
         $d = self::data($size);
-        $t = $size . ' Concrete Slab Cost: ' . Slab_Data::money_range($d['installed'], 0, '–') . ' Installed (2026)';
-        if (mb_strlen($t) > 60) {
-            $t = $size . ' Concrete Slab Cost: ' . Slab_Data::money_range($d['installed'], 0, '–') . ' (2026)';
+        $r = Slab_Data::money_range($d['installed'], 0, '–');
+        foreach ([
+            $size . ' Concrete Slab Cost: ' . $r . ' (2026 Calculator)',
+            $size . ' Slab Cost: ' . $r . ' (2026 Calculator)',
+            $size . ' Concrete Slab Cost: ' . $r . ' (2026)',
+        ] as $t) {
+            if (mb_strlen($t) <= 60) {
+                return $t;
+            }
         }
-        return $t;
+        return $size . ' Slab Cost: ' . $r . ' (2026)';
+    }
+
+    /** "4 in: $a–$b · 5 in: … · 6 in: …" for the quick answer and FAQ. */
+    public static function thickness_prices($d, $sep = '; ') {
+        $out = [];
+        foreach ($d['by_t'] as $th => $r) {
+            $out[] = $th . ' in: ' . Slab_Data::money_range($r['installed'], 0, '–');
+        }
+        return implode($sep, $out);
     }
 
     /**
@@ -494,10 +594,6 @@ class Slab_Size_Pages {
         foreach ([$a . 'x' . $b, $b . 'x' . $a] as $key) {
             if (self::exists($key)) {
                 return self::path($key);
-            }
-            $art = self::article_sizes();
-            if (isset($art[$key])) {
-                return $art[$key][4];
             }
         }
         return null;
@@ -539,6 +635,16 @@ class Slab_Size_Pages {
                     Slab_Data::money_range(Slab_Data::round_out($d['installed_psf'], 0.5), 2, ' to '),
                     Slab_Data::money_range($d['diy'], 0, ' to '),
                     Slab_Data::money_range($d['site_prep'], 0, ' to ')
+                ),
+            ],
+            [
+                'q' => "How much does a {$size} slab cost at 4, 5 and 6 inches thick?",
+                'a' => sprintf(
+                    'Installed with forms, #4 rebar, a broom finish and labor at U.S. average prices: about %s at 4 inches, %s at 5 inches and %s at 6 inches. Each extra inch adds about %s yd³ of concrete. Use 4 inches for patios and sheds, 5 for garages and driveways, 6 for shops and heavy trucks.',
+                    Slab_Data::money_range($bt[4]['installed'], 0, ' to '),
+                    Slab_Data::money_range($bt[5]['installed'], 0, ' to '),
+                    Slab_Data::money_range($bt[6]['installed'], 0, ' to '),
+                    number_format($bt[5]['net_yd'] - $bt[4]['net_yd'], 2)
                 ),
             ],
             [
@@ -591,9 +697,6 @@ class Slab_Size_Pages {
         $rows = [];
         foreach (self::sizes() as $size => $s) {
             $rows[] = ['size' => $size, 'l' => $s['l'], 'w' => $s['w'], 't' => $s['t'], 'use' => $s['use'], 'url' => self::path($size)];
-        }
-        foreach (self::article_sizes() as $size => $a) {
-            $rows[] = ['size' => $size, 'l' => $a[0], 'w' => $a[1], 't' => $a[2], 'use' => $a[3], 'url' => $a[4]];
         }
         usort($rows, function ($a, $b) {
             return $a['l'] * $a['w'] <=> $b['l'] * $b['w'];

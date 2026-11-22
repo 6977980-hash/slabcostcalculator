@@ -32,10 +32,27 @@ class Slab_Sitemap_Generator {
      * would hand crawlers "submitted URL redirected" warnings.
      */
     public static function exclude_redirected_pages_from_core_sitemap($args, $post_type) {
+        if ($post_type === 'post') {
+            // Size posts that now 301 to a size page.
+            $ids = [];
+            foreach (Slab_Size_Pages::retired_articles() as $slug) {
+                $p = get_page_by_path($slug, OBJECT, 'post');
+                if ($p) {
+                    $ids[] = $p->ID;
+                }
+            }
+            if ($ids) {
+                $existing = isset($args['post__not_in']) && is_array($args['post__not_in']) ? $args['post__not_in'] : [];
+                $args['post__not_in'] = array_merge($existing, $ids);
+            }
+            return $args;
+        }
         if ($post_type !== 'page') {
             return $args;
         }
 
+        // The four NxN Pages are shadowed by the size-page route; the hubs
+        // sitemap lists those URLs once.
         $redirected_page_slugs = [
             '10x10-concrete-slab-cost', '12x12-concrete-slab-cost',
             '20x20-concrete-slab-cost', '24x24-concrete-slab-cost',

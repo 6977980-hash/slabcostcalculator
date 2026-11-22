@@ -22,7 +22,7 @@ $short_k = function ($n) {
 };
 $size_links = [];
 // The four size articles plus the most searched size pages (inc/size-pages.php).
-foreach ([[10, 10, '/10x10-concrete-slab-cost-breakdown/'], [12, 16, null], [20, 20, '/20x20-concrete-slab-cost-breakdown/'], [24, 24, '/24x24-concrete-slab-cost-breakdown/'], [30, 40, null], [40, 60, null]] as $sz) {
+foreach ([[10, 10, '/10x10-concrete-slab-cost/'], [12, 16, null], [20, 20, '/20x20-concrete-slab-cost/'], [24, 24, '/24x24-concrete-slab-cost/'], [30, 40, null], [40, 60, null]] as $sz) {
     $key = $sz[0] . 'x' . $sz[1];
     $info = Slab_Size_Pages::exists($key) ? Slab_Size_Pages::sizes()[$key] : null;
     $c = Slab_Data::size_costs($sz[0], $sz[1], $info ? $info['t'] : 4);
